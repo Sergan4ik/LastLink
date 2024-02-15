@@ -33,33 +33,29 @@ namespace Game
                 var newScroll = Mathf.Clamp(currentCamera.transform.position.y - scrollDelta, scrollLimits.x, scrollLimits.y);
                 currentCamera.transform.position = new Vector3(currentCamera.transform.position.x, newScroll, currentCamera.transform.position.z);
             }
-
-            if (Mouse.current.rightButton.wasPressedThisFrame)
+        }
+        
+        public bool TryGetWorldMousePosition(out Vector3 worldMousePosition)
+        {
+            var ray = currentCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+            if (Physics.Raycast(ray, out var hit, 99999999, 1 << LayerMask.NameToLayer("Ground")))
             {
-                OnTerrainClick();
+                worldMousePosition = hit.point;
+                return true;
+            }
+            else
+            {
+                worldMousePosition = Vector3.negativeInfinity;
+                return false;
             }
         }
-
-        private void OnTerrainClick()
-        {
-            var go = Instantiate(Resources.Load<GameObject>("PointMark"), worldMousePosition, Quaternion.identity);
-            Destroy(go, 1);
-        }
-
+        
         public Vector3 worldMousePosition
         {
             get
             {
-                var ray = currentCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
-                Debug.DrawLine(ray.origin, ray.origin + ray.direction * 100f ,Color.red, 0.5f);
-                if (Physics.Raycast(ray, out var hit, 99999999, 1 << LayerMask.NameToLayer("Ground")))
-                {
-                    return hit.point;
-                }
-                else
-                {
-                    return Vector3.negativeInfinity;
-                }
+                TryGetWorldMousePosition(out var pos);
+                return pos;
             }
         }
     }
