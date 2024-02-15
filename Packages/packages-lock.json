@@ -1,13 +1,12 @@
 {
   "dependencies": {
     "com.celeriedaway.zergrush": {
-      "version": "https://github.com/CeleriedAway/ZergRush.git",
+      "version": "file:ZergRush",
       "depth": 0,
-      "source": "git",
+      "source": "embedded",
       "dependencies": {
         "jillejr.newtonsoft.json-for-unity": "13.0.102"
-      },
-      "hash": "47a51ca88e67d1ac55629935705f8b02a524a508"
+      }
     },
     "com.unity.ai.navigation": {
       "version": "2.0.0",
