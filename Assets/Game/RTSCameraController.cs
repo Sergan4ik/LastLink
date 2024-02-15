@@ -18,7 +18,7 @@ namespace Game
         private static readonly float maxPossibleMoveDelta = 70.1f;
         public void Update()
         {
-            if (Mouse.current.middleButton.isPressed)
+            if (Mouse.current.middleButton.isPressed || Keyboard.current.altKey.isPressed)
             {
                 var move = new Vector3(Mouse.current.delta.x.ReadValue(), 0, Mouse.current.delta.y.ReadValue());
                 float curveModifier = moveSpeedCurve.Evaluate(move.magnitude / maxPossibleMoveDelta);

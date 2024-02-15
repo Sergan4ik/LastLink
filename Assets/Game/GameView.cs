@@ -21,6 +21,8 @@ public class GameView : ConnectableMonoBehaviour
     public IntervalRepeater gameTicker = new IntervalRepeater();
 
     public PlayerInput input;
+    public SelectionHandler selectionHandler;
+    
     public Connections gameConnections = new Connections();
     public void Awake()
     {
@@ -32,15 +34,20 @@ public class GameView : ConnectableMonoBehaviour
     private void OnEnable()
     {
         input.RTS.SecondaryAction.performed += OnSecondaryAction;
+        input.RTS.UnitSelection.started += selectionHandler.SelectionProcess;
+        input.RTS.UnitSelection.canceled += selectionHandler.SelectionProcess;
     }
-    
+
     private void OnDisable()
     {
         input.RTS.SecondaryAction.performed -= OnSecondaryAction;
+        input.RTS.UnitSelection.started -= selectionHandler.SelectionProcess;
+        input.RTS.UnitSelection.canceled -= selectionHandler.SelectionProcess;
     }
-
+    
     private void OnSecondaryAction(InputAction.CallbackContext ctx)
     {
+        Debug.Log($"{ctx.duration} seconds passed since the button was pressed");
         if (game != null && game.gameState.value == GameState.InProgress)
         {
             if (cameraController.TryGetWorldMousePosition(out var worldMousePosition) == false) return;
@@ -86,6 +93,15 @@ public class GameView : ConnectableMonoBehaviour
         {
             new Unit()
             {
+                moveSpeed = 15,
+                transform = new RTSTransform()
+                {
+                    position = new Cell<Vector3>(new Vector3(0, 0, 5)),
+                    rotation = new Cell<Quaternion>(Quaternion.identity)
+                }
+            },
+            new Unit()
+            {
                 moveSpeed = 5,
                 transform = new RTSTransform()
                 {
@@ -119,7 +135,7 @@ public class GameView : ConnectableMonoBehaviour
                     position = new Cell<Vector3>(new Vector3(3, 0, 3)),
                     rotation = new Cell<Quaternion>(Quaternion.identity)
                 }
-            }
+            },
         });
         game.GameStart();
 
@@ -155,6 +171,8 @@ public class GameView : ConnectableMonoBehaviour
         {
             gameTicker.Update(Time.deltaTime);
         }
+        
+        selectionHandler.SelectionTick(input.RTS.UnitSelection);
     }
 }
 

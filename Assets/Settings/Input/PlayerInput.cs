@@ -46,6 +46,15 @@ namespace Game
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""UnitSelection"",
+                    ""type"": ""Button"",
+                    ""id"": ""99204107-23e4-4721-bcbe-d607e8d496d6"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -70,6 +79,17 @@ namespace Game
                     ""action"": ""SecondaryAction"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e37cf597-d7f7-40ed-84a6-a84e7b9d3730"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""UnitSelection"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -86,6 +106,7 @@ namespace Game
             m_RTS = asset.FindActionMap("RTS", throwIfNotFound: true);
             m_RTS_MainAction = m_RTS.FindAction("MainAction", throwIfNotFound: true);
             m_RTS_SecondaryAction = m_RTS.FindAction("SecondaryAction", throwIfNotFound: true);
+            m_RTS_UnitSelection = m_RTS.FindAction("UnitSelection", throwIfNotFound: true);
         }
 
         public void Dispose()
@@ -149,12 +170,14 @@ namespace Game
         private List<IRTSActions> m_RTSActionsCallbackInterfaces = new List<IRTSActions>();
         private readonly InputAction m_RTS_MainAction;
         private readonly InputAction m_RTS_SecondaryAction;
+        private readonly InputAction m_RTS_UnitSelection;
         public struct RTSActions
         {
             private @PlayerInput m_Wrapper;
             public RTSActions(@PlayerInput wrapper) { m_Wrapper = wrapper; }
             public InputAction @MainAction => m_Wrapper.m_RTS_MainAction;
             public InputAction @SecondaryAction => m_Wrapper.m_RTS_SecondaryAction;
+            public InputAction @UnitSelection => m_Wrapper.m_RTS_UnitSelection;
             public InputActionMap Get() { return m_Wrapper.m_RTS; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -170,6 +193,9 @@ namespace Game
                 @SecondaryAction.started += instance.OnSecondaryAction;
                 @SecondaryAction.performed += instance.OnSecondaryAction;
                 @SecondaryAction.canceled += instance.OnSecondaryAction;
+                @UnitSelection.started += instance.OnUnitSelection;
+                @UnitSelection.performed += instance.OnUnitSelection;
+                @UnitSelection.canceled += instance.OnUnitSelection;
             }
 
             private void UnregisterCallbacks(IRTSActions instance)
@@ -180,6 +206,9 @@ namespace Game
                 @SecondaryAction.started -= instance.OnSecondaryAction;
                 @SecondaryAction.performed -= instance.OnSecondaryAction;
                 @SecondaryAction.canceled -= instance.OnSecondaryAction;
+                @UnitSelection.started -= instance.OnUnitSelection;
+                @UnitSelection.performed -= instance.OnUnitSelection;
+                @UnitSelection.canceled -= instance.OnUnitSelection;
             }
 
             public void RemoveCallbacks(IRTSActions instance)
@@ -210,6 +239,7 @@ namespace Game
         {
             void OnMainAction(InputAction.CallbackContext context);
             void OnSecondaryAction(InputAction.CallbackContext context);
+            void OnUnitSelection(InputAction.CallbackContext context);
         }
     }
 }

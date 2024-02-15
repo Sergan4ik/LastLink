@@ -30,11 +30,21 @@ namespace Game.GameModel
             if (isDirectionalMove)
             {
                 Vector3 direction = (destination - transform.position.value).normalized;
+                if (direction.sqrMagnitude < 0.9f) yield break;
+                
+                Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0 , direction.z));
                 while ((transform.position.value - destination).sqrMagnitude > DISTANCE_THRESHOLD * DISTANCE_THRESHOLD)
                 {
                     float dist = moveSpeed * GameModel.FrameTime;
-                    transform.position.value += direction * dist;
-                    logger.Log($"Pos {transform.position.value} , Dest {destination}, moved dist {dist}");
+                    if ((destination - transform.Position).sqrMagnitude > dist * dist)
+                    {
+                        transform.position.value += direction * dist;
+                        transform.rotation.value = lookRotation;
+                    }
+                    else
+                    {
+                        transform.position.value = destination;
+                    }
                     yield return CoroutineEngine.SkipFrame;
                 }
                 
