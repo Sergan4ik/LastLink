@@ -23,11 +23,11 @@ namespace Game.NodeArchitecture {
         static Func<ContextNode> [] polymorphConstructors = new Func<ContextNode> [] {
             () => null, // 0
             () => new Game.NodeArchitecture.ContextNode(), // 1
-            () => new Game.GameModel.Faction(), // 2
-            () => new Game.GameModel.GameModel(), // 3
-            () => new Game.GameModel.RTSContextNode(), // 4
-            () => new Game.GameModel.RTSContextRoot(), // 5
-            () => new Game.GameModel.Unit(), // 6
+            () => new Game.GameCore.Faction(), // 2
+            () => new Game.GameCore.GameModel(), // 3
+            () => new Game.GameCore.RTSContextNode(), // 4
+            () => new Game.GameCore.RTSContextRoot(), // 5
+            () => new Game.GameCore.Unit(), // 6
             () => new Game.NodeArchitecture.ContextRoot(), // 7
         };
         public static ContextNode CreatePolymorphic(System.UInt16 typeId) {

@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Game;
-using Game.GameModel;
+using Game.GameCore;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -45,11 +45,11 @@ public class GameView : ConnectableMonoBehaviour
         {
             if (cameraController.TryGetWorldMousePosition(out var worldMousePosition) == false) return;
             OnTerrainClick();
-            QueueAction(gm =>
-            {
-                var unit = gm.allUnits[0];
-                return unit.MoveTo(worldMousePosition, false);
-            });
+            // QueueAction(gm =>
+            // {
+            //     var unit = gm.allUnits[0];
+            //     return unit.MoveTo(worldMousePosition, false);
+            // });
         }
     }
     
@@ -57,15 +57,6 @@ public class GameView : ConnectableMonoBehaviour
     {
         var go = Instantiate(Resources.Load<GameObject>("PointMark"), cameraController.worldMousePosition, Quaternion.identity);
         Destroy(go, 1);
-    }
-
-    [HideInInspector]
-    public Cell<int> commandIndex;
-    public void QueueAction(Func<GameModel, IEnumerator> action)
-    {
-        game.engine.Queue(() => action(game));
-        
-        commandIndex.value++;
     }
 
     private void Start()

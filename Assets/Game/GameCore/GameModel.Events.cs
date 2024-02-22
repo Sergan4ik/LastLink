@@ -1,6 +1,6 @@
 using ZergRush.ReactiveCore;
 
-namespace Game.GameModel
+namespace Game.GameCore
 {
     public partial class GameModel
     {

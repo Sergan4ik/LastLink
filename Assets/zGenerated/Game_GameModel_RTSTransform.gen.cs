@@ -6,14 +6,14 @@ using ZergRush;
 using System.IO;
 using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
-namespace Game.GameModel {
+namespace Game.GameCore {
 
-    public partial class RTSTransform : IUpdatableFrom<Game.GameModel.RTSTransform>, IUpdatableFrom<Game.GameModel.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameModel.RTSRuntimeData>, IJsonSerializable
+    public partial class RTSTransform : IUpdatableFrom<RTSTransform>, IUpdatableFrom<RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<RTSRuntimeData>, IJsonSerializable
     {
-        public override void UpdateFrom(Game.GameModel.RTSRuntimeData other, ZRUpdateFromHelper __helper) 
+        public override void UpdateFrom(RTSRuntimeData other, ZRUpdateFromHelper __helper) 
         {
             base.UpdateFrom(other,__helper);
-            var otherConcrete = (Game.GameModel.RTSTransform)other;
+            var otherConcrete = (RTSTransform)other;
             var __position = position.value;
             __position.UpdateFrom(otherConcrete.position.value, __helper);
             position.value = __position;
@@ -21,9 +21,9 @@ namespace Game.GameModel {
             __rotation.UpdateFrom(otherConcrete.rotation.value, __helper);
             rotation.value = __rotation;
         }
-        public void UpdateFrom(Game.GameModel.RTSTransform other, ZRUpdateFromHelper __helper) 
+        public void UpdateFrom(RTSTransform other, ZRUpdateFromHelper __helper) 
         {
-            this.UpdateFrom((Game.GameModel.RTSRuntimeData)other, __helper);
+            this.UpdateFrom((RTSRuntimeData)other, __helper);
         }
         public override void Deserialize(ZRBinaryReader reader) 
         {
@@ -49,10 +49,10 @@ namespace Game.GameModel {
             hash += hash << 11; hash ^= hash >> 7;
             return hash;
         }
-        public override void CompareCheck(Game.GameModel.RTSRuntimeData other, ZRCompareCheckHelper __helper, Action<string> printer) 
+        public override void CompareCheck(RTSRuntimeData other, ZRCompareCheckHelper __helper, Action<string> printer) 
         {
             base.CompareCheck(other,__helper,printer);
-            var otherConcrete = (Game.GameModel.RTSTransform)other;
+            var otherConcrete = (RTSTransform)other;
             __helper.Push("position");
             position.value.CompareCheck(otherConcrete.position.value, __helper, printer);
             __helper.Pop();

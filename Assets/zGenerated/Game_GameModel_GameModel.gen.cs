@@ -6,37 +6,34 @@ using ZergRush;
 using System.IO;
 using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
-namespace Game.GameModel {
+namespace Game.GameCore {
 
-    public partial class GameModel : IUpdatableFrom<Game.GameModel.GameModel>, IUpdatableFrom<Game.NodeArchitecture.ContextNode>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.NodeArchitecture.ContextNode>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class GameModel : IUpdatableFrom<GameModel>, IUpdatableFrom<Game.NodeArchitecture.ContextNode>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.NodeArchitecture.ContextNode>, IJsonSerializable, IPolymorphable, ICloneInst
     {
         public override void UpdateFrom(Game.NodeArchitecture.ContextNode other, ZRUpdateFromHelper __helper) 
         {
             base.UpdateFrom(other,__helper);
-            var otherConcrete = (Game.GameModel.GameModel)other;
-            engine.UpdateFrom(otherConcrete.engine, __helper);
+            var otherConcrete = (GameModel)other;
             factions.UpdateFrom(otherConcrete.factions, __helper);
             gameState.value = otherConcrete.gameState.value;
             onGameStarted.UpdateFrom(otherConcrete.onGameStarted, __helper);
             random.UpdateFrom(otherConcrete.random, __helper);
         }
-        public void UpdateFrom(Game.GameModel.GameModel other, ZRUpdateFromHelper __helper) 
+        public void UpdateFrom(GameModel other, ZRUpdateFromHelper __helper) 
         {
             this.UpdateFrom((Game.NodeArchitecture.ContextNode)other, __helper);
         }
         public override void Deserialize(ZRBinaryReader reader) 
         {
             base.Deserialize(reader);
-            engine.Deserialize(reader);
             factions.Deserialize(reader);
-            gameState.value = reader.ReadEnum<Game.GameModel.GameState>();
+            gameState.value = reader.ReadEnum<GameState>();
             onGameStarted.Deserialize(reader);
             random.Deserialize(reader);
         }
         public override void Serialize(ZRBinaryWriter writer) 
         {
             base.Serialize(writer);
-            engine.Serialize(writer);
             factions.Serialize(writer);
             writer.Write((Int32)gameState.value);
             onGameStarted.Serialize(writer);
@@ -47,8 +44,6 @@ namespace Game.GameModel {
             var baseVal = base.CalculateHash(__helper);
             System.UInt64 hash = baseVal;
             hash ^= (ulong)624014821;
-            hash += hash << 11; hash ^= hash >> 7;
-            hash += engine.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
             hash += factions.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
@@ -62,19 +57,15 @@ namespace Game.GameModel {
         }
         public  GameModel() 
         {
-            engine = new CoroutineEngine();
-            factions = new ZergRush.ReactiveCore.ReactiveCollection<Game.GameModel.Faction>();
-            gameState = new ZergRush.ReactiveCore.Cell<Game.GameModel.GameState>();
+            factions = new ZergRush.ReactiveCore.ReactiveCollection<Faction>();
+            gameState = new ZergRush.ReactiveCore.Cell<GameState>();
             onGameStarted = new ZergRush.ReactiveCore.EventStream();
             random = new ZergRush.ZergRandom();
         }
         public override void CompareCheck(Game.NodeArchitecture.ContextNode other, ZRCompareCheckHelper __helper, Action<string> printer) 
         {
             base.CompareCheck(other,__helper,printer);
-            var otherConcrete = (Game.GameModel.GameModel)other;
-            __helper.Push("engine");
-            engine.CompareCheck(otherConcrete.engine, __helper, printer);
-            __helper.Pop();
+            var otherConcrete = (GameModel)other;
             __helper.Push("factions");
             factions.CompareCheck(otherConcrete.factions, __helper, printer);
             __helper.Pop();
@@ -91,14 +82,11 @@ namespace Game.GameModel {
             if (base.ReadFromJsonField(reader, __name)) return true;
             switch(__name)
             {
-                case "engine":
-                engine.ReadFromJson(reader);
-                break;
                 case "factions":
                 factions.ReadFromJson(reader);
                 break;
                 case "gameState":
-                gameState.value = ((string)reader.Value).ParseEnum<Game.GameModel.GameState>();
+                gameState.value = ((string)reader.Value).ParseEnum<GameState>();
                 break;
                 case "onGameStarted":
                 onGameStarted.ReadFromJson(reader);
@@ -113,8 +101,6 @@ namespace Game.GameModel {
         public override void WriteJsonFields(ZRJsonTextWriter writer) 
         {
             base.WriteJsonFields(writer);
-            writer.WritePropertyName("engine");
-            engine.WriteJson(writer);
             writer.WritePropertyName("factions");
             factions.WriteJson(writer);
             writer.WritePropertyName("gameState");

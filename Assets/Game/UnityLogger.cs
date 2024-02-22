@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using ILogger = Game.GameModel.ILogger;
+using ILogger = Game.GameCore.ILogger;
 
 public class UnityLogger : ILogger
 {

@@ -6,16 +6,16 @@ using ZergRush;
 using System.IO;
 using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
-namespace Game.GameModel {
+namespace Game.GameCore {
 
-    public partial class RTSContextRoot : IUpdatableFrom<Game.GameModel.RTSContextRoot>, IUpdatableFrom<Game.NodeArchitecture.ContextNode>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.NodeArchitecture.ContextNode>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class RTSContextRoot : IUpdatableFrom<RTSContextRoot>, IUpdatableFrom<Game.NodeArchitecture.ContextNode>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.NodeArchitecture.ContextNode>, IJsonSerializable, IPolymorphable, ICloneInst
     {
         public override void UpdateFrom(Game.NodeArchitecture.ContextNode other, ZRUpdateFromHelper __helper) 
         {
             base.UpdateFrom(other,__helper);
-            var otherConcrete = (Game.GameModel.RTSContextRoot)other;
+            var otherConcrete = (RTSContextRoot)other;
         }
-        public void UpdateFrom(Game.GameModel.RTSContextRoot other, ZRUpdateFromHelper __helper) 
+        public void UpdateFrom(RTSContextRoot other, ZRUpdateFromHelper __helper) 
         {
             this.UpdateFrom((Game.NodeArchitecture.ContextNode)other, __helper);
         }

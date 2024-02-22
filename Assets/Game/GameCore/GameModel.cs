@@ -6,7 +6,7 @@ using ZergRush;
 using ZergRush.CodeGen;
 using ZergRush.ReactiveCore;
 
-namespace Game.GameModel
+namespace Game.GameCore
 {
     public partial class RTSContextRoot : ContextRoot { }
 
@@ -33,7 +33,6 @@ namespace Game.GameModel
         public const int TargetFps = 60;
         public const float FrameTime = 1.0f / TargetFps;
         
-        public CoroutineEngine engine;
         public ReactiveCollection<Faction> factions;
         public ZergRandom random;
 
@@ -68,8 +67,6 @@ namespace Game.GameModel
             if (Math.Abs(dt - FrameTime) > 1e-5 && dt > 0)
                 Debug.LogError("Frame time is not equal to target frame time");
             
-            engine.Update(dt);
-
             for (var i = 0; i < factions.Count; i++)
             {
                 factions[i].Tick(dt);

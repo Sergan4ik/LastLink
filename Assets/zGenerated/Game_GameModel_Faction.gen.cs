@@ -6,25 +6,25 @@ using ZergRush;
 using System.IO;
 using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
-namespace Game.GameModel {
+namespace Game.GameCore {
 
-    public partial class Faction : IUpdatableFrom<Game.GameModel.Faction>, IUpdatableFrom<Game.NodeArchitecture.ContextNode>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.NodeArchitecture.ContextNode>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class Faction : IUpdatableFrom<Faction>, IUpdatableFrom<Game.NodeArchitecture.ContextNode>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.NodeArchitecture.ContextNode>, IJsonSerializable, IPolymorphable, ICloneInst
     {
         public override void UpdateFrom(Game.NodeArchitecture.ContextNode other, ZRUpdateFromHelper __helper) 
         {
             base.UpdateFrom(other,__helper);
-            var otherConcrete = (Game.GameModel.Faction)other;
+            var otherConcrete = (Faction)other;
             factionType = otherConcrete.factionType;
             units.UpdateFrom(otherConcrete.units, __helper);
         }
-        public void UpdateFrom(Game.GameModel.Faction other, ZRUpdateFromHelper __helper) 
+        public void UpdateFrom(Faction other, ZRUpdateFromHelper __helper) 
         {
             this.UpdateFrom((Game.NodeArchitecture.ContextNode)other, __helper);
         }
         public override void Deserialize(ZRBinaryReader reader) 
         {
             base.Deserialize(reader);
-            factionType = reader.ReadEnum<Game.GameModel.FactionType>();
+            factionType = reader.ReadEnum<FactionType>();
             units.Deserialize(reader);
         }
         public override void Serialize(ZRBinaryWriter writer) 
@@ -47,12 +47,12 @@ namespace Game.GameModel {
         }
         public  Faction() 
         {
-            units = new ZergRush.ReactiveCore.ReactiveCollection<Game.GameModel.Unit>();
+            units = new ZergRush.ReactiveCore.ReactiveCollection<Unit>();
         }
         public override void CompareCheck(Game.NodeArchitecture.ContextNode other, ZRCompareCheckHelper __helper, Action<string> printer) 
         {
             base.CompareCheck(other,__helper,printer);
-            var otherConcrete = (Game.GameModel.Faction)other;
+            var otherConcrete = (Faction)other;
             if (factionType != otherConcrete.factionType) SerializationTools.LogCompError(__helper, "factionType", printer, otherConcrete.factionType, factionType);
             __helper.Push("units");
             units.CompareCheck(otherConcrete.units, __helper, printer);
@@ -64,7 +64,7 @@ namespace Game.GameModel {
             switch(__name)
             {
                 case "factionType":
-                factionType = ((string)reader.Value).ParseEnum<Game.GameModel.FactionType>();
+                factionType = ((string)reader.Value).ParseEnum<FactionType>();
                 break;
                 case "units":
                 units.ReadFromJson(reader);

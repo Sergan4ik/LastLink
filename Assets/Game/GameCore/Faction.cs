@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using ZergRush;
 using ZergRush.ReactiveCore;
 
-namespace Game.GameModel
+namespace Game.GameCore
 {
     public enum FactionType
     {

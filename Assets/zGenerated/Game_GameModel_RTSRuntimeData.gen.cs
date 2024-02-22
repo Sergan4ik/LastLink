@@ -6,11 +6,11 @@ using ZergRush;
 using System.IO;
 using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
-namespace Game.GameModel {
+namespace Game.GameCore {
 
-    public partial class RTSRuntimeData : IUpdatableFrom<Game.GameModel.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameModel.RTSRuntimeData>, IJsonSerializable
+    public partial class RTSRuntimeData : IUpdatableFrom<RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<RTSRuntimeData>, IJsonSerializable
     {
-        public virtual void UpdateFrom(Game.GameModel.RTSRuntimeData other, ZRUpdateFromHelper __helper) 
+        public virtual void UpdateFrom(RTSRuntimeData other, ZRUpdateFromHelper __helper) 
         {
 
         }
@@ -33,7 +33,7 @@ namespace Game.GameModel {
         {
 
         }
-        public virtual void CompareCheck(Game.GameModel.RTSRuntimeData other, ZRCompareCheckHelper __helper, Action<string> printer) 
+        public virtual void CompareCheck(RTSRuntimeData other, ZRCompareCheckHelper __helper, Action<string> printer) 
         {
 
         }

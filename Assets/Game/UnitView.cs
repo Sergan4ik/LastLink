@@ -1,4 +1,4 @@
-using Game.GameModel;
+using Game.GameCore;
 using ZergRush.ReactiveUI;
 
 public class UnitView : ReusableView
