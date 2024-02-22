@@ -1,54 +1,28 @@
 using System.Collections;
-using System.Collections.Generic;
+using Game.GameCore;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Serialization;
+using ZergRush.CodeGen;
 using ZergRush.ReactiveCore;
 
 namespace Game.GameCore
 {
     public partial class RTSTransform : RTSRuntimeData
     {
-        public Cell<Vector3> position;
-        public Cell<Quaternion> rotation;
-
-        public Vector3 Position => position.value;
-        public Quaternion Rotation => rotation.value;
+        public Vector3 position;
+        public Quaternion rotation;
     }
-    
-    public enum ActionState
-    {
-        NotStarted,
-        Preparing,
-        Processing,
-        Finished
-    }
-
     public partial class Unit : RTSContextNode
     {
         public RTSTransform transform;
 
-        public List<UnitAction> activeActions;
+        [GenIgnore] public UnitView view;
 
         public float moveSpeed = 5;
         public void Tick(float dt)
         {
-            foreach (var action in activeActions)
-            {
-                action.Tick(dt);
-            }
-
-            for (int i = activeActions.Count - 1; i >= 0; i--)
-            {
-                if (activeActions[i].state == ActionState.Finished)
-                {
-                    activeActions.RemoveAt(i);
-                }
-            }
+            transform.position.z += dt;
         }
         
-        public void MoveTo(Vector3 destination, bool isDirectionalMove)
-        {
-        }
     }
 }

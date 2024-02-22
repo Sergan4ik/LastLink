@@ -18,6 +18,8 @@ namespace Game.NodeArchitecture {
             RTSContextNode = 4,
             RTSContextRoot = 5,
             Unit = 6,
+            UnitAction = 8,
+            UnitMove = 9,
             ContextRoot = 7,
         }
         static Func<ContextNode> [] polymorphConstructors = new Func<ContextNode> [] {
@@ -29,6 +31,8 @@ namespace Game.NodeArchitecture {
             () => new Game.GameCore.RTSContextRoot(), // 5
             () => new Game.GameCore.Unit(), // 6
             () => new Game.NodeArchitecture.ContextRoot(), // 7
+            () => new Game.GameCore.UnitAction(), // 8
+            () => new Game.GameCore.UnitMove(), // 9
         };
         public static ContextNode CreatePolymorphic(System.UInt16 typeId) {
             return polymorphConstructors[typeId]();

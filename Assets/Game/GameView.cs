@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Game;
 using Game.GameCore;
 using Sirenix.OdinInspector;
+using Unity.XR.OpenVR;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using ZergRush;
@@ -21,7 +22,13 @@ public class GameView : ConnectableMonoBehaviour
     public IntervalRepeater gameTicker = new IntervalRepeater();
 
     public PlayerInput input;
+    public SelectionHandler selectionHandler;
+    
     public Connections gameConnections = new Connections();
+    public Transform unitsRoot;
+    
+    private ListPresenter<Unit,UnitView> unitsPresenter;
+
     public void Awake()
     {
         input = new PlayerInput();
@@ -32,15 +39,22 @@ public class GameView : ConnectableMonoBehaviour
     private void OnEnable()
     {
         input.RTS.SecondaryAction.performed += OnSecondaryAction;
+        input.RTS.MainAction.started += ctx => game.allUnits[0].view.OnSelectionToggle(true);
+        input.RTS.MainAction.canceled += ctx => game.allUnits[0].view.OnSelectionToggle(false);
+        input.RTS.UnitSelection.started += selectionHandler.SelectionProcess;
+        input.RTS.UnitSelection.canceled += selectionHandler.SelectionProcess;
     }
-    
+
     private void OnDisable()
     {
         input.RTS.SecondaryAction.performed -= OnSecondaryAction;
+        input.RTS.UnitSelection.started -= selectionHandler.SelectionProcess;
+        input.RTS.UnitSelection.canceled -= selectionHandler.SelectionProcess;
     }
-
+    
     private void OnSecondaryAction(InputAction.CallbackContext ctx)
     {
+        Debug.Log($"{ctx.duration} seconds passed since the button was pressed");
         if (game != null && game.gameState.value == GameState.InProgress)
         {
             if (cameraController.TryGetWorldMousePosition(out var worldMousePosition) == false) return;
@@ -77,11 +91,11 @@ public class GameView : ConnectableMonoBehaviour
         {
             new Unit()
             {
-                moveSpeed = 5,
+                moveSpeed = 15,
                 transform = new RTSTransform()
                 {
-                    position = new Cell<Vector3>(new Vector3(0, 0, 0)),
-                    rotation = new Cell<Quaternion>(Quaternion.identity)
+                    position = new Vector3(0, 0, 0),
+                    rotation = Quaternion.identity
                 }
             },
             new Unit()
@@ -89,8 +103,8 @@ public class GameView : ConnectableMonoBehaviour
                 moveSpeed = 5,
                 transform = new RTSTransform()
                 {
-                    position = new Cell<Vector3>(new Vector3(3, 0, 0)),
-                    rotation = new Cell<Quaternion>(Quaternion.identity)
+                    position = new Vector3(3, 0, 0),
+                    rotation = Quaternion.identity
                 }
             },
             new Unit()
@@ -98,8 +112,8 @@ public class GameView : ConnectableMonoBehaviour
                 moveSpeed = 5,
                 transform = new RTSTransform()
                 {
-                    position = new Cell<Vector3>(new Vector3(0, 0, 3)),
-                    rotation = new Cell<Quaternion>(Quaternion.identity)
+                    position = new Vector3(0, 0, 3),
+                    rotation = Quaternion.identity
                 }
             },
             new Unit()
@@ -107,10 +121,19 @@ public class GameView : ConnectableMonoBehaviour
                 moveSpeed = 5,
                 transform = new RTSTransform()
                 {
-                    position = new Cell<Vector3>(new Vector3(3, 0, 3)),
-                    rotation = new Cell<Quaternion>(Quaternion.identity)
+                    position = new Vector3(3, 0, 3),
+                    rotation = Quaternion.identity
                 }
-            }
+            },
+            new Unit()
+            {
+                moveSpeed = 5,
+                transform = new RTSTransform()
+                {
+                    position = new Vector3(6, 0, 0),
+                    rotation = Quaternion.identity
+                }
+            },
         });
         game.GameStart();
 
@@ -118,20 +141,14 @@ public class GameView : ConnectableMonoBehaviour
         {
             repeatInterval = GameModel.FrameTime,
         };
-        gameConnections += gameTicker.onNotify.Subscribe(() => game.Tick(GameModel.FrameTime));
+        gameConnections += gameTicker.onNotify.Subscribe(OnGameTick);
+       
+        unitsPresenter = new ListPresenter<Unit, UnitView>(unitsRoot, PrefabRef<UnitView>.Auto(),
+            (unit, view) => view.UpdateFrom(unit), view => view.OnUnload());
         
         gameConnections += game.allUnits.Filter(u => u != null).Present(transform, PrefabRef<UnitView>.Auto(),
             (unit, view) =>
             {
-                view.SetActiveSafe(true);
-                view.ShowUnit(unit);
-                //var offsetPos = .CubeCoordToOffsetCoord();
-                view.connections += unit.transform.position.Bind(worldPos =>
-                {
-                    view.transform.position = worldPos;
-                });
-
-                view.connections += unit.transform.rotation.Bind(rotation => view.transform.rotation = rotation);
             }, options: PresentOptions.None, delegates: TableDelegates<UnitView>.WithRemoveAnimation(view =>
             {
                 Destroy(view, 2f);
@@ -140,12 +157,20 @@ public class GameView : ConnectableMonoBehaviour
         );
     }
 
+    private void OnGameTick(float dt)
+    {
+        game.Tick(dt);
+        unitsPresenter.UpdateFrom(game.allUnits);
+    }
+
     public void Update()
     {
         if (game != null && game.gameState.value == GameState.InProgress)
         {
             gameTicker.Update(Time.deltaTime);
         }
+        
+        selectionHandler.SelectionTick(input.RTS.UnitSelection);
     }
 }
 
@@ -154,7 +179,7 @@ public class IntervalRepeater
 {
     public Cell<float> elapsedTime = new Cell<float>();
     public float repeatInterval;
-    public EventStream onNotify = new EventStream();
+    public EventStream<float> onNotify = new EventStream<float>();
     
     public void Update(float dt)
     {
@@ -163,7 +188,7 @@ public class IntervalRepeater
         {
             //log
             // Debug.Log($"IntervalRepeater: onNotify.Send(), elapsedTime: {elapsedTime.value}, repeatInterval: {repeatInterval}");
-            onNotify.Send();
+            onNotify.Send(repeatInterval);
             elapsedTime.value -= repeatInterval;
         }
     }

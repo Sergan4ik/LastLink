@@ -8,50 +8,54 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class Unit : IUpdatableFrom<Unit>, IUpdatableFrom<Game.NodeArchitecture.ContextNode>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.NodeArchitecture.ContextNode>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class Faction : IUpdatableFrom<Game.GameCore.Faction>, IUpdatableFrom<Game.NodeArchitecture.ContextNode>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.NodeArchitecture.ContextNode>, IJsonSerializable, IPolymorphable, ICloneInst
     {
         public override void UpdateFrom(Game.NodeArchitecture.ContextNode other, ZRUpdateFromHelper __helper) 
         {
             base.UpdateFrom(other,__helper);
-            var otherConcrete = (Unit)other;
-            moveSpeed = otherConcrete.moveSpeed;
-            transform.UpdateFrom(otherConcrete.transform, __helper);
+            var otherConcrete = (Game.GameCore.Faction)other;
+            factionType = otherConcrete.factionType;
+            units.UpdateFrom(otherConcrete.units, __helper);
         }
-        public void UpdateFrom(Unit other, ZRUpdateFromHelper __helper) 
+        public void UpdateFrom(Game.GameCore.Faction other, ZRUpdateFromHelper __helper) 
         {
             this.UpdateFrom((Game.NodeArchitecture.ContextNode)other, __helper);
         }
         public override void Deserialize(ZRBinaryReader reader) 
         {
             base.Deserialize(reader);
-            moveSpeed = reader.ReadSingle();
-            transform.Deserialize(reader);
+            factionType = reader.ReadEnum<Game.GameCore.FactionType>();
+            units.Deserialize(reader);
         }
         public override void Serialize(ZRBinaryWriter writer) 
         {
             base.Serialize(writer);
-            writer.Write(moveSpeed);
-            transform.Serialize(writer);
+            writer.Write((Int32)factionType);
+            units.Serialize(writer);
         }
         public override ulong CalculateHash(ZRHashHelper __helper) 
         {
             var baseVal = base.CalculateHash(__helper);
             System.UInt64 hash = baseVal;
-            hash ^= (ulong)1347601703;
+            hash ^= (ulong)1821259775;
             hash += hash << 11; hash ^= hash >> 7;
-            hash += (System.UInt64)moveSpeed;
+            hash += (System.UInt64)factionType;
             hash += hash << 11; hash ^= hash >> 7;
-            hash += transform.CalculateHash(__helper);
+            hash += units.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
             return hash;
+        }
+        public  Faction() 
+        {
+            units = new ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit>();
         }
         public override void CompareCheck(Game.NodeArchitecture.ContextNode other, ZRCompareCheckHelper __helper, Action<string> printer) 
         {
             base.CompareCheck(other,__helper,printer);
-            var otherConcrete = (Unit)other;
-            if (moveSpeed != otherConcrete.moveSpeed) SerializationTools.LogCompError(__helper, "moveSpeed", printer, otherConcrete.moveSpeed, moveSpeed);
-            __helper.Push("transform");
-            transform.CompareCheck(otherConcrete.transform, __helper, printer);
+            var otherConcrete = (Game.GameCore.Faction)other;
+            if (factionType != otherConcrete.factionType) SerializationTools.LogCompError(__helper, "factionType", printer, otherConcrete.factionType, factionType);
+            __helper.Push("units");
+            units.CompareCheck(otherConcrete.units, __helper, printer);
             __helper.Pop();
         }
         public override bool ReadFromJsonField(ZRJsonTextReader reader, string __name) 
@@ -59,11 +63,11 @@ namespace Game.GameCore {
             if (base.ReadFromJsonField(reader, __name)) return true;
             switch(__name)
             {
-                case "moveSpeed":
-                moveSpeed = (float)(double)reader.Value;
+                case "factionType":
+                factionType = ((string)reader.Value).ParseEnum<Game.GameCore.FactionType>();
                 break;
-                case "transform":
-                transform.ReadFromJson(reader);
+                case "units":
+                units.ReadFromJson(reader);
                 break;
                 default: return false; break;
             }
@@ -72,22 +76,18 @@ namespace Game.GameCore {
         public override void WriteJsonFields(ZRJsonTextWriter writer) 
         {
             base.WriteJsonFields(writer);
-            writer.WritePropertyName("moveSpeed");
-            writer.WriteValue(moveSpeed);
-            writer.WritePropertyName("transform");
-            transform.WriteJson(writer);
-        }
-        public  Unit() 
-        {
-            transform = new RTSTransform();
+            writer.WritePropertyName("factionType");
+            writer.WriteValue(factionType.ToString());
+            writer.WritePropertyName("units");
+            units.WriteJson(writer);
         }
         public override ushort GetClassId() 
         {
-        return (System.UInt16)Types.Unit;
+        return (System.UInt16)Types.Faction;
         }
         public override System.Object NewInst() 
         {
-        return new Unit();
+        return new Faction();
         }
     }
 }

@@ -8,14 +8,14 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class RTSContextNode : IUpdatableFrom<RTSContextNode>, IUpdatableFrom<Game.NodeArchitecture.ContextNode>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.NodeArchitecture.ContextNode>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class RTSContextRoot : IUpdatableFrom<Game.GameCore.RTSContextRoot>, IUpdatableFrom<Game.NodeArchitecture.ContextNode>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.NodeArchitecture.ContextNode>, IJsonSerializable, IPolymorphable, ICloneInst
     {
         public override void UpdateFrom(Game.NodeArchitecture.ContextNode other, ZRUpdateFromHelper __helper) 
         {
             base.UpdateFrom(other,__helper);
-            var otherConcrete = (RTSContextNode)other;
+            var otherConcrete = (Game.GameCore.RTSContextRoot)other;
         }
-        public void UpdateFrom(RTSContextNode other, ZRUpdateFromHelper __helper) 
+        public void UpdateFrom(Game.GameCore.RTSContextRoot other, ZRUpdateFromHelper __helper) 
         {
             this.UpdateFrom((Game.NodeArchitecture.ContextNode)other, __helper);
         }
@@ -33,11 +33,11 @@ namespace Game.GameCore {
         {
             var baseVal = base.CalculateHash(__helper);
             System.UInt64 hash = baseVal;
-            hash ^= (ulong)1691573271;
+            hash ^= (ulong)211794922;
             hash += hash << 11; hash ^= hash >> 7;
             return hash;
         }
-        public  RTSContextNode() 
+        public  RTSContextRoot() 
         {
 
         }
@@ -57,11 +57,11 @@ namespace Game.GameCore {
         }
         public override ushort GetClassId() 
         {
-        return (System.UInt16)Types.RTSContextNode;
+        return (System.UInt16)Types.RTSContextRoot;
         }
         public override System.Object NewInst() 
         {
-        return new RTSContextNode();
+        return new RTSContextRoot();
         }
     }
 }

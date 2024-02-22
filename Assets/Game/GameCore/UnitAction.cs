@@ -1,7 +1,12 @@
+using UnityEngine;
+using UnityEngine.AI;
+
 namespace Game.GameCore
 {
-    public partial class UnitAction : RTSRuntimeData
+    public partial class UnitAction : RTSContextNode
     {
+        public Unit owner => (Unit)parent;
+        
         public float elapsedTime = 0;
         public float preparingTime = 0;
         public float duration = -1;
@@ -36,19 +41,42 @@ namespace Game.GameCore
         }
     }
 
+    public enum ActionState
+    {
+        NotStarted,
+        Preparing,
+        Processing,
+        Finished
+    }
+
     public partial class UnitMove : UnitAction
     {
+        public float moveSpeed;
+
         protected override void ProcessTick(float dt)
+        {
+        }
+        public void MoveTo(Vector3 destination, bool isDirectionalMove)
         {
             const float DISTANCE_THRESHOLD = 0.1f;
             if (isDirectionalMove)
             {
-                Vector3 direction = (destination - transform.position.value).normalized;
-                while ((transform.position.value - destination).sqrMagnitude > DISTANCE_THRESHOLD * DISTANCE_THRESHOLD)
+                Vector3 direction = (destination - owner.transform.position).normalized;
+                // if (direction.sqrMagnitude < 0.9f) yield break;
+                
+                Quaternion lookRotation = UnityEngine.Quaternion.LookRotation(new Vector3(direction.x, 0 , direction.z));
+                while ((owner.transform.position - destination).sqrMagnitude > DISTANCE_THRESHOLD * DISTANCE_THRESHOLD)
                 {
-                    float dist = moveSpeed * GameModel.FrameTime;
-                    transform.position.value += direction * dist;
-                    logger.Log($"Pos {transform.position.value} , Dest {destination}, moved dist {dist}");
+                    float dist = moveSpeed * GameCore.GameModel.FrameTime;
+                    if ((destination - owner.transform.position).sqrMagnitude > dist * dist)
+                    {
+                        owner.transform.position += direction * dist;
+                        owner.transform.rotation = lookRotation;
+                    }
+                    else
+                    {
+                        owner.transform.position = destination;
+                    }
                     // yield return CoroutineEngine.SkipFrame;
                 }
                 
@@ -56,7 +84,7 @@ namespace Game.GameCore
             }
             
             var path = new NavMeshPath();
-            var calculatePath = NavMesh.CalculatePath(transform.position.value, destination, NavMesh.AllAreas, path);
+            var calculatePath = NavMesh.CalculatePath(owner.transform.position, destination, NavMesh.AllAreas, path);
 
             // if (!calculatePath) yield break;
             

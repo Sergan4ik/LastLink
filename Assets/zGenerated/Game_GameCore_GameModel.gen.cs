@@ -8,18 +8,18 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class GameModel : IUpdatableFrom<GameModel>, IUpdatableFrom<Game.NodeArchitecture.ContextNode>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.NodeArchitecture.ContextNode>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class GameModel : IUpdatableFrom<Game.GameCore.GameModel>, IUpdatableFrom<Game.NodeArchitecture.ContextNode>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.NodeArchitecture.ContextNode>, IJsonSerializable, IPolymorphable, ICloneInst
     {
         public override void UpdateFrom(Game.NodeArchitecture.ContextNode other, ZRUpdateFromHelper __helper) 
         {
             base.UpdateFrom(other,__helper);
-            var otherConcrete = (GameModel)other;
+            var otherConcrete = (Game.GameCore.GameModel)other;
             factions.UpdateFrom(otherConcrete.factions, __helper);
             gameState.value = otherConcrete.gameState.value;
             onGameStarted.UpdateFrom(otherConcrete.onGameStarted, __helper);
             random.UpdateFrom(otherConcrete.random, __helper);
         }
-        public void UpdateFrom(GameModel other, ZRUpdateFromHelper __helper) 
+        public void UpdateFrom(Game.GameCore.GameModel other, ZRUpdateFromHelper __helper) 
         {
             this.UpdateFrom((Game.NodeArchitecture.ContextNode)other, __helper);
         }
@@ -27,7 +27,7 @@ namespace Game.GameCore {
         {
             base.Deserialize(reader);
             factions.Deserialize(reader);
-            gameState.value = reader.ReadEnum<GameState>();
+            gameState.value = reader.ReadEnum<Game.GameCore.GameState>();
             onGameStarted.Deserialize(reader);
             random.Deserialize(reader);
         }
@@ -57,15 +57,15 @@ namespace Game.GameCore {
         }
         public  GameModel() 
         {
-            factions = new ZergRush.ReactiveCore.ReactiveCollection<Faction>();
-            gameState = new ZergRush.ReactiveCore.Cell<GameState>();
+            factions = new ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Faction>();
+            gameState = new ZergRush.ReactiveCore.Cell<Game.GameCore.GameState>();
             onGameStarted = new ZergRush.ReactiveCore.EventStream();
             random = new ZergRush.ZergRandom();
         }
         public override void CompareCheck(Game.NodeArchitecture.ContextNode other, ZRCompareCheckHelper __helper, Action<string> printer) 
         {
             base.CompareCheck(other,__helper,printer);
-            var otherConcrete = (GameModel)other;
+            var otherConcrete = (Game.GameCore.GameModel)other;
             __helper.Push("factions");
             factions.CompareCheck(otherConcrete.factions, __helper, printer);
             __helper.Pop();
@@ -86,7 +86,7 @@ namespace Game.GameCore {
                 factions.ReadFromJson(reader);
                 break;
                 case "gameState":
-                gameState.value = ((string)reader.Value).ParseEnum<GameState>();
+                gameState.value = ((string)reader.Value).ParseEnum<Game.GameCore.GameState>();
                 break;
                 case "onGameStarted":
                 onGameStarted.ReadFromJson(reader);
