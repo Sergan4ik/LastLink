@@ -34,6 +34,8 @@ public class GameView : ConnectableMonoBehaviour
     private void OnEnable()
     {
         input.RTS.SecondaryAction.performed += OnSecondaryAction;
+        input.RTS.MainAction.started += ctx => game.allUnits[0].view.OnSelectionToggle(true);
+        input.RTS.MainAction.canceled += ctx => game.allUnits[0].view.OnSelectionToggle(false);
         input.RTS.UnitSelection.started += selectionHandler.SelectionProcess;
         input.RTS.UnitSelection.canceled += selectionHandler.SelectionProcess;
     }
@@ -157,6 +159,8 @@ public class GameView : ConnectableMonoBehaviour
                 });
 
                 view.connections += unit.transform.rotation.Bind(rotation => view.transform.rotation = rotation);
+
+                unit.view = view;
             }, options: PresentOptions.None, delegates: TableDelegates<UnitView>.WithRemoveAnimation(view =>
             {
                 Destroy(view, 2f);

@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using ZergRush.CodeGen;
 using ZergRush.ReactiveCore;
 
 namespace Game.GameModel
@@ -17,6 +18,8 @@ namespace Game.GameModel
     {
         public CoroutineEngine engine;
         public RTSTransform transform;
+
+        [GenIgnore] public UnitView view;
 
         public float moveSpeed = 5;
         public void Tick(float dt)
