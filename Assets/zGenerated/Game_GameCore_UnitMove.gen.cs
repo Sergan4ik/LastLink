@@ -14,7 +14,10 @@ namespace Game.GameCore {
         {
             base.UpdateFrom(other,__helper);
             var otherConcrete = (Game.GameCore.UnitMove)other;
+            currentWaypoint = otherConcrete.currentWaypoint;
+            globalDestination.UpdateFrom(otherConcrete.globalDestination, __helper);
             moveSpeed = otherConcrete.moveSpeed;
+            path.UpdateFrom(otherConcrete.path, __helper);
         }
         public void UpdateFrom(Game.GameCore.UnitMove other, ZRUpdateFromHelper __helper) 
         {
@@ -23,12 +26,18 @@ namespace Game.GameCore {
         public override void Deserialize(ZRBinaryReader reader) 
         {
             base.Deserialize(reader);
+            currentWaypoint = reader.ReadInt32();
+            globalDestination = reader.ReadUnityEngine_Vector3();
             moveSpeed = reader.ReadSingle();
+            path.Deserialize(reader);
         }
         public override void Serialize(ZRBinaryWriter writer) 
         {
             base.Serialize(writer);
+            writer.Write(currentWaypoint);
+            globalDestination.Serialize(writer);
             writer.Write(moveSpeed);
+            path.Serialize(writer);
         }
         public override ulong CalculateHash(ZRHashHelper __helper) 
         {
@@ -36,27 +45,49 @@ namespace Game.GameCore {
             System.UInt64 hash = baseVal;
             hash ^= (ulong)1925159920;
             hash += hash << 11; hash ^= hash >> 7;
+            hash += (System.UInt64)currentWaypoint;
+            hash += hash << 11; hash ^= hash >> 7;
+            hash += globalDestination.CalculateHash(__helper);
+            hash += hash << 11; hash ^= hash >> 7;
             hash += (System.UInt64)moveSpeed;
+            hash += hash << 11; hash ^= hash >> 7;
+            hash += path.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
             return hash;
         }
         public  UnitMove() 
         {
-
+            path = new UnityEngine.AI.NavMeshPath();
         }
         public override void CompareCheck(Game.NodeArchitecture.ContextNode other, ZRCompareCheckHelper __helper, Action<string> printer) 
         {
             base.CompareCheck(other,__helper,printer);
             var otherConcrete = (Game.GameCore.UnitMove)other;
+            if (currentWaypoint != otherConcrete.currentWaypoint) SerializationTools.LogCompError(__helper, "currentWaypoint", printer, otherConcrete.currentWaypoint, currentWaypoint);
+            __helper.Push("globalDestination");
+            globalDestination.CompareCheck(otherConcrete.globalDestination, __helper, printer);
+            __helper.Pop();
             if (moveSpeed != otherConcrete.moveSpeed) SerializationTools.LogCompError(__helper, "moveSpeed", printer, otherConcrete.moveSpeed, moveSpeed);
+            __helper.Push("path");
+            path.CompareCheck(otherConcrete.path, __helper, printer);
+            __helper.Pop();
         }
         public override bool ReadFromJsonField(ZRJsonTextReader reader, string __name) 
         {
             if (base.ReadFromJsonField(reader, __name)) return true;
             switch(__name)
             {
+                case "currentWaypoint":
+                currentWaypoint = (int)(Int64)reader.Value;
+                break;
+                case "globalDestination":
+                globalDestination = (UnityEngine.Vector3)reader.ReadFromJsonUnityEngine_Vector3();
+                break;
                 case "moveSpeed":
                 moveSpeed = (float)(double)reader.Value;
+                break;
+                case "path":
+                path.ReadFromJson(reader);
                 break;
                 default: return false; break;
             }
@@ -65,8 +96,14 @@ namespace Game.GameCore {
         public override void WriteJsonFields(ZRJsonTextWriter writer) 
         {
             base.WriteJsonFields(writer);
+            writer.WritePropertyName("currentWaypoint");
+            writer.WriteValue(currentWaypoint);
+            writer.WritePropertyName("globalDestination");
+            globalDestination.WriteJson(writer);
             writer.WritePropertyName("moveSpeed");
             writer.WriteValue(moveSpeed);
+            writer.WritePropertyName("path");
+            path.WriteJson(writer);
         }
         public override ushort GetClassId() 
         {

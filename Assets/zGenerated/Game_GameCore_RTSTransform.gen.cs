@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class RTSTransform : IUpdatableFrom<Game.GameCore.RTSTransform>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.RTSRuntimeData>, IJsonSerializable
+    public partial class RTSTransform : IUpdatableFrom<Game.GameCore.RTSTransform>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
     {
         public override void UpdateFrom(Game.GameCore.RTSRuntimeData other, ZRUpdateFromHelper __helper) 
         {
@@ -82,6 +82,14 @@ namespace Game.GameCore {
         public  RTSTransform() 
         {
 
+        }
+        public override ushort GetClassId() 
+        {
+        return (System.UInt16)Types.RTSTransform;
+        }
+        public override System.Object NewInst() 
+        {
+        return new RTSTransform();
         }
     }
 }

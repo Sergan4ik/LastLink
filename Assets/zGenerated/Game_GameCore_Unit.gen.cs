@@ -14,8 +14,10 @@ namespace Game.GameCore {
         {
             base.UpdateFrom(other,__helper);
             var otherConcrete = (Game.GameCore.Unit)other;
+            IsSelected = otherConcrete.IsSelected;
             moveSpeed = otherConcrete.moveSpeed;
             transform.UpdateFrom(otherConcrete.transform, __helper);
+            unitActions.UpdateFrom(otherConcrete.unitActions, __helper);
         }
         public void UpdateFrom(Game.GameCore.Unit other, ZRUpdateFromHelper __helper) 
         {
@@ -24,14 +26,18 @@ namespace Game.GameCore {
         public override void Deserialize(ZRBinaryReader reader) 
         {
             base.Deserialize(reader);
+            IsSelected = reader.ReadBoolean();
             moveSpeed = reader.ReadSingle();
             transform.Deserialize(reader);
+            unitActions.Deserialize(reader);
         }
         public override void Serialize(ZRBinaryWriter writer) 
         {
             base.Serialize(writer);
+            writer.Write(IsSelected);
             writer.Write(moveSpeed);
             transform.Serialize(writer);
+            unitActions.Serialize(writer);
         }
         public override ulong CalculateHash(ZRHashHelper __helper) 
         {
@@ -39,9 +45,13 @@ namespace Game.GameCore {
             System.UInt64 hash = baseVal;
             hash ^= (ulong)1347601703;
             hash += hash << 11; hash ^= hash >> 7;
+            hash += IsSelected ? 1u : 0u;
+            hash += hash << 11; hash ^= hash >> 7;
             hash += (System.UInt64)moveSpeed;
             hash += hash << 11; hash ^= hash >> 7;
             hash += transform.CalculateHash(__helper);
+            hash += hash << 11; hash ^= hash >> 7;
+            hash += unitActions.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
             return hash;
         }
@@ -49,9 +59,13 @@ namespace Game.GameCore {
         {
             base.CompareCheck(other,__helper,printer);
             var otherConcrete = (Game.GameCore.Unit)other;
+            if (IsSelected != otherConcrete.IsSelected) SerializationTools.LogCompError(__helper, "IsSelected", printer, otherConcrete.IsSelected, IsSelected);
             if (moveSpeed != otherConcrete.moveSpeed) SerializationTools.LogCompError(__helper, "moveSpeed", printer, otherConcrete.moveSpeed, moveSpeed);
             __helper.Push("transform");
             transform.CompareCheck(otherConcrete.transform, __helper, printer);
+            __helper.Pop();
+            __helper.Push("unitActions");
+            unitActions.CompareCheck(otherConcrete.unitActions, __helper, printer);
             __helper.Pop();
         }
         public override bool ReadFromJsonField(ZRJsonTextReader reader, string __name) 
@@ -59,11 +73,17 @@ namespace Game.GameCore {
             if (base.ReadFromJsonField(reader, __name)) return true;
             switch(__name)
             {
+                case "IsSelected":
+                IsSelected = (bool)reader.Value;
+                break;
                 case "moveSpeed":
                 moveSpeed = (float)(double)reader.Value;
                 break;
                 case "transform":
                 transform.ReadFromJson(reader);
+                break;
+                case "unitActions":
+                unitActions.ReadFromJson(reader);
                 break;
                 default: return false; break;
             }
@@ -72,14 +92,19 @@ namespace Game.GameCore {
         public override void WriteJsonFields(ZRJsonTextWriter writer) 
         {
             base.WriteJsonFields(writer);
+            writer.WritePropertyName("IsSelected");
+            writer.WriteValue(IsSelected);
             writer.WritePropertyName("moveSpeed");
             writer.WriteValue(moveSpeed);
             writer.WritePropertyName("transform");
             transform.WriteJson(writer);
+            writer.WritePropertyName("unitActions");
+            unitActions.WriteJson(writer);
         }
         public  Unit() 
         {
             transform = new Game.GameCore.RTSTransform();
+            unitActions = new System.Collections.Generic.List<Game.GameCore.UnitAction>();
         }
         public override ushort GetClassId() 
         {

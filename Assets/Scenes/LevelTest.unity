@@ -234,7 +234,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4607141785e14e9aa94ffd103b3c49ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectionVFX: {fileID: 0}
+  selectionVFX: {fileID: 2211127680221694620}
 --- !u!136 &16028640
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -576,6 +576,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selectionBox: {fileID: 649956810}
   camera: {fileID: 330585545}
+  selectionCanvas: {fileID: 118328026}
 --- !u!1001 &154989413
 PrefabInstance:
   m_ObjectHideFlags: 0

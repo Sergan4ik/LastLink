@@ -8,8 +8,27 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class RTSRuntimeData : IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.RTSRuntimeData>, IJsonSerializable
+    public partial class RTSRuntimeData : IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
     {
+        public enum Types : ushort
+        {
+            RTSRuntimeData = 1,
+            RTSTimerIntervals = 4,
+            RTSTimerStatic = 5,
+            RTSTransform = 2,
+            SelectionRectClipSpace = 3,
+        }
+        static Func<RTSRuntimeData> [] polymorphConstructors = new Func<RTSRuntimeData> [] {
+            () => null, // 0
+            () => new Game.GameCore.RTSRuntimeData(), // 1
+            () => new Game.GameCore.RTSTransform(), // 2
+            () => new Game.GameCore.SelectionRectClipSpace(), // 3
+            () => new Game.GameCore.RTSTimerIntervals(), // 4
+            () => new Game.GameCore.RTSTimerStatic(), // 5
+        };
+        public static RTSRuntimeData CreatePolymorphic(System.UInt16 typeId) {
+            return polymorphConstructors[typeId]();
+        }
         public virtual void UpdateFrom(Game.GameCore.RTSRuntimeData other, ZRUpdateFromHelper __helper) 
         {
 
@@ -48,6 +67,14 @@ namespace Game.GameCore {
         public virtual void WriteJsonFields(ZRJsonTextWriter writer) 
         {
 
+        }
+        public virtual ushort GetClassId() 
+        {
+        return (System.UInt16)Types.RTSRuntimeData;
+        }
+        public virtual System.Object NewInst() 
+        {
+        return new RTSRuntimeData();
         }
     }
 }

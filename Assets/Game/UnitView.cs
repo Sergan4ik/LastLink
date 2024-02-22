@@ -2,7 +2,7 @@ using Game.GameCore;
 using UnityEngine;
 using ZergRush.ReactiveUI;
 
-public class UnitView : ReusableView, ISimpleUpdatableFrom<Unit>
+public class UnitView : RTSView, ISimpleUpdatableFrom<Unit>
 {
     public Unit currentUnit;
     public GameObject selectionVFX;

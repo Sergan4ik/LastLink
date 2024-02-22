@@ -1,34 +1,70 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Serialization;
 
 namespace Game.GameCore
 {
-    public partial class UnitAction : RTSContextNode
+    public partial class UnitAction : RTSContextNode, IActionSource
     {
+        public string sourceName => $"Action {this.GetType()} #{nodeId}";
         public Unit owner => (Unit)parent;
         
-        public float elapsedTime = 0;
         public float preparingTime = 0;
         public float duration = -1;
 
         public ActionState state = ActionState.NotStarted;
+
+        public RTSTimerIntervals stateTimer;
+
+        public void Init()
+        {
+            stateTimer = new RTSTimerIntervals()
+            {
+                intervals = new List<float> { preparingTime, duration },
+                loop = false
+            };
+            InitInternal();
+        }
+
+        protected virtual void InitInternal()
+        {
+            
+        }
+        
         public void Tick(float dt)
         {
-            elapsedTime += dt;
-            if (elapsedTime < preparingTime)
+            if (state == ActionState.Finished) return;
+            
+            stateTimer.Tick(dt);
+            GetCurrentActionState();
+
+            switch (state)
             {
-                state = ActionState.Preparing;
-                PreparingTick(dt);
+                case ActionState.Preparing:
+                    PreparingTick(dt);
+                    break;
+                case ActionState.Processing:
+                    ProcessTick(dt);
+                    break;
             }
-            else if (elapsedTime < preparingTime + duration)
+        }
+
+        private void GetCurrentActionState()
+        {
+            state = stateTimer.PassedIntervals switch
             {
-                state = ActionState.Processing;
-                ProcessTick(dt);
-            }
-            else
-            {
-                state = ActionState.Finished;
-            }
+                0 => ActionState.Preparing,
+                1 => ActionState.Processing,
+                2 => ActionState.Finished,
+                _ => state
+            };
+        }
+
+        public void Terminate(IActionSource source)
+        {
+            logger.Log($"Action {this.GetType()} terminated by {source.sourceName}");
+            state = ActionState.Finished;
         }
 
         protected virtual void PreparingTick(float dt)
@@ -39,6 +75,7 @@ namespace Game.GameCore
         {
             
         }
+
     }
 
     public enum ActionState
@@ -52,47 +89,56 @@ namespace Game.GameCore
     public partial class UnitMove : UnitAction
     {
         public float moveSpeed;
+        public Vector3 globalDestination;
+        
+        public Vector3 localDestination => path.corners[currentWaypoint];
+
+        public NavMeshPath path;
+        public int currentWaypoint;
+        
+        const float DISTANCE_THRESHOLD = 0.1f;
+        protected override void InitInternal()
+        {
+            path = new NavMeshPath();
+            bool calculatePath = NavMesh.CalculatePath(owner.transform.position, globalDestination, NavMesh.AllAreas, path);
+            currentWaypoint = 0;
+            
+            if (calculatePath == false)
+                Terminate(this);
+        }
 
         protected override void ProcessTick(float dt)
         {
-        }
-        public void MoveTo(Vector3 destination, bool isDirectionalMove)
-        {
-            const float DISTANCE_THRESHOLD = 0.1f;
-            if (isDirectionalMove)
+            if (currentWaypoint >= path.corners.Length)
             {
-                Vector3 direction = (destination - owner.transform.position).normalized;
-                // if (direction.sqrMagnitude < 0.9f) yield break;
-                
-                Quaternion lookRotation = UnityEngine.Quaternion.LookRotation(new Vector3(direction.x, 0 , direction.z));
-                while ((owner.transform.position - destination).sqrMagnitude > DISTANCE_THRESHOLD * DISTANCE_THRESHOLD)
-                {
-                    float dist = moveSpeed * GameCore.GameModel.FrameTime;
-                    if ((destination - owner.transform.position).sqrMagnitude > dist * dist)
-                    {
-                        owner.transform.position += direction * dist;
-                        owner.transform.rotation = lookRotation;
-                    }
-                    else
-                    {
-                        owner.transform.position = destination;
-                    }
-                    // yield return CoroutineEngine.SkipFrame;
-                }
-                
-                // yield break;
+                Terminate(this);
+                return;
             }
             
-            var path = new NavMeshPath();
-            var calculatePath = NavMesh.CalculatePath(owner.transform.position, destination, NavMesh.AllAreas, path);
+            
+            Vector3 direction = (path.corners[currentWaypoint] - owner.transform.position).normalized;
+            while (currentWaypoint < path.corners.Length && direction.sqrMagnitude < 0.9f)
+            {
+                direction = (path.corners[++currentWaypoint] - owner.transform.position).normalized;
+            }
 
-            // if (!calculatePath) yield break;
-            
-            foreach (var newDestination in path.corners)
+            Quaternion lookRotation = UnityEngine.Quaternion.LookRotation(new Vector3(direction.x, 0 , direction.z));
+            float dist = moveSpeed * dt;
+            if ((localDestination - owner.transform.position).sqrMagnitude > dist * dist)
             {
-                logger.Log($"New destination {newDestination}");
-                // yield return MoveTo(newDestination, true);
+                owner.transform.position += direction * dist;
+                owner.transform.rotation = lookRotation;
             }
+            else
+            {
+                owner.transform.position = localDestination;
+            }
+            
+            if ((owner.transform.position - localDestination).sqrMagnitude < DISTANCE_THRESHOLD * DISTANCE_THRESHOLD)
+            {
+                currentWaypoint++;
+            }
+            
         }
     }
 }
