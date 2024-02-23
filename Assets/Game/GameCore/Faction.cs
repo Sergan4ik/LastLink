@@ -27,12 +27,16 @@ namespace Game.GameCore
 
         public void MoveSelectedTo(Vector3 destination)
         {
+            Unit mainUnit = null;
             for (var i = 0; i < units.Count; i++)
             {
                 if (units[i].IsSelected)
                 {
-                    Vector3 offset = units[i].transform.position - units[0].transform.position;
+                    if (mainUnit == null)
+                        mainUnit = units[i];
+                    Vector3 offset = units[i].transform.position - mainUnit.transform.position;
                     units[i].MoveTo(destination + offset);
+                    Debug.Log($"Moving {units[i]} to {destination + offset}");
                 }
             }
         }

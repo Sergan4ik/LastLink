@@ -107,19 +107,21 @@ namespace Game.GameCore
                 Terminate(this);
         }
 
+        private Vector3[] cachedWaypoints;
         protected override void ProcessTick(float dt)
         {
-            if (currentWaypoint >= path.corners.Length)
+            cachedWaypoints = path.corners;
+            if (currentWaypoint >= cachedWaypoints.Length)
             {
                 Terminate(this);
                 return;
             }
             
             
-            Vector3 direction = (path.corners[currentWaypoint] - owner.transform.position).normalized;
-            while (currentWaypoint < path.corners.Length && direction.sqrMagnitude < 0.9f)
+            Vector3 direction = (cachedWaypoints[currentWaypoint] - owner.transform.position).normalized;
+            while (currentWaypoint < cachedWaypoints.Length && direction.sqrMagnitude < 0.9f)
             {
-                direction = (path.corners[++currentWaypoint] - owner.transform.position).normalized;
+                direction = (cachedWaypoints[++currentWaypoint] - owner.transform.position).normalized;
             }
 
             Quaternion lookRotation = UnityEngine.Quaternion.LookRotation(new Vector3(direction.x, 0 , direction.z));
