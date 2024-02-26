@@ -14,6 +14,11 @@ namespace Game.GameCore {
         {
             base.UpdateFrom(other,__helper);
             var otherConcrete = (Game.GameCore.UnitMove)other;
+            var cachedWaypointsCount = otherConcrete.cachedWaypoints.Length;
+            var cachedWaypointsTemp = cachedWaypoints;
+            Array.Resize(ref cachedWaypointsTemp, cachedWaypointsCount);
+            cachedWaypoints = cachedWaypointsTemp;
+            cachedWaypoints.UpdateFrom(otherConcrete.cachedWaypoints, __helper);
             currentWaypoint = otherConcrete.currentWaypoint;
             globalDestination.UpdateFrom(otherConcrete.globalDestination, __helper);
             moveSpeed = otherConcrete.moveSpeed;
@@ -26,6 +31,7 @@ namespace Game.GameCore {
         public override void Deserialize(ZRBinaryReader reader) 
         {
             base.Deserialize(reader);
+            cachedWaypoints = reader.ReadUnityEngine_Vector3_Array();
             currentWaypoint = reader.ReadInt32();
             globalDestination = reader.ReadUnityEngine_Vector3();
             moveSpeed = reader.ReadSingle();
@@ -34,6 +40,7 @@ namespace Game.GameCore {
         public override void Serialize(ZRBinaryWriter writer) 
         {
             base.Serialize(writer);
+            cachedWaypoints.Serialize(writer);
             writer.Write(currentWaypoint);
             globalDestination.Serialize(writer);
             writer.Write(moveSpeed);
@@ -44,6 +51,8 @@ namespace Game.GameCore {
             var baseVal = base.CalculateHash(__helper);
             System.UInt64 hash = baseVal;
             hash ^= (ulong)1925159920;
+            hash += hash << 11; hash ^= hash >> 7;
+            hash += cachedWaypoints.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
             hash += (System.UInt64)currentWaypoint;
             hash += hash << 11; hash ^= hash >> 7;
@@ -57,12 +66,16 @@ namespace Game.GameCore {
         }
         public  UnitMove() 
         {
+            cachedWaypoints = Array.Empty<UnityEngine.Vector3>();
             path = new UnityEngine.AI.NavMeshPath();
         }
         public override void CompareCheck(Game.NodeArchitecture.ContextNode other, ZRCompareCheckHelper __helper, Action<string> printer) 
         {
             base.CompareCheck(other,__helper,printer);
             var otherConcrete = (Game.GameCore.UnitMove)other;
+            __helper.Push("cachedWaypoints");
+            cachedWaypoints.CompareCheck(otherConcrete.cachedWaypoints, __helper, printer);
+            __helper.Pop();
             if (currentWaypoint != otherConcrete.currentWaypoint) SerializationTools.LogCompError(__helper, "currentWaypoint", printer, otherConcrete.currentWaypoint, currentWaypoint);
             __helper.Push("globalDestination");
             globalDestination.CompareCheck(otherConcrete.globalDestination, __helper, printer);
@@ -77,6 +90,9 @@ namespace Game.GameCore {
             if (base.ReadFromJsonField(reader, __name)) return true;
             switch(__name)
             {
+                case "cachedWaypoints":
+                cachedWaypoints = cachedWaypoints.ReadFromJson(reader);
+                break;
                 case "currentWaypoint":
                 currentWaypoint = (int)(Int64)reader.Value;
                 break;
@@ -96,6 +112,8 @@ namespace Game.GameCore {
         public override void WriteJsonFields(ZRJsonTextWriter writer) 
         {
             base.WriteJsonFields(writer);
+            writer.WritePropertyName("cachedWaypoints");
+            cachedWaypoints.WriteJson(writer);
             writer.WritePropertyName("currentWaypoint");
             writer.WriteValue(currentWaypoint);
             writer.WritePropertyName("globalDestination");

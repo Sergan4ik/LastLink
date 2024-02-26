@@ -26,17 +26,24 @@ namespace Game.GameCore
 
         public float moveSpeed = 5;
         public List<UnitAction> unitActions;
+
+        public float maxHp = 100;
+        public float hp = 100;
+        public bool isDead => hp <= 0;
         public void Tick(float dt)
         {
             foreach (var unitAction in unitActions)
             {
                 unitAction.Tick(dt);
             }
-            
+
             for (int i = unitActions.Count - 1; i >= 0; i--)
             {
                 if (unitActions[i].state == ActionState.Finished)
+                {
+                    logger.Log($"Unit action {unitActions[i].GetType()}_{unitActions[i].nodeId} expired");
                     unitActions.RemoveAt(i);
+                }
             }
         }
 
@@ -72,5 +79,12 @@ namespace Game.GameCore
                 view.OnSelectionToggle(false);
         }
 
+        public void DealRawDamage(float dps)
+        {
+            if (hp > dps)
+                hp -= dps;
+            else
+                hp = 0;
+        }
     }
 }

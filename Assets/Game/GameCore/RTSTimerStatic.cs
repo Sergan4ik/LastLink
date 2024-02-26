@@ -34,28 +34,25 @@ namespace Game.GameCore
         public int currentInterval = 0;
         public bool loop = false;
         public override float cycleTime => intervals[currentInterval];
-        private float accumulatedTime => intervals.Take(currentInterval + 1).Sum();
         
         public int PassedIntervals => currentInterval;
 
         public override bool Tick(float dt)
         {
-            while (intervals[currentInterval] != -1f && accumulatedTime < elapsedTime)
-                currentInterval++;
-            
-            if (currentInterval >= intervals.Count)
+            if (cycleTime == -1)
             {
-                if (loop)
-                {
-                    currentInterval = 0;
-                }
-                else
-                {
-                    return false;
-                }
+                elapsedTime += dt;
+                return false;
             }
             
-            return base.Tick(dt);
+            bool passedInterval = base.Tick(dt);
+            if (passedInterval)
+                currentInterval++;
+
+            if (loop && currentInterval >= intervals.Count)
+                currentInterval = 0;
+                
+            return passedInterval;
         }
     }
 }
