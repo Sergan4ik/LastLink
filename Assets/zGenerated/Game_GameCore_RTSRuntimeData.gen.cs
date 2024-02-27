@@ -17,6 +17,7 @@ namespace Game.GameCore {
             RTSTimerStatic = 5,
             RTSTransform = 2,
             SelectionRectClipSpace = 3,
+            UnitStatsContainer = 6,
         }
         static Func<RTSRuntimeData> [] polymorphConstructors = new Func<RTSRuntimeData> [] {
             () => null, // 0
@@ -25,6 +26,7 @@ namespace Game.GameCore {
             () => new Game.GameCore.SelectionRectClipSpace(), // 3
             () => new Game.GameCore.RTSTimerIntervals(), // 4
             () => new Game.GameCore.RTSTimerStatic(), // 5
+            () => new Game.GameCore.UnitStatsContainer(), // 6
         };
         public static RTSRuntimeData CreatePolymorphic(System.UInt16 typeId) {
             return polymorphConstructors[typeId]();

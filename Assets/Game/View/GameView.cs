@@ -18,11 +18,13 @@ public class RTSView : ReusableView
 {
     public GameView gameView => GameView.instance;
     public GameModel game => gameView.game;
+    public GameConfig config => GameConfig.Instance;
 }
 
-public class GameView : ConnectableMonoBehaviour
+public class GameView : RTSView
 {
     public static GameView instance;
+    public static GameConfig config => GameConfig.Instance;
     
     public MapView mapView;
     public RTSCameraController cameraController => mapView.cameraController;
@@ -106,67 +108,15 @@ public class GameView : ConnectableMonoBehaviour
 
     private void Start()
     {
-        StartTestGame();
     }
 
-    [Button]
-    public void StartTestGame()
+    public void SetupGameModel(GameModel gameModel)
     {
-        game = new GameModel()
-        {
-            logger = new UnityLogger()
-        };
-        Faction myFaction = new Faction();
-        game.Init(new[] { myFaction });
-        game.factions[0].Init(new List<Unit>()
-        {
-            new Unit()
-            {
-                moveSpeed = 15,
-                transform = new RTSTransform()
-                {
-                    position = new Vector3(0, 0, 0),
-                    rotation = Quaternion.identity
-                }
-            },
-            new Unit()
-            {
-                moveSpeed = 5,
-                transform = new RTSTransform()
-                {
-                    position = new Vector3(3, 0, 0),
-                    rotation = Quaternion.identity
-                }
-            },
-            new Unit()
-            {
-                moveSpeed = 5,
-                transform = new RTSTransform()
-                {
-                    position = new Vector3(0, 0, 3),
-                    rotation = Quaternion.identity
-                }
-            },
-            new Unit()
-            {
-                moveSpeed = 5,
-                transform = new RTSTransform()
-                {
-                    position = new Vector3(3, 0, 3),
-                    rotation = Quaternion.identity
-                }
-            },
-            new Unit()
-            {
-                moveSpeed = 5,
-                transform = new RTSTransform()
-                {
-                    position = new Vector3(6, 0, 0),
-                    rotation = Quaternion.identity
-                }
-            },
-        });
-        game.GameStart();
+        gameConnections.DisconnectAll();
+        unitsPresenter?.UnloadAll(true);
+        
+        game = gameModel;
+        
 
         gameTicker = new IntervalRepeater()
         {
@@ -176,6 +126,8 @@ public class GameView : ConnectableMonoBehaviour
        
         unitsPresenter = new ListPresenter<Unit, UnitView>(unitsRoot, PrefabRef<UnitView>.Auto(),
             (unit, view) => view.ShowUnit(unit), view => view.OnUnload());
+        
+        game.GameStart();
     }
 
     private void OnGameTick(float dt)

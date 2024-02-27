@@ -4,6 +4,5 @@ namespace Game.GameCore
 {
     public partial class GameModel
     {
-        public EventStream onGameStarted;
     }
 }

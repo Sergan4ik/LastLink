@@ -10,11 +10,6 @@ using ZergRush.ReactiveCore;
 
 namespace Game.GameCore
 {
-    public partial class RTSTransform : RTSRuntimeData
-    {
-        public Vector3 position;
-        public Quaternion rotation;
-    }
     public partial class Unit : RTSContextNode, ISelectable, IActionSource
     {
         public string sourceName => $"Unit ${nodeId}";
@@ -24,12 +19,21 @@ namespace Game.GameCore
         [GenIgnore, JetBrains.Annotations.CanBeNull] 
         public UnitView view;
 
-        public float moveSpeed = 5;
         public List<UnitAction> unitActions;
 
-        public float maxHp = 100;
-        public float hp = 100;
-        public bool isDead => hp <= 0;
+        public UnitStatsContainer stats;
+        public ref float hp => ref stats.Health;
+        public float maxHp => stats.MaxHealth;
+        public float moveSpeed => stats.MoveSpeed;
+        public UnitConfig cfg;
+        
+        public void Init(UnitConfig cfg, int level)
+        {
+            this.cfg = cfg;
+            var levelCfg = cfg.GetLevelConfig(level);
+            stats.UpdateFrom(levelCfg.stats);
+        }
+        
         public void Tick(float dt)
         {
             foreach (var unitAction in unitActions)

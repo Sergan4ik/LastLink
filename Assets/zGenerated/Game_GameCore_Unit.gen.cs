@@ -14,10 +14,9 @@ namespace Game.GameCore {
         {
             base.UpdateFrom(other,__helper);
             var otherConcrete = (Game.GameCore.Unit)other;
-            hp = otherConcrete.hp;
+            cfg.UpdateFrom(otherConcrete.cfg, __helper);
             IsSelected = otherConcrete.IsSelected;
-            maxHp = otherConcrete.maxHp;
-            moveSpeed = otherConcrete.moveSpeed;
+            stats.UpdateFrom(otherConcrete.stats, __helper);
             transform.UpdateFrom(otherConcrete.transform, __helper);
             unitActions.UpdateFrom(otherConcrete.unitActions, __helper);
         }
@@ -28,20 +27,18 @@ namespace Game.GameCore {
         public override void Deserialize(ZRBinaryReader reader) 
         {
             base.Deserialize(reader);
-            hp = reader.ReadSingle();
+            cfg.Deserialize(reader);
             IsSelected = reader.ReadBoolean();
-            maxHp = reader.ReadSingle();
-            moveSpeed = reader.ReadSingle();
+            stats.Deserialize(reader);
             transform.Deserialize(reader);
             unitActions.Deserialize(reader);
         }
         public override void Serialize(ZRBinaryWriter writer) 
         {
             base.Serialize(writer);
-            writer.Write(hp);
+            cfg.Serialize(writer);
             writer.Write(IsSelected);
-            writer.Write(maxHp);
-            writer.Write(moveSpeed);
+            stats.Serialize(writer);
             transform.Serialize(writer);
             unitActions.Serialize(writer);
         }
@@ -51,13 +48,11 @@ namespace Game.GameCore {
             System.UInt64 hash = baseVal;
             hash ^= (ulong)1347601703;
             hash += hash << 11; hash ^= hash >> 7;
-            hash += (System.UInt64)hp;
+            hash += cfg.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
             hash += IsSelected ? 1u : 0u;
             hash += hash << 11; hash ^= hash >> 7;
-            hash += (System.UInt64)maxHp;
-            hash += hash << 11; hash ^= hash >> 7;
-            hash += (System.UInt64)moveSpeed;
+            hash += stats.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
             hash += transform.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
@@ -69,10 +64,13 @@ namespace Game.GameCore {
         {
             base.CompareCheck(other,__helper,printer);
             var otherConcrete = (Game.GameCore.Unit)other;
-            if (hp != otherConcrete.hp) SerializationTools.LogCompError(__helper, "hp", printer, otherConcrete.hp, hp);
+            __helper.Push("cfg");
+            cfg.CompareCheck(otherConcrete.cfg, __helper, printer);
+            __helper.Pop();
             if (IsSelected != otherConcrete.IsSelected) SerializationTools.LogCompError(__helper, "IsSelected", printer, otherConcrete.IsSelected, IsSelected);
-            if (maxHp != otherConcrete.maxHp) SerializationTools.LogCompError(__helper, "maxHp", printer, otherConcrete.maxHp, maxHp);
-            if (moveSpeed != otherConcrete.moveSpeed) SerializationTools.LogCompError(__helper, "moveSpeed", printer, otherConcrete.moveSpeed, moveSpeed);
+            __helper.Push("stats");
+            stats.CompareCheck(otherConcrete.stats, __helper, printer);
+            __helper.Pop();
             __helper.Push("transform");
             transform.CompareCheck(otherConcrete.transform, __helper, printer);
             __helper.Pop();
@@ -85,17 +83,14 @@ namespace Game.GameCore {
             if (base.ReadFromJsonField(reader, __name)) return true;
             switch(__name)
             {
-                case "hp":
-                hp = (float)(double)reader.Value;
+                case "cfg":
+                cfg.ReadFromJson(reader);
                 break;
                 case "IsSelected":
                 IsSelected = (bool)reader.Value;
                 break;
-                case "maxHp":
-                maxHp = (float)(double)reader.Value;
-                break;
-                case "moveSpeed":
-                moveSpeed = (float)(double)reader.Value;
+                case "stats":
+                stats.ReadFromJson(reader);
                 break;
                 case "transform":
                 transform.ReadFromJson(reader);
@@ -110,14 +105,12 @@ namespace Game.GameCore {
         public override void WriteJsonFields(ZRJsonTextWriter writer) 
         {
             base.WriteJsonFields(writer);
-            writer.WritePropertyName("hp");
-            writer.WriteValue(hp);
+            writer.WritePropertyName("cfg");
+            cfg.WriteJson(writer);
             writer.WritePropertyName("IsSelected");
             writer.WriteValue(IsSelected);
-            writer.WritePropertyName("maxHp");
-            writer.WriteValue(maxHp);
-            writer.WritePropertyName("moveSpeed");
-            writer.WriteValue(moveSpeed);
+            writer.WritePropertyName("stats");
+            stats.WriteJson(writer);
             writer.WritePropertyName("transform");
             transform.WriteJson(writer);
             writer.WritePropertyName("unitActions");
@@ -125,6 +118,8 @@ namespace Game.GameCore {
         }
         public  Unit() 
         {
+            cfg = new Game.GameCore.UnitConfig();
+            stats = new Game.GameCore.UnitStatsContainer();
             transform = new Game.GameCore.RTSTransform();
             unitActions = new System.Collections.Generic.List<Game.GameCore.UnitAction>();
         }

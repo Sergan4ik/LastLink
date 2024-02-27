@@ -16,7 +16,6 @@ namespace Game.GameCore {
             var otherConcrete = (Game.GameCore.GameModel)other;
             factions.UpdateFrom(otherConcrete.factions, __helper);
             gameState.value = otherConcrete.gameState.value;
-            onGameStarted.UpdateFrom(otherConcrete.onGameStarted, __helper);
             random.UpdateFrom(otherConcrete.random, __helper);
         }
         public void UpdateFrom(Game.GameCore.GameModel other, ZRUpdateFromHelper __helper) 
@@ -28,7 +27,6 @@ namespace Game.GameCore {
             base.Deserialize(reader);
             factions.Deserialize(reader);
             gameState.value = reader.ReadEnum<Game.GameCore.GameState>();
-            onGameStarted.Deserialize(reader);
             random.Deserialize(reader);
         }
         public override void Serialize(ZRBinaryWriter writer) 
@@ -36,7 +34,6 @@ namespace Game.GameCore {
             base.Serialize(writer);
             factions.Serialize(writer);
             writer.Write((Int32)gameState.value);
-            onGameStarted.Serialize(writer);
             random.Serialize(writer);
         }
         public override ulong CalculateHash(ZRHashHelper __helper) 
@@ -49,8 +46,6 @@ namespace Game.GameCore {
             hash += hash << 11; hash ^= hash >> 7;
             hash += (System.UInt64)gameState.value;
             hash += hash << 11; hash ^= hash >> 7;
-            hash += onGameStarted.CalculateHash(__helper);
-            hash += hash << 11; hash ^= hash >> 7;
             hash += random.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
             return hash;
@@ -59,7 +54,6 @@ namespace Game.GameCore {
         {
             factions = new ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Faction>();
             gameState = new ZergRush.ReactiveCore.Cell<Game.GameCore.GameState>();
-            onGameStarted = new ZergRush.ReactiveCore.EventStream();
             random = new ZergRush.ZergRandom();
         }
         public override void CompareCheck(Game.NodeArchitecture.ContextNode other, ZRCompareCheckHelper __helper, Action<string> printer) 
@@ -70,9 +64,6 @@ namespace Game.GameCore {
             factions.CompareCheck(otherConcrete.factions, __helper, printer);
             __helper.Pop();
             if (gameState.value != otherConcrete.gameState.value) SerializationTools.LogCompError(__helper, "gameState", printer, otherConcrete.gameState.value, gameState.value);
-            __helper.Push("onGameStarted");
-            onGameStarted.CompareCheck(otherConcrete.onGameStarted, __helper, printer);
-            __helper.Pop();
             __helper.Push("random");
             random.CompareCheck(otherConcrete.random, __helper, printer);
             __helper.Pop();
@@ -88,9 +79,6 @@ namespace Game.GameCore {
                 case "gameState":
                 gameState.value = ((string)reader.Value).ParseEnum<Game.GameCore.GameState>();
                 break;
-                case "onGameStarted":
-                onGameStarted.ReadFromJson(reader);
-                break;
                 case "random":
                 random.ReadFromJson(reader);
                 break;
@@ -105,8 +93,6 @@ namespace Game.GameCore {
             factions.WriteJson(writer);
             writer.WritePropertyName("gameState");
             writer.WriteValue(gameState.value.ToString());
-            writer.WritePropertyName("onGameStarted");
-            onGameStarted.WriteJson(writer);
             writer.WritePropertyName("random");
             random.WriteJson(writer);
         }

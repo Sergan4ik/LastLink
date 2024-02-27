@@ -79,7 +79,6 @@ namespace Game.GameCore
         public void GameStart()
         {
             gameState.value = GameState.InProgress;
-            onGameStarted.Send();
         }
 
         public void Touch()

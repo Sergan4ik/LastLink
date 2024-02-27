@@ -17,10 +17,13 @@ namespace Game.GameCore
         public FactionType factionType;
         public ReactiveCollection<Unit> units;
 
-        public void Init(IEnumerable<Unit> unitPrototypes)
+        public void Init(IEnumerable<UnitConfig> unitConfigs)
         {
-            foreach (var unitPrototype in unitPrototypes)
+            foreach (var unitConfig in unitConfigs)
             {
+                var unitPrototype = new Unit();
+                unitPrototype.Init(unitConfig, 0);
+                
                 units.Add(CreateChild(unitPrototype));
             }
         }
