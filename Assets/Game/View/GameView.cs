@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Game;
 using Game.GameCore;
+using NUnit.Framework;
 using Sirenix.OdinInspector;
 using Unity.XR.OpenVR;
 using UnityEngine;
@@ -23,6 +24,8 @@ public class RTSView : ReusableView
 
 public class GameView : RTSView
 {
+    public int serverPlayerId = 0;
+    
     public static GameView instance;
     public static GameConfig config => GameConfig.Instance;
     
@@ -37,8 +40,16 @@ public class GameView : RTSView
     
     public Connections gameConnections = new Connections();
     public Transform unitsRoot;
+
+    public GameUI gameUI;
     
     private ListPresenter<Unit,UnitView> unitsPresenter;
+
+    
+    public Faction localPlayerFaction => game.GetFactionByPlayerId(serverPlayerId);
+    
+    [HideInInspector]
+    public List<UnitView> currentSelection;
 
     public void Awake()
     {
@@ -72,9 +83,36 @@ public class GameView : RTSView
         
     }
 
-    private void ProcessSelection(SelectionRectClipSpace rectClipSpace)
+    private void ProcessSelection((SelectionRectClipSpace rectClipSpace, float time) t)
     {
-        game.SelectUnitsInsideRect(rectClipSpace);
+        List<Unit> toSelect = new List<Unit>();
+        if (t.time < 0.1f)
+        {
+            if (cameraController.TryGetPointedUnit(out var unit))
+            {
+                toSelect.Add(unit);
+            }
+        }
+        else
+        {
+            toSelect = game.GetUnitsInsideOpaqueQuadrangle(t.rectClipSpace, u => u.faction != localPlayerFaction);
+        }
+
+        var viewsToSelect = unitsPresenter.Views().Where(view => toSelect.Any(u => u == view.currentUnit)).ToList();
+        foreach (var view in currentSelection)
+        {
+            bool isToSelect = viewsToSelect.Any(v => v == view);
+            if (view.isSelected && isToSelect == false)
+            {
+                view.OnSelectionToggle(false);
+            }
+            if (view.isSelected == false && isToSelect)
+            {
+                view.OnSelectionToggle(true);
+            }
+        }
+        currentSelection = viewsToSelect;
+        gameUI.selectionUI.ShowSelection(currentSelection);
     }
 
     private void OnSecondaryAction(InputAction.CallbackContext ctx)
@@ -95,7 +133,8 @@ public class GameView : RTSView
             else
             {
                 OnTerrainClick();
-                game.factions[0].MoveSelectedTo(worldMousePosition);
+                if (currentSelection.Count > 0)
+                    localPlayerFaction.MoveStackTo(currentSelection.Select(uv => uv.currentUnit).ToList(), worldMousePosition);
             }
         }
     }
@@ -110,7 +149,7 @@ public class GameView : RTSView
     {
     }
 
-    public void SetupGameModel(GameModel gameModel)
+    public void SetupGameModel(GameModel gameModel, int serverPlayerId)
     {
         gameConnections.DisconnectAll();
         unitsPresenter?.UnloadAll(true);
@@ -124,7 +163,7 @@ public class GameView : RTSView
         };
         gameConnections += selectionHandler.onSelection.Subscribe(ProcessSelection);
        
-        unitsPresenter = new ListPresenter<Unit, UnitView>(unitsRoot, PrefabRef<UnitView>.Auto(),
+        unitsPresenter = new ListPresenter<Unit, UnitView>(u => u.cfg.name.GetUnitView() ,unitsRoot, 
             (unit, view) => view.ShowUnit(unit), view => view.OnUnload());
         
         game.GameStart();

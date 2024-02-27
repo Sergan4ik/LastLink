@@ -914,6 +914,40 @@ public static partial class SerializationExtensions
         }
         writer.WriteEndArray();
     }
+    public static void UpdateFrom(this System.Collections.Generic.List<Game.GameCore.ControlData> self, System.Collections.Generic.List<Game.GameCore.ControlData> other, ZRUpdateFromHelper __helper) 
+    {
+        int i = 0;
+        int oldCount = self.Count;
+        int crossCount = Math.Min(oldCount, other.Count);
+        for (; i < crossCount; ++i)
+        {
+            if (other[i] == null) {
+                self[i] = null;
+            }
+            else { 
+                if (self[i] == null) {
+                    self[i] = new Game.GameCore.ControlData();
+                }
+                self[i].UpdateFrom(other[i], __helper);
+            }
+        }
+        for (; i < other.Count; ++i)
+        {
+            Game.GameCore.ControlData inst = default;
+            if (other[i] == null) {
+                inst = null;
+            }
+            else { 
+                inst = new Game.GameCore.ControlData();
+                inst.UpdateFrom(other[i], __helper);
+            }
+            self.Add(inst);
+        }
+        for (; i < oldCount; ++i)
+        {
+            self.RemoveAt(self.Count - 1);
+        }
+    }
     public static void UpdateFrom(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Faction> self, ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Faction> other, ZRUpdateFromHelper __helper) 
     {
         int i = 0;
@@ -948,6 +982,20 @@ public static partial class SerializationExtensions
             self.RemoveAt(self.Count - 1);
         }
     }
+    public static void Deserialize(this System.Collections.Generic.List<Game.GameCore.ControlData> self, ZRBinaryReader reader) 
+    {
+        var size = reader.ReadInt32();
+        if(size > 100000) throw new ZergRushCorruptedOrInvalidDataLayout();
+        self.Capacity = size;
+        for (int i = 0; i < size; i++)
+        {
+            if (!reader.ReadBoolean()) { self.Add(null); continue; }
+            Game.GameCore.ControlData val = default;
+            val = new Game.GameCore.ControlData();
+            val.Deserialize(reader);
+            self.Add(val);
+        }
+    }
     public static void Deserialize(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Faction> self, ZRBinaryReader reader) 
     {
         var size = reader.ReadInt32();
@@ -962,6 +1010,18 @@ public static partial class SerializationExtensions
             self.Add(val);
         }
     }
+    public static void Serialize(this System.Collections.Generic.List<Game.GameCore.ControlData> self, ZRBinaryWriter writer) 
+    {
+        writer.Write(self.Count);
+        for (int i = 0; i < self.Count; i++)
+        {
+            writer.Write(self[i] != null);
+            if (self[i] != null)
+            {
+                self[i].Serialize(writer);
+            }
+        }
+    }
     public static void Serialize(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Faction> self, ZRBinaryWriter writer) 
     {
         writer.Write(self.Count);
@@ -973,6 +1033,19 @@ public static partial class SerializationExtensions
                 self[i].Serialize(writer);
             }
         }
+    }
+    public static ulong CalculateHash(this System.Collections.Generic.List<Game.GameCore.ControlData> self, ZRHashHelper __helper) 
+    {
+        System.UInt64 hash = 345093625;
+        hash ^= (ulong)910491146;
+        hash += hash << 11; hash ^= hash >> 7;
+        var size = self.Count;
+        for (int i = 0; i < size; i++)
+        {
+            hash += self[i] != null ? self[i].CalculateHash(__helper) : 345093625;
+            hash += hash << 11; hash ^= hash >> 7;
+        }
+        return hash;
     }
     public static ulong CalculateHash(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Faction> self, ZRHashHelper __helper) 
     {
@@ -987,6 +1060,19 @@ public static partial class SerializationExtensions
         }
         return hash;
     }
+    public static void CompareCheck(this System.Collections.Generic.List<Game.GameCore.ControlData> self, System.Collections.Generic.List<Game.GameCore.ControlData> other, ZRCompareCheckHelper __helper, Action<string> printer) 
+    {
+        if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
+        var count = Math.Min(self.Count, other.Count);
+        for (int i = 0; i < count; i++)
+        {
+            if (SerializationTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
+                __helper.Push(i.ToString());
+                self[i].CompareCheck(other[i], __helper, printer);
+                __helper.Pop();
+            }
+        }
+    }
     public static void CompareCheck(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Faction> self, ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Faction> other, ZRCompareCheckHelper __helper, Action<string> printer) 
     {
         if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
@@ -999,6 +1085,36 @@ public static partial class SerializationExtensions
                 __helper.Pop();
             }
         }
+    }
+    public static bool ReadFromJson(this System.Collections.Generic.List<Game.GameCore.ControlData> self, ZRJsonTextReader reader) 
+    {
+        if (reader.TokenType != JsonToken.StartArray) throw new JsonSerializationException("Bad Json Format");
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonToken.EndArray) { break; }
+            if (reader.TokenType == JsonToken.Null) { self.Add(null); continue; }
+            Game.GameCore.ControlData val = default;
+            val = new Game.GameCore.ControlData();
+            val.ReadFromJson(reader);
+            self.Add(val);
+        }
+        return true;
+    }
+    public static void WriteJson(this System.Collections.Generic.List<Game.GameCore.ControlData> self, ZRJsonTextWriter writer) 
+    {
+        writer.WriteStartArray();
+        for (int i = 0; i < self.Count; i++)
+        {
+            if (self[i] == null)
+            {
+                writer.WriteNull();
+            }
+            else
+            {
+                self[i].WriteJson(writer);
+            }
+        }
+        writer.WriteEndArray();
     }
     public static bool ReadFromJson(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Faction> self, ZRJsonTextReader reader) 
     {

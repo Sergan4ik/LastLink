@@ -18,5 +18,14 @@ namespace Game.GameCore
         {
             return camera.projectionMatrix * camera.transform.worldToLocalMatrix;
         }
+        
+        public static UnitView GetUnitView(this string unitId)
+        {
+            return Resources.Load<UnitView>($"UnitViews/{unitId}");
+        }
+        public static Sprite GetUnitIcon(this string unitId)
+        {
+            return Resources.Load<Sprite>($"UnitIcons/{unitId}");
+        }
     }
 }

@@ -15,7 +15,6 @@ namespace Game.GameCore {
             base.UpdateFrom(other,__helper);
             var otherConcrete = (Game.GameCore.Unit)other;
             cfg.UpdateFrom(otherConcrete.cfg, __helper);
-            IsSelected = otherConcrete.IsSelected;
             stats.UpdateFrom(otherConcrete.stats, __helper);
             transform.UpdateFrom(otherConcrete.transform, __helper);
             unitActions.UpdateFrom(otherConcrete.unitActions, __helper);
@@ -28,7 +27,6 @@ namespace Game.GameCore {
         {
             base.Deserialize(reader);
             cfg.Deserialize(reader);
-            IsSelected = reader.ReadBoolean();
             stats.Deserialize(reader);
             transform.Deserialize(reader);
             unitActions.Deserialize(reader);
@@ -37,7 +35,6 @@ namespace Game.GameCore {
         {
             base.Serialize(writer);
             cfg.Serialize(writer);
-            writer.Write(IsSelected);
             stats.Serialize(writer);
             transform.Serialize(writer);
             unitActions.Serialize(writer);
@@ -49,8 +46,6 @@ namespace Game.GameCore {
             hash ^= (ulong)1347601703;
             hash += hash << 11; hash ^= hash >> 7;
             hash += cfg.CalculateHash(__helper);
-            hash += hash << 11; hash ^= hash >> 7;
-            hash += IsSelected ? 1u : 0u;
             hash += hash << 11; hash ^= hash >> 7;
             hash += stats.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
@@ -67,7 +62,6 @@ namespace Game.GameCore {
             __helper.Push("cfg");
             cfg.CompareCheck(otherConcrete.cfg, __helper, printer);
             __helper.Pop();
-            if (IsSelected != otherConcrete.IsSelected) SerializationTools.LogCompError(__helper, "IsSelected", printer, otherConcrete.IsSelected, IsSelected);
             __helper.Push("stats");
             stats.CompareCheck(otherConcrete.stats, __helper, printer);
             __helper.Pop();
@@ -85,9 +79,6 @@ namespace Game.GameCore {
             {
                 case "cfg":
                 cfg.ReadFromJson(reader);
-                break;
-                case "IsSelected":
-                IsSelected = (bool)reader.Value;
                 break;
                 case "stats":
                 stats.ReadFromJson(reader);
@@ -107,8 +98,6 @@ namespace Game.GameCore {
             base.WriteJsonFields(writer);
             writer.WritePropertyName("cfg");
             cfg.WriteJson(writer);
-            writer.WritePropertyName("IsSelected");
-            writer.WriteValue(IsSelected);
             writer.WritePropertyName("stats");
             stats.WriteJson(writer);
             writer.WritePropertyName("transform");

@@ -7,9 +7,9 @@ public class ProgressBar : MonoBehaviour
     public Image fill;
     public TextMeshProUGUI text;
 
-    public void ChangeProgress(float progress, float fullAmount)
+    public void SetProgress(float progress, float fullAmount, string formatString = ".0")
     {
         fill.fillAmount = Mathf.Clamp01(progress / fullAmount);
-        text.text = $"{progress.ToString(".0")}/{fullAmount.ToString(".0")}";
+        text.text = $"{progress.ToString(formatString)}/{fullAmount.ToString(formatString)}";
     }
 }

@@ -12,20 +12,25 @@ public class SelectionHandler : ConnectableMonoBehaviour
     public Canvas selectionCanvas;
     
     private Vector2 startPos;
-    public HashSet<UnitView> selectedUnits = new HashSet<UnitView>();
+    private float startTime;
 
-    public EventStream<SelectionRectClipSpace> onSelection = new EventStream<SelectionRectClipSpace>();
+    public EventStream<(SelectionRectClipSpace, float)> onSelection = new EventStream<(SelectionRectClipSpace, float)>();
     
     public void SelectionProcess(InputAction.CallbackContext ctx)
     {
         if (ctx.started)
         {
             startPos = Mouse.current.position.ReadValue();
+            startTime = Time.time;
             selectionBox.rectTransform.anchoredPosition = startPos;
             Debug.Log(Mouse.current.position.ReadValue());
         }
         else if (ctx.canceled)
         {
+            if (ctx.duration < 0.1f)
+            {
+                
+            }
             SelectBox();
             selectionBox.rectTransform.anchoredPosition = Vector2.negativeInfinity;
         }
@@ -36,13 +41,14 @@ public class SelectionHandler : ConnectableMonoBehaviour
         var leftBottom = selectionBox.rectTransform.anchoredPosition;
         var rightTop = selectionBox.rectTransform.anchoredPosition + selectionBox.rectTransform.sizeDelta;
             
-        onSelection.Send(new SelectionRectClipSpace()
+        onSelection.Send((new SelectionRectClipSpace()
         {
             leftBottom = new Vector2(leftBottom.x / Screen.width, leftBottom.y / Screen.height),
             rightTop = new Vector2(rightTop.x / Screen.width, rightTop.y / Screen.height),
             unitToViewportMatrix = Tools.GetUnitToViewportMatrix(camera),
             cameraSize = new Vector2(Screen.width , Screen.height),
-        });
+            
+        }, Time.time - startTime));
     }
 
     public void SelectionTick(InputAction selectionAction)
@@ -53,7 +59,6 @@ public class SelectionHandler : ConnectableMonoBehaviour
             var size = currentMousePosition - startPos;
             selectionBox.rectTransform.anchoredPosition = Vector2.Min(startPos, currentMousePosition);
             selectionBox.rectTransform.sizeDelta = new Vector2(Mathf.Abs(size.x), Mathf.Abs(size.y));
-            
             SelectBox();
         }
     }

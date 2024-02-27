@@ -26,14 +26,6 @@ namespace Game.GameCore
         Finished
     }
 
-    public interface ISelectable
-    {
-        public RTSTransform Transform { get; }
-        public bool IsSelected { get; set; }
-        public void OnSelect();
-        public void OnDeselect();
-    }
-
     public interface IActionSource
     {
         public string sourceName { get; }
@@ -53,6 +45,7 @@ namespace Game.GameCore
     [GenTask(GenTaskFlags.SimpleDataPack)]
     public partial class GameModel : RTSContextRoot, IActionSource
     {
+        public List<ControlData> controlData;
         public string sourceName => $"GameModel";
         public const int TargetFps = 60;
         public const float FrameTime = 1.0f / TargetFps;
@@ -66,7 +59,6 @@ namespace Game.GameCore
         public Cell<GameState> gameState;
 
         public IEnumerable<Unit> allUnits => factions.Map(f => f.units).Join();
-        public IEnumerable<ISelectable> selectables => allUnits.Cast<ISelectable>();
  
         public void Init(IEnumerable<Faction> factionPrototypes)
         {
@@ -85,48 +77,31 @@ namespace Game.GameCore
         {
             Tick(0);
         }
-        
-        public List<Unit> SelectUnitsInsideRect(SelectionRectClipSpace selectionRectClipSpace)
-        {
-            var units = GetUnitsInsideOpaqueQuadrangle(selectionRectClipSpace);
-            foreach (var unit in allUnits)
-            {
-                if (units.Any(u => u == unit))
-                {
-                    if (unit.IsSelected == false)
-                    {
-                        unit.IsSelected = true;
-                        unit.OnSelect();
-                    }
-                }
-                else
-                {
-                    if (unit.IsSelected)
-                    {
-                        unit.IsSelected = false;
-                        unit.OnDeselect();
-                    }
-                }
-            }
 
-            return units;
-        }
+        public Faction GetFactionBySlot(FactionSlot slot) => factions.FirstOrDefault(f => f.slot == slot);
+
+        public Faction GetFactionByPlayerId(int playerId) =>
+            GetFactionBySlot(controlData.FirstOrDefault(cd => cd.serverPlayerId == playerId).factionSlot);
         
-        public List<Unit> GetUnitsInsideOpaqueQuadrangle(SelectionRectClipSpace selectionRectClipSpace)
+        
+        public List<Unit> GetUnitsInsideOpaqueQuadrangle(SelectionRectClipSpace selectionRectClipSpace, Func<Unit, bool> skipIf = null)
         {
             // (Vector2 leftBottom2, Vector2 rightBottom2, Vector2 leftUpper2, Vector2 rightUpper2) =
             //     NormalizeCorners(selectionRectClipSpace.leftBottom, selectionRectClipSpace.rightBottom, selectionRectClipSpace.leftTop, selectionRectClipSpace.rightTop);
 
+            if (skipIf == null)
+                skipIf = u => false;
+            
             List<Unit> result = new List<Unit>();
             
             foreach (var unit in allUnits)
             {
-                Vector4 clipCoord = selectionRectClipSpace.unitToViewportMatrix * new Vector4(unit.Transform.position.x , unit.Transform.position.y, unit.Transform.position.z, 1);
+                Vector4 clipCoord = selectionRectClipSpace.unitToViewportMatrix * new Vector4(unit.transform.position.x , unit.transform.position.y, unit.transform.position.z, 1);
                 Vector4 perspectiveCoord = clipCoord / -clipCoord.w;
                 perspectiveCoord.x = (perspectiveCoord.x + 1) / 2;
                 perspectiveCoord.y = (perspectiveCoord.y + 1) / 2;
                 
-                if (selectionRectClipSpace.IsPointInsideRect(perspectiveCoord))
+                if (selectionRectClipSpace.IsPointInsideRect(perspectiveCoord) && skipIf(unit) == false)
                 {
                     result.Add(unit);
                 }
@@ -160,6 +135,8 @@ namespace Game.GameCore
 
         public Matrix4x4 unitToViewportMatrix;
         public Vector2 cameraSize;
+
+        public float selectionDuration;
         
         public bool IsPointInsideRect(Vector2 point)
         {

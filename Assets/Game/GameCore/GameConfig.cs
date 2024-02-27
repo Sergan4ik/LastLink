@@ -57,9 +57,20 @@ namespace Game.GameCore
             {
                 units = new List<UnitConfig>()
                 {
-                    UnitConfig.CreateDefault()
+                    UnitConfig.CreateBaseUnit(),
+                    UnitConfig.CreateBaseUnit("DefaultEnemy")
                 }
             };
+        }
+
+        public static void ResetConfigs()
+        {
+            foreach (var path in savePaths)
+            {
+                File.Delete(path);
+            }
+            
+            CreateDefault().Save();
         }
         
         public void Save()
@@ -85,11 +96,11 @@ namespace Game.GameCore
             return levelConfig[level];
         }
         
-        public static UnitConfig CreateDefault()
+        public static UnitConfig CreateBaseUnit(string name = "DefaultUnit")
         {
             return new UnitConfig()
             {
-                name = "DefaultUnit",
+                name = name,
                 levelConfig = new List<UnitLevelConfig>()
                 {
                     new UnitLevelConfig()

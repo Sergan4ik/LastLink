@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Game.GameCore;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using UnityEditor;
@@ -23,6 +24,16 @@ public partial class DevelopersPanel : OdinEditorWindow
             .ToList().ConvertAll(s => new SceneButton() { name = s });
     }
 
+    [Button(ButtonSizes.Large), GUIColor(1, 0.3f, 0.1f), PropertyOrder(-1)]
+    [TabGroup("Features", "ConfigManipulations")]
+    public static void ResetConfigs()
+    {
+        if (EditorUtility.DisplayDialog("Reset configs", "Are you sure?", "Yes", "No") == false)
+            return;
+
+        GameConfig.ResetConfigs();
+    }
+    
     [MenuItem("GameTools/Play #&d")]
     [TabGroup("Features", "SceneButtons")]
     public static async void PlayFromPrelaunchScene()
@@ -45,6 +56,7 @@ public partial class DevelopersPanel : OdinEditorWindow
         Debug.Log($"return to scene {scenePath}");
         EditorSceneManager.OpenScene(scenePath);
     }
+
     
     [MenuItem("Tools/Developer panel")]
     private static void OpenWindow()

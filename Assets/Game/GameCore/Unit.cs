@@ -10,9 +10,9 @@ using ZergRush.ReactiveCore;
 
 namespace Game.GameCore
 {
-    public partial class Unit : RTSContextNode, ISelectable, IActionSource
+    public partial class Unit : RTSContextNode, IActionSource
     {
-        public string sourceName => $"Unit ${nodeId}";
+        public string sourceName => $"Unit ${cfg.name}_{nodeId}";
         public Faction faction => (Faction)parent;
         public RTSTransform transform;
 
@@ -26,6 +26,8 @@ namespace Game.GameCore
         public float maxHp => stats.MaxHealth;
         public float moveSpeed => stats.MoveSpeed;
         public UnitConfig cfg;
+        
+        public bool isMoving => unitActions.Any(a => a is UnitMove);
         
         public void Init(UnitConfig cfg, int level)
         {
@@ -51,10 +53,6 @@ namespace Game.GameCore
             }
         }
 
-        public RTSTransform Transform => transform;
-        [GenInclude]
-        public bool IsSelected { get; set; }
-
         public void SetupAction(UnitAction actionPrototype)
         {
             UnitAction action = CreateChild(actionPrototype);
@@ -69,18 +67,6 @@ namespace Game.GameCore
                 unitActions.Find(a => a is UnitMove).Terminate(this);
             }
             SetupAction(new UnitMove {globalDestination = destination, moveSpeed = moveSpeed});
-        }
-
-        public void OnSelect()
-        {
-            if (view != null) 
-                view.OnSelectionToggle(true);
-        }
-
-        public void OnDeselect()
-        {
-            if (view != null) 
-                view.OnSelectionToggle(false);
         }
 
         public void DealRawDamage(float dps)

@@ -14,6 +14,7 @@ namespace Game.GameCore {
         {
             base.UpdateFrom(other,__helper);
             var otherConcrete = (Game.GameCore.GameModel)other;
+            controlData.UpdateFrom(otherConcrete.controlData, __helper);
             factions.UpdateFrom(otherConcrete.factions, __helper);
             gameState.value = otherConcrete.gameState.value;
             random.UpdateFrom(otherConcrete.random, __helper);
@@ -25,6 +26,7 @@ namespace Game.GameCore {
         public override void Deserialize(ZRBinaryReader reader) 
         {
             base.Deserialize(reader);
+            controlData.Deserialize(reader);
             factions.Deserialize(reader);
             gameState.value = reader.ReadEnum<Game.GameCore.GameState>();
             random.Deserialize(reader);
@@ -32,6 +34,7 @@ namespace Game.GameCore {
         public override void Serialize(ZRBinaryWriter writer) 
         {
             base.Serialize(writer);
+            controlData.Serialize(writer);
             factions.Serialize(writer);
             writer.Write((Int32)gameState.value);
             random.Serialize(writer);
@@ -41,6 +44,8 @@ namespace Game.GameCore {
             var baseVal = base.CalculateHash(__helper);
             System.UInt64 hash = baseVal;
             hash ^= (ulong)624014821;
+            hash += hash << 11; hash ^= hash >> 7;
+            hash += controlData.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
             hash += factions.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
@@ -52,6 +57,7 @@ namespace Game.GameCore {
         }
         public  GameModel() 
         {
+            controlData = new System.Collections.Generic.List<Game.GameCore.ControlData>();
             factions = new ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Faction>();
             gameState = new ZergRush.ReactiveCore.Cell<Game.GameCore.GameState>();
             random = new ZergRush.ZergRandom();
@@ -60,6 +66,9 @@ namespace Game.GameCore {
         {
             base.CompareCheck(other,__helper,printer);
             var otherConcrete = (Game.GameCore.GameModel)other;
+            __helper.Push("controlData");
+            controlData.CompareCheck(otherConcrete.controlData, __helper, printer);
+            __helper.Pop();
             __helper.Push("factions");
             factions.CompareCheck(otherConcrete.factions, __helper, printer);
             __helper.Pop();
@@ -73,6 +82,9 @@ namespace Game.GameCore {
             if (base.ReadFromJsonField(reader, __name)) return true;
             switch(__name)
             {
+                case "controlData":
+                controlData.ReadFromJson(reader);
+                break;
                 case "factions":
                 factions.ReadFromJson(reader);
                 break;
@@ -89,6 +101,8 @@ namespace Game.GameCore {
         public override void WriteJsonFields(ZRJsonTextWriter writer) 
         {
             base.WriteJsonFields(writer);
+            writer.WritePropertyName("controlData");
+            controlData.WriteJson(writer);
             writer.WritePropertyName("factions");
             factions.WriteJson(writer);
             writer.WritePropertyName("gameState");

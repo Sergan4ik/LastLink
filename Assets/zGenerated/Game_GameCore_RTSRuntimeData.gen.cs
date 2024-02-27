@@ -13,6 +13,7 @@ namespace Game.GameCore {
         public enum Types : ushort
         {
             RTSRuntimeData = 1,
+            ControlData = 7,
             RTSTimerIntervals = 4,
             RTSTimerStatic = 5,
             RTSTransform = 2,
@@ -27,6 +28,7 @@ namespace Game.GameCore {
             () => new Game.GameCore.RTSTimerIntervals(), // 4
             () => new Game.GameCore.RTSTimerStatic(), // 5
             () => new Game.GameCore.UnitStatsContainer(), // 6
+            () => new Game.GameCore.ControlData(), // 7
         };
         public static RTSRuntimeData CreatePolymorphic(System.UInt16 typeId) {
             return polymorphConstructors[typeId]();

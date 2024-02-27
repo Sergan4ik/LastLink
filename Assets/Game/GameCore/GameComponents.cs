@@ -50,7 +50,8 @@ namespace Game.GameCore
         public float MaxHealth => GetStat(UnitStatType.Health).maxValue;
         public ref float Mana => ref GetStatRef(UnitStatType.Mana);
         public ref float MoveSpeed => ref GetStatRef(UnitStatType.MoveSpeed);
-        
+        public float MaxMana => GetStat(UnitStatType.Mana).maxValue;
+
         public static UnitStatsContainer CreateDefault()
         {
             return new UnitStatsContainer()

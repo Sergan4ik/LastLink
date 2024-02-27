@@ -15,6 +15,7 @@ namespace Game.GameCore {
             base.UpdateFrom(other,__helper);
             var otherConcrete = (Game.GameCore.Faction)other;
             factionType = otherConcrete.factionType;
+            slot = otherConcrete.slot;
             units.UpdateFrom(otherConcrete.units, __helper);
         }
         public void UpdateFrom(Game.GameCore.Faction other, ZRUpdateFromHelper __helper) 
@@ -25,12 +26,14 @@ namespace Game.GameCore {
         {
             base.Deserialize(reader);
             factionType = reader.ReadEnum<Game.GameCore.FactionType>();
+            slot = reader.ReadEnum<Game.GameCore.FactionSlot>();
             units.Deserialize(reader);
         }
         public override void Serialize(ZRBinaryWriter writer) 
         {
             base.Serialize(writer);
             writer.Write((Int32)factionType);
+            writer.Write((Int32)slot);
             units.Serialize(writer);
         }
         public override ulong CalculateHash(ZRHashHelper __helper) 
@@ -40,6 +43,8 @@ namespace Game.GameCore {
             hash ^= (ulong)1821259775;
             hash += hash << 11; hash ^= hash >> 7;
             hash += (System.UInt64)factionType;
+            hash += hash << 11; hash ^= hash >> 7;
+            hash += (System.UInt64)slot;
             hash += hash << 11; hash ^= hash >> 7;
             hash += units.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
@@ -54,6 +59,7 @@ namespace Game.GameCore {
             base.CompareCheck(other,__helper,printer);
             var otherConcrete = (Game.GameCore.Faction)other;
             if (factionType != otherConcrete.factionType) SerializationTools.LogCompError(__helper, "factionType", printer, otherConcrete.factionType, factionType);
+            if (slot != otherConcrete.slot) SerializationTools.LogCompError(__helper, "slot", printer, otherConcrete.slot, slot);
             __helper.Push("units");
             units.CompareCheck(otherConcrete.units, __helper, printer);
             __helper.Pop();
@@ -65,6 +71,9 @@ namespace Game.GameCore {
             {
                 case "factionType":
                 factionType = ((string)reader.Value).ParseEnum<Game.GameCore.FactionType>();
+                break;
+                case "slot":
+                slot = ((string)reader.Value).ParseEnum<Game.GameCore.FactionSlot>();
                 break;
                 case "units":
                 units.ReadFromJson(reader);
@@ -78,6 +87,8 @@ namespace Game.GameCore {
             base.WriteJsonFields(writer);
             writer.WritePropertyName("factionType");
             writer.WriteValue(factionType.ToString());
+            writer.WritePropertyName("slot");
+            writer.WriteValue(slot.ToString());
             writer.WritePropertyName("units");
             units.WriteJson(writer);
         }

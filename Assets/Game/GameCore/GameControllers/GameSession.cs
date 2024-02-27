@@ -33,8 +33,28 @@ namespace Game.GameCore.GameControllers
             {
                 logger = new UnityLogger()
             };
-            Faction myFaction = new Faction();
-            game.Init(new[] { myFaction });
+            Faction myFaction = new Faction()
+            {
+                slot = FactionSlot.Player1
+            };
+            Faction enemyFaction = new Faction()
+            {
+                slot = FactionSlot.Player2
+            };
+            
+            game.Init(new[] { myFaction, enemyFaction });
+            
+            game.controlData.Add(new ControlData()
+            {
+                factionSlot = FactionSlot.Player1,
+                serverPlayerId = 0
+            });
+            game.controlData.Add(new ControlData()
+            {
+                factionSlot = FactionSlot.Player2,
+                serverPlayerId = -1
+            });
+            
             game.factions[0].Init(new List<UnitConfig>()
             {
                 GameConfig.Instance.units[0],
@@ -44,16 +64,31 @@ namespace Game.GameCore.GameControllers
                 GameConfig.Instance.units[0]
             });
             
+            game.factions[1].Init(new List<UnitConfig>()
+            {
+                GameConfig.Instance.units[1],
+                GameConfig.Instance.units[1],
+                GameConfig.Instance.units[1],
+                GameConfig.Instance.units[1],
+                GameConfig.Instance.units[1]
+            });
+            
             game.factions[0].units[0].transform.position = new Vector3(0, 0, 0);
             game.factions[0].units[1].transform.position = new Vector3(3, 0, 0);
             game.factions[0].units[2].transform.position = new Vector3(0, 0, 3);
             game.factions[0].units[3].transform.position = new Vector3(3, 0, 3);
             game.factions[0].units[4].transform.position = new Vector3(6f, 0, 0f);
+            
+            game.factions[1].units[0].transform.position = new Vector3(10, 0, 10);
+            game.factions[1].units[1].transform.position = new Vector3(13, 0, 10);
+            game.factions[1].units[2].transform.position = new Vector3(10, 0, 13);
+            game.factions[1].units[3].transform.position = new Vector3(13, 0, 13);
+            game.factions[1].units[4].transform.position = new Vector3(16, 0, 10);
 
             await SceneManager.LoadSceneAsync("LevelTest");
             await Task.Yield();
             
-            GameView.instance.SetupGameModel(game);
+            GameView.instance.SetupGameModel(game, 0);
         }
 
         private void OnApplicationQuit()
