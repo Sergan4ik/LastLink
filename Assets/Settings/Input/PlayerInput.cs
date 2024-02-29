@@ -55,6 +55,15 @@ namespace Game
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ControlModifier"",
+                    ""type"": ""Button"",
+                    ""id"": ""73c12ace-e7c3-469f-be6f-364e2705a2a7"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -90,6 +99,17 @@ namespace Game
                     ""action"": ""UnitSelection"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ab422fd3-e0dd-467e-92b5-10d35c3a9844"",
+                    ""path"": ""<Keyboard>/ctrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ControlModifier"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -107,6 +127,7 @@ namespace Game
             m_RTS_MainAction = m_RTS.FindAction("MainAction", throwIfNotFound: true);
             m_RTS_SecondaryAction = m_RTS.FindAction("SecondaryAction", throwIfNotFound: true);
             m_RTS_UnitSelection = m_RTS.FindAction("UnitSelection", throwIfNotFound: true);
+            m_RTS_ControlModifier = m_RTS.FindAction("ControlModifier", throwIfNotFound: true);
         }
 
         public void Dispose()
@@ -171,6 +192,7 @@ namespace Game
         private readonly InputAction m_RTS_MainAction;
         private readonly InputAction m_RTS_SecondaryAction;
         private readonly InputAction m_RTS_UnitSelection;
+        private readonly InputAction m_RTS_ControlModifier;
         public struct RTSActions
         {
             private @PlayerInput m_Wrapper;
@@ -178,6 +200,7 @@ namespace Game
             public InputAction @MainAction => m_Wrapper.m_RTS_MainAction;
             public InputAction @SecondaryAction => m_Wrapper.m_RTS_SecondaryAction;
             public InputAction @UnitSelection => m_Wrapper.m_RTS_UnitSelection;
+            public InputAction @ControlModifier => m_Wrapper.m_RTS_ControlModifier;
             public InputActionMap Get() { return m_Wrapper.m_RTS; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -196,6 +219,9 @@ namespace Game
                 @UnitSelection.started += instance.OnUnitSelection;
                 @UnitSelection.performed += instance.OnUnitSelection;
                 @UnitSelection.canceled += instance.OnUnitSelection;
+                @ControlModifier.started += instance.OnControlModifier;
+                @ControlModifier.performed += instance.OnControlModifier;
+                @ControlModifier.canceled += instance.OnControlModifier;
             }
 
             private void UnregisterCallbacks(IRTSActions instance)
@@ -209,6 +235,9 @@ namespace Game
                 @UnitSelection.started -= instance.OnUnitSelection;
                 @UnitSelection.performed -= instance.OnUnitSelection;
                 @UnitSelection.canceled -= instance.OnUnitSelection;
+                @ControlModifier.started -= instance.OnControlModifier;
+                @ControlModifier.performed -= instance.OnControlModifier;
+                @ControlModifier.canceled -= instance.OnControlModifier;
             }
 
             public void RemoveCallbacks(IRTSActions instance)
@@ -240,6 +269,7 @@ namespace Game
             void OnMainAction(InputAction.CallbackContext context);
             void OnSecondaryAction(InputAction.CallbackContext context);
             void OnUnitSelection(InputAction.CallbackContext context);
+            void OnControlModifier(InputAction.CallbackContext context);
         }
     }
 }

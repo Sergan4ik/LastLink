@@ -52,6 +52,8 @@ namespace Game.GameCore
         
         public ReactiveCollection<Faction> factions;
         public ZergRandom random;
+        
+        public RTSStopWatch stopWatch;
 
         [GenIgnore]
         public ILogger logger;
@@ -70,6 +72,7 @@ namespace Game.GameCore
 
         public void GameStart()
         {
+            stopWatch.MarkCircle();
             gameState.value = GameState.InProgress;
         }
 
@@ -120,6 +123,8 @@ namespace Game.GameCore
             if (Math.Abs(dt - FrameTime) > 1e-5 && dt > 0)
                 Debug.LogError("Frame time is not equal to target frame time");
             
+            stopWatch.Tick(dt);
+            
             for (var i = 0; i < factions.Count; i++)
             {
                 factions[i].Tick(dt);
@@ -143,5 +148,7 @@ namespace Game.GameCore
             return leftBottom.x <= point.x && point.x <= rightTop.x &&
                    leftBottom.y <= point.y && point.y <= rightTop.y;
         }
+        
+        public float area => (rightTop.x - leftBottom.x) * (rightTop.y - leftBottom.y);
     }
 }

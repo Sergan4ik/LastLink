@@ -51,6 +51,13 @@ public class GameView : RTSView
     [HideInInspector]
     public List<UnitView> currentSelection;
 
+    public IEnumerable<Unit> currentSelectionModels => currentSelection.Select(v => v.currentUnit);
+    
+    public IEnumerable<UnitView> GetViewsByModel(IEnumerable<Unit> units) => unitsPresenter.Views().Where(uv => units.Contains(uv.currentUnit));
+    public UnitView GetViewByModel(Unit unit) => unitsPresenter.Views().FirstOrDefault(uv => uv.currentUnit == unit);
+    
+    public bool IsUnitSelected(Unit unit) => currentSelectionModels.Contains(unit);
+
     public void Awake()
     {
         if (instance != null)
@@ -72,7 +79,8 @@ public class GameView : RTSView
         input.RTS.SecondaryAction.performed += OnSecondaryAction;
         input.RTS.UnitSelection.started += selectionHandler.SelectionProcess;
         input.RTS.UnitSelection.canceled += selectionHandler.SelectionProcess;
-        
+
+        input.RTS.MainAction.performed += OnMainAction;
     }
 
     private void OnDisable()
@@ -81,37 +89,101 @@ public class GameView : RTSView
         input.RTS.UnitSelection.started -= selectionHandler.SelectionProcess;
         input.RTS.UnitSelection.canceled -= selectionHandler.SelectionProcess;
         
+        input.RTS.MainAction.performed -= OnMainAction;
     }
 
-    private void ProcessSelection((SelectionRectClipSpace rectClipSpace, float time) t)
+    private void OnMainAction(InputAction.CallbackContext obj)
     {
-        List<Unit> toSelect = new List<Unit>();
-        if (t.time < 0.1f)
+        if (game != null && game.gameState.value == GameState.InProgress)
         {
+            if (cameraController.TryGetWorldMousePosition(out var worldMousePosition) == false) return;
             if (cameraController.TryGetPointedUnit(out var unit))
             {
-                toSelect.Add(unit);
+                if (input.RTS.ControlModifier.IsPressed())
+                {
+                    if (IsUnitSelected(unit))
+                        RemoveFromSelection(unit);
+                    else
+                        AddToSelection(unit);
+                }
+                else
+                {
+                    ProcessSelection(new List<Unit>(){unit}, currentSelectionModels);
+                }
+            }
+            else
+            {
+                ResetSelection();
             }
         }
-        else
+    }
+
+    private void ProcessSelectionInput((SelectionRectClipSpace rectClipSpace, float time) t)
+    {
+        List<Unit> toSelect = new List<Unit>();
+        if (t.rectClipSpace.area < 1e-4) return;
+        
+        toSelect = game.GetUnitsInsideOpaqueQuadrangle(t.rectClipSpace, u => CanAddToCurrentSelection(u) == false);
+        ProcessSelection(toSelect, null);
+    }
+
+    private (IEnumerable<Unit> newbies, IEnumerable<Unit> toDelete) GetUnionDifference(List<Unit> newSelection)
+    {
+        var newUnits = newSelection.Except(currentSelection.Select(uv => uv.currentUnit));
+        var unitsToDelete = currentSelection.Select(uv => uv.currentUnit).Except(newSelection);
+        return (newUnits, unitsToDelete);
+    }
+
+    public void ResetSelection()
+    {
+        ProcessSelection(null, currentSelectionModels);
+    }
+
+    private void ProcessSelection(IEnumerable<Unit> newbies, IEnumerable<Unit> toDelete)
+    {
+        var toDeleteCached = toDelete == null ? new List<Unit>() : toDelete.ToList();
+        var newbiesCached = newbies == null ? new List<Unit>() : newbies.ToList();
+        
+        foreach (var unit in newbiesCached)
         {
-            toSelect = game.GetUnitsInsideOpaqueQuadrangle(t.rectClipSpace, u => u.faction != localPlayerFaction);
+            AddToSelection(unit);
         }
 
-        var viewsToSelect = unitsPresenter.Views().Where(view => toSelect.Any(u => u == view.currentUnit)).ToList();
-        foreach (var view in currentSelection)
+        foreach (var unit in toDeleteCached)
         {
-            bool isToSelect = viewsToSelect.Any(v => v == view);
-            if (view.isSelected && isToSelect == false)
-            {
-                view.OnSelectionToggle(false);
-            }
-            if (view.isSelected == false && isToSelect)
-            {
-                view.OnSelectionToggle(true);
-            }
+            RemoveFromSelection(unit);
         }
-        currentSelection = viewsToSelect;
+
+        UpdateSelectionView();
+    }
+
+    public void AddToSelection(Unit unit)
+    {
+        if (CanAddToCurrentSelection(unit) == false) return;
+        
+        var view = GetViewByModel(unit);
+        currentSelection.Add(view);
+        view.OnSelectionToggle(true);
+        UpdateSelectionView();
+    }
+
+    public void RemoveFromSelection(Unit unit)
+    {
+        var view = GetViewByModel(unit);
+        if (view == null) return;
+        
+        currentSelection.Remove(view);
+        view.OnSelectionToggle(false);
+        UpdateSelectionView();
+    }
+
+    private bool CanAddToCurrentSelection(Unit unit)
+    {
+        return unit != null && unit.faction == localPlayerFaction && currentSelectionModels.All(m => m != unit);
+    }
+
+    private void UpdateSelectionView()
+    {
         gameUI.selectionUI.ShowSelection(currentSelection);
     }
 
@@ -161,7 +233,7 @@ public class GameView : RTSView
         {
             repeatInterval = GameModel.FrameTime,
         };
-        gameConnections += selectionHandler.onSelection.Subscribe(ProcessSelection);
+        gameConnections += selectionHandler.onSelection.Subscribe(ProcessSelectionInput);
        
         unitsPresenter = new ListPresenter<Unit, UnitView>(u => u.cfg.name.GetUnitView() ,unitsRoot, 
             (unit, view) => view.ShowUnit(unit), view => view.OnUnload());

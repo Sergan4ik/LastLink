@@ -18,6 +18,7 @@ namespace Game.GameCore {
             factions.UpdateFrom(otherConcrete.factions, __helper);
             gameState.value = otherConcrete.gameState.value;
             random.UpdateFrom(otherConcrete.random, __helper);
+            stopWatch.UpdateFrom(otherConcrete.stopWatch, __helper);
         }
         public void UpdateFrom(Game.GameCore.GameModel other, ZRUpdateFromHelper __helper) 
         {
@@ -30,6 +31,7 @@ namespace Game.GameCore {
             factions.Deserialize(reader);
             gameState.value = reader.ReadEnum<Game.GameCore.GameState>();
             random.Deserialize(reader);
+            stopWatch.Deserialize(reader);
         }
         public override void Serialize(ZRBinaryWriter writer) 
         {
@@ -38,6 +40,7 @@ namespace Game.GameCore {
             factions.Serialize(writer);
             writer.Write((Int32)gameState.value);
             random.Serialize(writer);
+            stopWatch.Serialize(writer);
         }
         public override ulong CalculateHash(ZRHashHelper __helper) 
         {
@@ -53,6 +56,8 @@ namespace Game.GameCore {
             hash += hash << 11; hash ^= hash >> 7;
             hash += random.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
+            hash += stopWatch.CalculateHash(__helper);
+            hash += hash << 11; hash ^= hash >> 7;
             return hash;
         }
         public  GameModel() 
@@ -61,6 +66,7 @@ namespace Game.GameCore {
             factions = new ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Faction>();
             gameState = new ZergRush.ReactiveCore.Cell<Game.GameCore.GameState>();
             random = new ZergRush.ZergRandom();
+            stopWatch = new Game.GameCore.RTSStopWatch();
         }
         public override void CompareCheck(Game.NodeArchitecture.ContextNode other, ZRCompareCheckHelper __helper, Action<string> printer) 
         {
@@ -75,6 +81,9 @@ namespace Game.GameCore {
             if (gameState.value != otherConcrete.gameState.value) SerializationTools.LogCompError(__helper, "gameState", printer, otherConcrete.gameState.value, gameState.value);
             __helper.Push("random");
             random.CompareCheck(otherConcrete.random, __helper, printer);
+            __helper.Pop();
+            __helper.Push("stopWatch");
+            stopWatch.CompareCheck(otherConcrete.stopWatch, __helper, printer);
             __helper.Pop();
         }
         public override bool ReadFromJsonField(ZRJsonTextReader reader, string __name) 
@@ -94,6 +103,9 @@ namespace Game.GameCore {
                 case "random":
                 random.ReadFromJson(reader);
                 break;
+                case "stopWatch":
+                stopWatch.ReadFromJson(reader);
+                break;
                 default: return false; break;
             }
             return true;
@@ -109,6 +121,8 @@ namespace Game.GameCore {
             writer.WriteValue(gameState.value.ToString());
             writer.WritePropertyName("random");
             random.WriteJson(writer);
+            writer.WritePropertyName("stopWatch");
+            stopWatch.WriteJson(writer);
         }
         public override ushort GetClassId() 
         {

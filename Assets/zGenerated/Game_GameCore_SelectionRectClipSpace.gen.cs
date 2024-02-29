@@ -17,6 +17,7 @@ namespace Game.GameCore {
             cameraSize.UpdateFrom(otherConcrete.cameraSize, __helper);
             leftBottom.UpdateFrom(otherConcrete.leftBottom, __helper);
             rightTop.UpdateFrom(otherConcrete.rightTop, __helper);
+            selectionDuration = otherConcrete.selectionDuration;
             unitToViewportMatrix.UpdateFrom(otherConcrete.unitToViewportMatrix, __helper);
         }
         public void UpdateFrom(Game.GameCore.SelectionRectClipSpace other, ZRUpdateFromHelper __helper) 
@@ -29,6 +30,7 @@ namespace Game.GameCore {
             cameraSize = reader.ReadUnityEngine_Vector2();
             leftBottom = reader.ReadUnityEngine_Vector2();
             rightTop = reader.ReadUnityEngine_Vector2();
+            selectionDuration = reader.ReadSingle();
             unitToViewportMatrix = reader.ReadUnityEngine_Matrix4x4();
         }
         public override void Serialize(ZRBinaryWriter writer) 
@@ -37,6 +39,7 @@ namespace Game.GameCore {
             cameraSize.Serialize(writer);
             leftBottom.Serialize(writer);
             rightTop.Serialize(writer);
+            writer.Write(selectionDuration);
             unitToViewportMatrix.Serialize(writer);
         }
         public override ulong CalculateHash(ZRHashHelper __helper) 
@@ -50,6 +53,8 @@ namespace Game.GameCore {
             hash += leftBottom.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
             hash += rightTop.CalculateHash(__helper);
+            hash += hash << 11; hash ^= hash >> 7;
+            hash += (System.UInt64)selectionDuration;
             hash += hash << 11; hash ^= hash >> 7;
             hash += unitToViewportMatrix.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
@@ -72,6 +77,7 @@ namespace Game.GameCore {
             __helper.Push("rightTop");
             rightTop.CompareCheck(otherConcrete.rightTop, __helper, printer);
             __helper.Pop();
+            if (selectionDuration != otherConcrete.selectionDuration) SerializationTools.LogCompError(__helper, "selectionDuration", printer, otherConcrete.selectionDuration, selectionDuration);
             __helper.Push("unitToViewportMatrix");
             unitToViewportMatrix.CompareCheck(otherConcrete.unitToViewportMatrix, __helper, printer);
             __helper.Pop();
@@ -90,6 +96,9 @@ namespace Game.GameCore {
                 case "rightTop":
                 rightTop = (UnityEngine.Vector2)reader.ReadFromJsonUnityEngine_Vector2();
                 break;
+                case "selectionDuration":
+                selectionDuration = (float)(double)reader.Value;
+                break;
                 case "unitToViewportMatrix":
                 unitToViewportMatrix = (UnityEngine.Matrix4x4)reader.ReadFromJsonUnityEngine_Matrix4x4();
                 break;
@@ -106,6 +115,8 @@ namespace Game.GameCore {
             leftBottom.WriteJson(writer);
             writer.WritePropertyName("rightTop");
             rightTop.WriteJson(writer);
+            writer.WritePropertyName("selectionDuration");
+            writer.WriteValue(selectionDuration);
             writer.WritePropertyName("unitToViewportMatrix");
             unitToViewportMatrix.WriteJson(writer);
         }

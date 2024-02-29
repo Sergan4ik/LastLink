@@ -14,6 +14,7 @@ namespace Game.GameCore {
         {
             RTSRuntimeData = 1,
             ControlData = 7,
+            RTSStopWatch = 8,
             RTSTimerIntervals = 4,
             RTSTimerStatic = 5,
             RTSTransform = 2,
@@ -29,6 +30,7 @@ namespace Game.GameCore {
             () => new Game.GameCore.RTSTimerStatic(), // 5
             () => new Game.GameCore.UnitStatsContainer(), // 6
             () => new Game.GameCore.ControlData(), // 7
+            () => new Game.GameCore.RTSStopWatch(), // 8
         };
         public static RTSRuntimeData CreatePolymorphic(System.UInt16 typeId) {
             return polymorphConstructors[typeId]();

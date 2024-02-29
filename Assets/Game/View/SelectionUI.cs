@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Game.GameCore;
 using TMPro;
@@ -22,6 +23,12 @@ namespace Game
         public List<UnitView> cachedSelection = new List<UnitView>();
         public Unit mainUnit => cachedSelection.Count > 0 ? cachedSelection[0].currentUnit : null;
         public TableConnectionsAndComponents<SelectedUnitViewUI, UnitView> selectionPresenter = null;
+
+        private void Awake()
+        {
+            ResetSelectionUI();
+        }
+
         public void ShowSelection(List<UnitView> units)
         {
             showConnections?.DisconnectAll();
