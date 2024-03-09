@@ -8,44 +8,38 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class GameModel : IUpdatableFrom<Game.GameCore.GameModel>, IUpdatableFrom<Game.NodeArchitecture.ContextNode>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.NodeArchitecture.ContextNode>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class GameModel : IUpdatableFrom<Game.GameCore.GameModel>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.GameModel>, IJsonSerializable
     {
-        public override void UpdateFrom(Game.NodeArchitecture.ContextNode other, ZRUpdateFromHelper __helper) 
+        public virtual void UpdateFrom(Game.GameCore.GameModel other, ZRUpdateFromHelper __helper) 
         {
-            base.UpdateFrom(other,__helper);
-            var otherConcrete = (Game.GameCore.GameModel)other;
-            controlData.UpdateFrom(otherConcrete.controlData, __helper);
-            factions.UpdateFrom(otherConcrete.factions, __helper);
-            gameState.value = otherConcrete.gameState.value;
-            random.UpdateFrom(otherConcrete.random, __helper);
-            stopWatch.UpdateFrom(otherConcrete.stopWatch, __helper);
+            controlData.UpdateFrom(other.controlData, __helper);
+            factions.UpdateFrom(other.factions, __helper);
+            gameState.value = other.gameState.value;
+            random.UpdateFrom(other.random, __helper);
+            stopWatch.UpdateFrom(other.stopWatch, __helper);
+            units.UpdateFrom(other.units, __helper);
         }
-        public void UpdateFrom(Game.GameCore.GameModel other, ZRUpdateFromHelper __helper) 
+        public virtual void Deserialize(ZRBinaryReader reader) 
         {
-            this.UpdateFrom((Game.NodeArchitecture.ContextNode)other, __helper);
-        }
-        public override void Deserialize(ZRBinaryReader reader) 
-        {
-            base.Deserialize(reader);
             controlData.Deserialize(reader);
             factions.Deserialize(reader);
             gameState.value = reader.ReadEnum<Game.GameCore.GameState>();
             random.Deserialize(reader);
             stopWatch.Deserialize(reader);
+            units.Deserialize(reader);
         }
-        public override void Serialize(ZRBinaryWriter writer) 
+        public virtual void Serialize(ZRBinaryWriter writer) 
         {
-            base.Serialize(writer);
             controlData.Serialize(writer);
             factions.Serialize(writer);
             writer.Write((Int32)gameState.value);
             random.Serialize(writer);
             stopWatch.Serialize(writer);
+            units.Serialize(writer);
         }
-        public override ulong CalculateHash(ZRHashHelper __helper) 
+        public virtual ulong CalculateHash(ZRHashHelper __helper) 
         {
-            var baseVal = base.CalculateHash(__helper);
-            System.UInt64 hash = baseVal;
+            System.UInt64 hash = 345093625;
             hash ^= (ulong)624014821;
             hash += hash << 11; hash ^= hash >> 7;
             hash += controlData.CalculateHash(__helper);
@@ -58,6 +52,8 @@ namespace Game.GameCore {
             hash += hash << 11; hash ^= hash >> 7;
             hash += stopWatch.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
+            hash += units.CalculateHash(__helper);
+            hash += hash << 11; hash ^= hash >> 7;
             return hash;
         }
         public  GameModel() 
@@ -67,28 +63,29 @@ namespace Game.GameCore {
             gameState = new ZergRush.ReactiveCore.Cell<Game.GameCore.GameState>();
             random = new ZergRush.ZergRandom();
             stopWatch = new Game.GameCore.RTSStopWatch();
+            units = new ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit>();
         }
-        public override void CompareCheck(Game.NodeArchitecture.ContextNode other, ZRCompareCheckHelper __helper, Action<string> printer) 
+        public virtual void CompareCheck(Game.GameCore.GameModel other, ZRCompareCheckHelper __helper, Action<string> printer) 
         {
-            base.CompareCheck(other,__helper,printer);
-            var otherConcrete = (Game.GameCore.GameModel)other;
             __helper.Push("controlData");
-            controlData.CompareCheck(otherConcrete.controlData, __helper, printer);
+            controlData.CompareCheck(other.controlData, __helper, printer);
             __helper.Pop();
             __helper.Push("factions");
-            factions.CompareCheck(otherConcrete.factions, __helper, printer);
+            factions.CompareCheck(other.factions, __helper, printer);
             __helper.Pop();
-            if (gameState.value != otherConcrete.gameState.value) SerializationTools.LogCompError(__helper, "gameState", printer, otherConcrete.gameState.value, gameState.value);
+            if (gameState.value != other.gameState.value) SerializationTools.LogCompError(__helper, "gameState", printer, other.gameState.value, gameState.value);
             __helper.Push("random");
-            random.CompareCheck(otherConcrete.random, __helper, printer);
+            random.CompareCheck(other.random, __helper, printer);
             __helper.Pop();
             __helper.Push("stopWatch");
-            stopWatch.CompareCheck(otherConcrete.stopWatch, __helper, printer);
+            stopWatch.CompareCheck(other.stopWatch, __helper, printer);
+            __helper.Pop();
+            __helper.Push("units");
+            units.CompareCheck(other.units, __helper, printer);
             __helper.Pop();
         }
-        public override bool ReadFromJsonField(ZRJsonTextReader reader, string __name) 
+        public virtual bool ReadFromJsonField(ZRJsonTextReader reader, string __name) 
         {
-            if (base.ReadFromJsonField(reader, __name)) return true;
             switch(__name)
             {
                 case "controlData":
@@ -106,13 +103,15 @@ namespace Game.GameCore {
                 case "stopWatch":
                 stopWatch.ReadFromJson(reader);
                 break;
+                case "units":
+                units.ReadFromJson(reader);
+                break;
                 default: return false; break;
             }
             return true;
         }
-        public override void WriteJsonFields(ZRJsonTextWriter writer) 
+        public virtual void WriteJsonFields(ZRJsonTextWriter writer) 
         {
-            base.WriteJsonFields(writer);
             writer.WritePropertyName("controlData");
             controlData.WriteJson(writer);
             writer.WritePropertyName("factions");
@@ -123,14 +122,8 @@ namespace Game.GameCore {
             random.WriteJson(writer);
             writer.WritePropertyName("stopWatch");
             stopWatch.WriteJson(writer);
-        }
-        public override ushort GetClassId() 
-        {
-        return (System.UInt16)Types.GameModel;
-        }
-        public override System.Object NewInst() 
-        {
-        return new GameModel();
+            writer.WritePropertyName("units");
+            units.WriteJson(writer);
         }
     }
 }

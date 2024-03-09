@@ -55,12 +55,15 @@ namespace Game.GameCore
         public List<float> intervals = new List<float>();
         public int currentInterval = 0;
         public bool loop = false;
+        public float totalTimeElapsed;
         public override float cycleTime => intervals[currentInterval];
-        
         public int PassedIntervals => currentInterval;
+        public bool IsTimerFinished => currentInterval >= intervals.Count && loop == false;
+        public float cycleTimeElapsed => intervals.Take(currentInterval).Sum() + elapsedTime;
 
         public override bool Tick(float dt)
         {
+            totalTimeElapsed += dt;
             if (cycleTime == -1)
             {
                 elapsedTime += dt;

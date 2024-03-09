@@ -13,12 +13,15 @@ namespace Game.GameCore {
         public enum Types : ushort
         {
             RTSRuntimeData = 1,
+            AnimationData = 11,
             ControlData = 7,
+            Faction = 9,
             RTSStopWatch = 8,
             RTSTimerIntervals = 4,
             RTSTimerStatic = 5,
             RTSTransform = 2,
             SelectionRectClipSpace = 3,
+            Unit = 10,
             UnitStatsContainer = 6,
         }
         static Func<RTSRuntimeData> [] polymorphConstructors = new Func<RTSRuntimeData> [] {
@@ -31,6 +34,9 @@ namespace Game.GameCore {
             () => new Game.GameCore.UnitStatsContainer(), // 6
             () => new Game.GameCore.ControlData(), // 7
             () => new Game.GameCore.RTSStopWatch(), // 8
+            () => new Game.GameCore.Faction(), // 9
+            () => new Game.GameCore.Unit(), // 10
+            () => new Game.GameCore.AnimationData(), // 11
         };
         public static RTSRuntimeData CreatePolymorphic(System.UInt16 typeId) {
             return polymorphConstructors[typeId]();

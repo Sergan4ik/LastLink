@@ -14,10 +14,15 @@ namespace Game.GameCore
 
     public partial class RTSContextNode : ContextNode
     {
-        public GameModel gameModel => (GameModel)root;
-        public ILogger logger => gameModel.logger;
+        // public GameModel gameModel => (GameModel)root;
+        // public ILogger logger => gameModel.logger;
     }
 
+    public interface IBattlePart
+    {
+        public void Init(GameModel model);
+    }
+    
     public enum GameState
     {
         NotStarted,
@@ -43,7 +48,7 @@ namespace Game.GameCore
     public partial class RTSRuntimeData { }
     
     [GenTask(GenTaskFlags.SimpleDataPack)]
-    public partial class GameModel : RTSContextRoot, IActionSource
+    public partial class GameModel : IActionSource
     {
         public List<ControlData> controlData;
         public string sourceName => $"GameModel";
@@ -51,6 +56,7 @@ namespace Game.GameCore
         public const float FrameTime = 1.0f / TargetFps;
         
         public ReactiveCollection<Faction> factions;
+        public ReactiveCollection<Unit> units;
         public ZergRandom random;
         
         public RTSStopWatch stopWatch;
@@ -60,13 +66,13 @@ namespace Game.GameCore
         
         public Cell<GameState> gameState;
 
-        public IEnumerable<Unit> allUnits => factions.Map(f => f.units).Join();
+        public IEnumerable<Unit> allUnits => units;
  
-        public void Init(IEnumerable<Faction> factionPrototypes)
+        public void Init(IEnumerable<Faction> factions)
         {
-            foreach (var factionPrototype in factionPrototypes)
+            foreach (var faction in factions)
             {
-                factions.Add(CreateChild(factionPrototype));
+                this.factions.Add(faction);
             }
         }
 
@@ -127,8 +133,16 @@ namespace Game.GameCore
             
             for (var i = 0; i < factions.Count; i++)
             {
-                factions[i].Tick(dt);
+                factions[i].Tick(this, dt);
             }
+
+            for (var i = 0; i < units.Count; i++)
+            {
+                var unit = units[i];
+                unit.Tick(this, dt);
+            }
+            
+            
         }
 
     }

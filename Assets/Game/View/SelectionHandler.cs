@@ -23,7 +23,6 @@ public class SelectionHandler : ConnectableMonoBehaviour
             startPos = Mouse.current.position.ReadValue();
             startTime = Time.time;
             selectionBox.rectTransform.anchoredPosition = startPos;
-            Debug.Log(Mouse.current.position.ReadValue());
         }
         else if (ctx.canceled)
         {

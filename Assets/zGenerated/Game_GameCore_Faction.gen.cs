@@ -8,33 +8,30 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class Faction : IUpdatableFrom<Game.GameCore.Faction>, IUpdatableFrom<Game.NodeArchitecture.ContextNode>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.NodeArchitecture.ContextNode>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class Faction : IUpdatableFrom<Game.GameCore.Faction>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
     {
-        public override void UpdateFrom(Game.NodeArchitecture.ContextNode other, ZRUpdateFromHelper __helper) 
+        public override void UpdateFrom(Game.GameCore.RTSRuntimeData other, ZRUpdateFromHelper __helper) 
         {
             base.UpdateFrom(other,__helper);
             var otherConcrete = (Game.GameCore.Faction)other;
             factionType = otherConcrete.factionType;
             slot = otherConcrete.slot;
-            units.UpdateFrom(otherConcrete.units, __helper);
         }
         public void UpdateFrom(Game.GameCore.Faction other, ZRUpdateFromHelper __helper) 
         {
-            this.UpdateFrom((Game.NodeArchitecture.ContextNode)other, __helper);
+            this.UpdateFrom((Game.GameCore.RTSRuntimeData)other, __helper);
         }
         public override void Deserialize(ZRBinaryReader reader) 
         {
             base.Deserialize(reader);
             factionType = reader.ReadEnum<Game.GameCore.FactionType>();
             slot = reader.ReadEnum<Game.GameCore.FactionSlot>();
-            units.Deserialize(reader);
         }
         public override void Serialize(ZRBinaryWriter writer) 
         {
             base.Serialize(writer);
             writer.Write((Int32)factionType);
             writer.Write((Int32)slot);
-            units.Serialize(writer);
         }
         public override ulong CalculateHash(ZRHashHelper __helper) 
         {
@@ -46,23 +43,18 @@ namespace Game.GameCore {
             hash += hash << 11; hash ^= hash >> 7;
             hash += (System.UInt64)slot;
             hash += hash << 11; hash ^= hash >> 7;
-            hash += units.CalculateHash(__helper);
-            hash += hash << 11; hash ^= hash >> 7;
             return hash;
         }
         public  Faction() 
         {
-            units = new ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit>();
+
         }
-        public override void CompareCheck(Game.NodeArchitecture.ContextNode other, ZRCompareCheckHelper __helper, Action<string> printer) 
+        public override void CompareCheck(Game.GameCore.RTSRuntimeData other, ZRCompareCheckHelper __helper, Action<string> printer) 
         {
             base.CompareCheck(other,__helper,printer);
             var otherConcrete = (Game.GameCore.Faction)other;
             if (factionType != otherConcrete.factionType) SerializationTools.LogCompError(__helper, "factionType", printer, otherConcrete.factionType, factionType);
             if (slot != otherConcrete.slot) SerializationTools.LogCompError(__helper, "slot", printer, otherConcrete.slot, slot);
-            __helper.Push("units");
-            units.CompareCheck(otherConcrete.units, __helper, printer);
-            __helper.Pop();
         }
         public override bool ReadFromJsonField(ZRJsonTextReader reader, string __name) 
         {
@@ -75,9 +67,6 @@ namespace Game.GameCore {
                 case "slot":
                 slot = ((string)reader.Value).ParseEnum<Game.GameCore.FactionSlot>();
                 break;
-                case "units":
-                units.ReadFromJson(reader);
-                break;
                 default: return false; break;
             }
             return true;
@@ -89,8 +78,6 @@ namespace Game.GameCore {
             writer.WriteValue(factionType.ToString());
             writer.WritePropertyName("slot");
             writer.WriteValue(slot.ToString());
-            writer.WritePropertyName("units");
-            units.WriteJson(writer);
         }
         public override ushort GetClassId() 
         {

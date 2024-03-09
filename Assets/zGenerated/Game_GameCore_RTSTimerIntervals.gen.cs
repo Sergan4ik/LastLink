@@ -17,6 +17,7 @@ namespace Game.GameCore {
             currentInterval = otherConcrete.currentInterval;
             intervals.UpdateFrom(otherConcrete.intervals, __helper);
             loop = otherConcrete.loop;
+            totalTimeElapsed = otherConcrete.totalTimeElapsed;
         }
         public void UpdateFrom(Game.GameCore.RTSTimerIntervals other, ZRUpdateFromHelper __helper) 
         {
@@ -28,6 +29,7 @@ namespace Game.GameCore {
             currentInterval = reader.ReadInt32();
             intervals.Deserialize(reader);
             loop = reader.ReadBoolean();
+            totalTimeElapsed = reader.ReadSingle();
         }
         public override void Serialize(ZRBinaryWriter writer) 
         {
@@ -35,6 +37,7 @@ namespace Game.GameCore {
             writer.Write(currentInterval);
             intervals.Serialize(writer);
             writer.Write(loop);
+            writer.Write(totalTimeElapsed);
         }
         public override ulong CalculateHash(ZRHashHelper __helper) 
         {
@@ -48,6 +51,8 @@ namespace Game.GameCore {
             hash += hash << 11; hash ^= hash >> 7;
             hash += loop ? 1u : 0u;
             hash += hash << 11; hash ^= hash >> 7;
+            hash += (System.UInt64)totalTimeElapsed;
+            hash += hash << 11; hash ^= hash >> 7;
             return hash;
         }
         public override void CompareCheck(Game.GameCore.RTSRuntimeData other, ZRCompareCheckHelper __helper, Action<string> printer) 
@@ -59,6 +64,7 @@ namespace Game.GameCore {
             intervals.CompareCheck(otherConcrete.intervals, __helper, printer);
             __helper.Pop();
             if (loop != otherConcrete.loop) SerializationTools.LogCompError(__helper, "loop", printer, otherConcrete.loop, loop);
+            if (totalTimeElapsed != otherConcrete.totalTimeElapsed) SerializationTools.LogCompError(__helper, "totalTimeElapsed", printer, otherConcrete.totalTimeElapsed, totalTimeElapsed);
         }
         public override bool ReadFromJsonField(ZRJsonTextReader reader, string __name) 
         {
@@ -74,6 +80,9 @@ namespace Game.GameCore {
                 case "loop":
                 loop = (bool)reader.Value;
                 break;
+                case "totalTimeElapsed":
+                totalTimeElapsed = (float)(double)reader.Value;
+                break;
                 default: return false; break;
             }
             return true;
@@ -87,6 +96,8 @@ namespace Game.GameCore {
             intervals.WriteJson(writer);
             writer.WritePropertyName("loop");
             writer.WriteValue(loop);
+            writer.WritePropertyName("totalTimeElapsed");
+            writer.WriteValue(totalTimeElapsed);
         }
         public  RTSTimerIntervals() 
         {

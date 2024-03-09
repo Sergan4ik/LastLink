@@ -13,30 +13,19 @@ namespace Game.NodeArchitecture {
         public enum Types : ushort
         {
             ContextNode = 1,
-            DOT = 10,
-            Faction = 2,
-            GameModel = 3,
             RTSContextNode = 4,
             RTSContextRoot = 5,
-            Unit = 6,
-            UnitAction = 8,
-            UnitEffect = 11,
-            UnitMove = 9,
             ContextRoot = 7,
         }
         static Func<ContextNode> [] polymorphConstructors = new Func<ContextNode> [] {
             () => null, // 0
             () => new Game.NodeArchitecture.ContextNode(), // 1
-            () => new Game.GameCore.Faction(), // 2
-            () => new Game.GameCore.GameModel(), // 3
+            () => null, // 2
+            () => null, // 3
             () => new Game.GameCore.RTSContextNode(), // 4
             () => new Game.GameCore.RTSContextRoot(), // 5
-            () => new Game.GameCore.Unit(), // 6
+            () => null, // 6
             () => new Game.NodeArchitecture.ContextRoot(), // 7
-            () => new Game.GameCore.UnitAction(), // 8
-            () => new Game.GameCore.UnitMove(), // 9
-            () => new Game.GameCore.DOT(), // 10
-            () => new Game.GameCore.UnitEffect(), // 11
         };
         public static ContextNode CreatePolymorphic(System.UInt16 typeId) {
             return polymorphConstructors[typeId]();

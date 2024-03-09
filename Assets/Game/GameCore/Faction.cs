@@ -28,46 +28,40 @@ namespace Game.GameCore
         public FactionSlot factionSlot;
     }
 
-    public partial class Faction : RTSContextNode, IActionSource
+    public partial class Faction : RTSRuntimeData, IActionSource 
     {
-        public ControlData factionControlData => gameModel.controlData.FirstOrDefault(cd => cd.factionSlot == slot);
+        public ControlData FactionControlData(GameModel gameModel) => gameModel.controlData.FirstOrDefault(cd => cd.factionSlot == slot);
         public FactionSlot slot;
         public string sourceName => $"Faction {factionType}";
         public FactionType factionType;
-        public ReactiveCollection<Unit> units;
 
-        public void Init(IEnumerable<UnitConfig> unitConfigs)
+        public void Init(GameModel gameModel, IEnumerable<UnitConfig> unitConfigs)
         {
             foreach (var unitConfig in unitConfigs)
             {
                 var unitPrototype = new Unit();
-                unitPrototype.Init(unitConfig, 0);
-                
-                units.Add(CreateChild(unitPrototype));
+                unitPrototype.Init(gameModel, slot, unitConfig, 0);
+
+                gameModel.units.Add(unitPrototype);
             }
         }
         
-        public void MoveStackTo(List<Unit> stack, Vector3 destination)
+        public void MoveStackTo(GameModel gameModel, List<Unit> stack, Vector3 destination)
         {
-            if (stack.Any(u => u.faction != this))
+            if (stack.Any(u => u.factionSlot != slot))
                 return;
             
             Unit mainUnit = stack[0];
             for (var i = 0; i < stack.Count; i++)
             {
                 Vector3 offset = stack[i].transform.position - mainUnit.transform.position;
-                stack[i].MoveTo(destination + offset);
-                Debug.Log($"Moving {stack[i]} to {destination + offset}");
+                stack[i].MoveTo(gameModel, destination + offset);
+                // Debug.Log($"Moving {stack[i]} to {destination + offset}");
             }
         }
 
-        public void Tick(float dt)
+        public void Tick(GameModel gameModel, float dt)
         {
-            for (var i = 0; i < units.Count; i++)
-            {
-                units[i].Tick(dt);
-            }
         }
-
     }
 }

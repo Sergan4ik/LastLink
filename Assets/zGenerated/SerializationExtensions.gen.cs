@@ -9,711 +9,6 @@ using Newtonsoft.Json;
 
 public static partial class SerializationExtensions
 {
-    public static void UpdateFrom(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit> self, ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit> other, ZRUpdateFromHelper __helper) 
-    {
-        int i = 0;
-        int oldCount = self.Count;
-        int crossCount = Math.Min(oldCount, other.Count);
-        for (; i < crossCount; ++i)
-        {
-            if (other[i] == null) {
-                self[i] = null;
-            }
-            else { 
-                if (self[i] == null) {
-                    self[i] = new Game.GameCore.Unit();
-                }
-                self[i].UpdateFrom(other[i], __helper);
-            }
-        }
-        for (; i < other.Count; ++i)
-        {
-            Game.GameCore.Unit inst = default;
-            if (other[i] == null) {
-                inst = null;
-            }
-            else { 
-                inst = new Game.GameCore.Unit();
-                inst.UpdateFrom(other[i], __helper);
-            }
-            self.Add(inst);
-        }
-        for (; i < oldCount; ++i)
-        {
-            self.RemoveAt(self.Count - 1);
-        }
-    }
-    public static void Deserialize(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit> self, ZRBinaryReader reader) 
-    {
-        var size = reader.ReadInt32();
-        if(size > 100000) throw new ZergRushCorruptedOrInvalidDataLayout();
-        self.Capacity = size;
-        for (int i = 0; i < size; i++)
-        {
-            if (!reader.ReadBoolean()) { self.Add(null); continue; }
-            Game.GameCore.Unit val = default;
-            val = new Game.GameCore.Unit();
-            val.Deserialize(reader);
-            self.Add(val);
-        }
-    }
-    public static void Serialize(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit> self, ZRBinaryWriter writer) 
-    {
-        writer.Write(self.Count);
-        for (int i = 0; i < self.Count; i++)
-        {
-            writer.Write(self[i] != null);
-            if (self[i] != null)
-            {
-                self[i].Serialize(writer);
-            }
-        }
-    }
-    public static ulong CalculateHash(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit> self, ZRHashHelper __helper) 
-    {
-        System.UInt64 hash = 345093625;
-        hash ^= (ulong)1261931807;
-        hash += hash << 11; hash ^= hash >> 7;
-        var size = self.Count;
-        for (int i = 0; i < size; i++)
-        {
-            hash += self[i] != null ? self[i].CalculateHash(__helper) : 345093625;
-            hash += hash << 11; hash ^= hash >> 7;
-        }
-        return hash;
-    }
-    public static void CompareCheck(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit> self, ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit> other, ZRCompareCheckHelper __helper, Action<string> printer) 
-    {
-        if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
-        var count = Math.Min(self.Count, other.Count);
-        for (int i = 0; i < count; i++)
-        {
-            if (SerializationTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
-                __helper.Push(i.ToString());
-                self[i].CompareCheck(other[i], __helper, printer);
-                __helper.Pop();
-            }
-        }
-    }
-    public static bool ReadFromJson(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit> self, ZRJsonTextReader reader) 
-    {
-        if (reader.TokenType != JsonToken.StartArray) throw new JsonSerializationException("Bad Json Format");
-        while (reader.Read())
-        {
-            if (reader.TokenType == JsonToken.EndArray) { break; }
-            if (reader.TokenType == JsonToken.Null) { self.Add(null); continue; }
-            Game.GameCore.Unit val = default;
-            val = new Game.GameCore.Unit();
-            val.ReadFromJson(reader);
-            self.Add(val);
-        }
-        return true;
-    }
-    public static void WriteJson(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit> self, ZRJsonTextWriter writer) 
-    {
-        writer.WriteStartArray();
-        for (int i = 0; i < self.Count; i++)
-        {
-            if (self[i] == null)
-            {
-                writer.WriteNull();
-            }
-            else
-            {
-                self[i].WriteJson(writer);
-            }
-        }
-        writer.WriteEndArray();
-    }
-    public static void UpdateFrom(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, System.Collections.Generic.List<Game.GameCore.UnitAction> other, ZRUpdateFromHelper __helper) 
-    {
-        int i = 0;
-        int oldCount = self.Count;
-        int crossCount = Math.Min(oldCount, other.Count);
-        for (; i < crossCount; ++i)
-        {
-            if (other[i] == null) {
-                self[i] = null;
-            }
-            else { 
-                var self_i_ClassId = other[i].GetClassId();
-                if (self[i] == null || self[i].GetClassId() != self_i_ClassId) {
-                    self[i] = (Game.GameCore.UnitAction)other[i].NewInst();
-                }
-                self[i].UpdateFrom(other[i], __helper);
-            }
-        }
-        for (; i < other.Count; ++i)
-        {
-            Game.GameCore.UnitAction inst = default;
-            if (other[i] == null) {
-                inst = null;
-            }
-            else { 
-                inst = (Game.GameCore.UnitAction)other[i].NewInst();
-                inst.UpdateFrom(other[i], __helper);
-            }
-            self.Add(inst);
-        }
-        for (; i < oldCount; ++i)
-        {
-            self.RemoveAt(self.Count - 1);
-        }
-    }
-    public static void Deserialize(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, ZRBinaryReader reader) 
-    {
-        var size = reader.ReadInt32();
-        if(size > 100000) throw new ZergRushCorruptedOrInvalidDataLayout();
-        self.Capacity = size;
-        for (int i = 0; i < size; i++)
-        {
-            if (!reader.ReadBoolean()) { self.Add(null); continue; }
-            Game.GameCore.UnitAction val = default;
-            val = (Game.GameCore.UnitAction)Game.NodeArchitecture.ContextNode.CreatePolymorphic(reader.ReadUInt16());
-            val.Deserialize(reader);
-            self.Add(val);
-        }
-    }
-    public static void Serialize(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, ZRBinaryWriter writer) 
-    {
-        writer.Write(self.Count);
-        for (int i = 0; i < self.Count; i++)
-        {
-            writer.Write(self[i] != null);
-            if (self[i] != null)
-            {
-                writer.Write(self[i].GetClassId());
-                self[i].Serialize(writer);
-            }
-        }
-    }
-    public static ulong CalculateHash(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, ZRHashHelper __helper) 
-    {
-        System.UInt64 hash = 345093625;
-        hash ^= (ulong)910491146;
-        hash += hash << 11; hash ^= hash >> 7;
-        var size = self.Count;
-        for (int i = 0; i < size; i++)
-        {
-            hash += self[i] != null ? self[i].CalculateHash(__helper) : 345093625;
-            hash += hash << 11; hash ^= hash >> 7;
-        }
-        return hash;
-    }
-    public static void CompareCheck(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, System.Collections.Generic.List<Game.GameCore.UnitAction> other, ZRCompareCheckHelper __helper, Action<string> printer) 
-    {
-        if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
-        var count = Math.Min(self.Count, other.Count);
-        for (int i = 0; i < count; i++)
-        {
-            if (SerializationTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
-                if (SerializationTools.CompareClassId(__helper, i.ToString(), printer, self[i], other[i])) {
-                    __helper.Push(i.ToString());
-                    self[i].CompareCheck(other[i], __helper, printer);
-                    __helper.Pop();
-                }
-            }
-        }
-    }
-    public static bool ReadFromJson(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, ZRJsonTextReader reader) 
-    {
-        if (reader.TokenType != JsonToken.StartArray) throw new JsonSerializationException("Bad Json Format");
-        while (reader.Read())
-        {
-            if (reader.TokenType == JsonToken.EndArray) { break; }
-            if (reader.TokenType == JsonToken.Null) { self.Add(null); continue; }
-            Game.GameCore.UnitAction val = default;
-            val = (Game.GameCore.UnitAction)Game.NodeArchitecture.ContextNode.CreatePolymorphic(reader.ReadJsonClassId());
-            val.ReadFromJson(reader);
-            self.Add(val);
-        }
-        return true;
-    }
-    public static void WriteJson(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, ZRJsonTextWriter writer) 
-    {
-        writer.WriteStartArray();
-        for (int i = 0; i < self.Count; i++)
-        {
-            if (self[i] == null)
-            {
-                writer.WriteNull();
-            }
-            else
-            {
-                self[i].WriteJson(writer);
-            }
-        }
-        writer.WriteEndArray();
-    }
-    public static void UpdateFrom(this System.Collections.Generic.List<Game.GameCore.UnitLevelConfig> self, System.Collections.Generic.List<Game.GameCore.UnitLevelConfig> other, ZRUpdateFromHelper __helper) 
-    {
-        int i = 0;
-        int oldCount = self.Count;
-        int crossCount = Math.Min(oldCount, other.Count);
-        for (; i < crossCount; ++i)
-        {
-            if (other[i] == null) {
-                self[i] = null;
-            }
-            else { 
-                if (self[i] == null) {
-                    self[i] = new Game.GameCore.UnitLevelConfig();
-                }
-                self[i].UpdateFrom(other[i], __helper);
-            }
-        }
-        for (; i < other.Count; ++i)
-        {
-            Game.GameCore.UnitLevelConfig inst = default;
-            if (other[i] == null) {
-                inst = null;
-            }
-            else { 
-                inst = new Game.GameCore.UnitLevelConfig();
-                inst.UpdateFrom(other[i], __helper);
-            }
-            self.Add(inst);
-        }
-        for (; i < oldCount; ++i)
-        {
-            self.RemoveAt(self.Count - 1);
-        }
-    }
-    public static void UpdateFrom(this Game.GameCore.UnitStat self, Game.GameCore.UnitStat other, ZRUpdateFromHelper __helper) 
-    {
-        self.currentValue = other.currentValue;
-        self.maxValue = other.maxValue;
-        self.type = other.type;
-    }
-    public static void UpdateFrom(this System.Collections.Generic.List<Game.GameCore.UnitStat> self, System.Collections.Generic.List<Game.GameCore.UnitStat> other, ZRUpdateFromHelper __helper) 
-    {
-        int i = 0;
-        int oldCount = self.Count;
-        int crossCount = Math.Min(oldCount, other.Count);
-        for (; i < crossCount; ++i)
-        {
-            if (other[i] == null) {
-                self[i] = null;
-            }
-            else { 
-                if (self[i] == null) {
-                    self[i] = new Game.GameCore.UnitStat();
-                }
-                self[i].UpdateFrom(other[i], __helper);
-            }
-        }
-        for (; i < other.Count; ++i)
-        {
-            Game.GameCore.UnitStat inst = default;
-            if (other[i] == null) {
-                inst = null;
-            }
-            else { 
-                inst = new Game.GameCore.UnitStat();
-                inst.UpdateFrom(other[i], __helper);
-            }
-            self.Add(inst);
-        }
-        for (; i < oldCount; ++i)
-        {
-            self.RemoveAt(self.Count - 1);
-        }
-    }
-    public static void UpdateFrom(ref this UnityEngine.Vector3 self, UnityEngine.Vector3 other, ZRUpdateFromHelper __helper) 
-    {
-        self.x = other.x;
-        self.y = other.y;
-        self.z = other.z;
-    }
-    public static void UpdateFrom(ref this UnityEngine.Quaternion self, UnityEngine.Quaternion other, ZRUpdateFromHelper __helper) 
-    {
-        self.w = other.w;
-        self.x = other.x;
-        self.y = other.y;
-        self.z = other.z;
-    }
-    public static void Deserialize(this System.Collections.Generic.List<Game.GameCore.UnitLevelConfig> self, ZRBinaryReader reader) 
-    {
-        var size = reader.ReadInt32();
-        if(size > 100000) throw new ZergRushCorruptedOrInvalidDataLayout();
-        self.Capacity = size;
-        for (int i = 0; i < size; i++)
-        {
-            if (!reader.ReadBoolean()) { self.Add(null); continue; }
-            Game.GameCore.UnitLevelConfig val = default;
-            val = new Game.GameCore.UnitLevelConfig();
-            val.Deserialize(reader);
-            self.Add(val);
-        }
-    }
-    public static void Deserialize(this Game.GameCore.UnitStat self, ZRBinaryReader reader) 
-    {
-        self.currentValue = reader.ReadSingle();
-        self.maxValue = reader.ReadSingle();
-        self.type = reader.ReadEnum<Game.GameCore.UnitStatType>();
-    }
-    public static void Deserialize(this System.Collections.Generic.List<Game.GameCore.UnitStat> self, ZRBinaryReader reader) 
-    {
-        var size = reader.ReadInt32();
-        if(size > 100000) throw new ZergRushCorruptedOrInvalidDataLayout();
-        self.Capacity = size;
-        for (int i = 0; i < size; i++)
-        {
-            if (!reader.ReadBoolean()) { self.Add(null); continue; }
-            Game.GameCore.UnitStat val = default;
-            val = new Game.GameCore.UnitStat();
-            val.Deserialize(reader);
-            self.Add(val);
-        }
-    }
-    public static UnityEngine.Vector3 ReadUnityEngine_Vector3(this ZRBinaryReader reader) 
-    {
-        var self = new UnityEngine.Vector3();
-        self.x = reader.ReadSingle();
-        self.y = reader.ReadSingle();
-        self.z = reader.ReadSingle();
-        return self;
-    }
-    public static UnityEngine.Quaternion ReadUnityEngine_Quaternion(this ZRBinaryReader reader) 
-    {
-        var self = new UnityEngine.Quaternion();
-        self.w = reader.ReadSingle();
-        self.x = reader.ReadSingle();
-        self.y = reader.ReadSingle();
-        self.z = reader.ReadSingle();
-        return self;
-    }
-    public static void Serialize(this System.Collections.Generic.List<Game.GameCore.UnitLevelConfig> self, ZRBinaryWriter writer) 
-    {
-        writer.Write(self.Count);
-        for (int i = 0; i < self.Count; i++)
-        {
-            writer.Write(self[i] != null);
-            if (self[i] != null)
-            {
-                self[i].Serialize(writer);
-            }
-        }
-    }
-    public static void Serialize(this Game.GameCore.UnitStat self, ZRBinaryWriter writer) 
-    {
-        writer.Write(self.currentValue);
-        writer.Write(self.maxValue);
-        writer.Write((Int32)self.type);
-    }
-    public static void Serialize(this System.Collections.Generic.List<Game.GameCore.UnitStat> self, ZRBinaryWriter writer) 
-    {
-        writer.Write(self.Count);
-        for (int i = 0; i < self.Count; i++)
-        {
-            writer.Write(self[i] != null);
-            if (self[i] != null)
-            {
-                self[i].Serialize(writer);
-            }
-        }
-    }
-    public static void Serialize(this UnityEngine.Vector3 self, ZRBinaryWriter writer) 
-    {
-        writer.Write(self.x);
-        writer.Write(self.y);
-        writer.Write(self.z);
-    }
-    public static void Serialize(this UnityEngine.Quaternion self, ZRBinaryWriter writer) 
-    {
-        writer.Write(self.w);
-        writer.Write(self.x);
-        writer.Write(self.y);
-        writer.Write(self.z);
-    }
-    public static ulong CalculateHash(this System.Collections.Generic.List<Game.GameCore.UnitLevelConfig> self, ZRHashHelper __helper) 
-    {
-        System.UInt64 hash = 345093625;
-        hash ^= (ulong)910491146;
-        hash += hash << 11; hash ^= hash >> 7;
-        var size = self.Count;
-        for (int i = 0; i < size; i++)
-        {
-            hash += self[i] != null ? self[i].CalculateHash(__helper) : 345093625;
-            hash += hash << 11; hash ^= hash >> 7;
-        }
-        return hash;
-    }
-    public static ulong CalculateHash(this Game.GameCore.UnitStat self, ZRHashHelper __helper) 
-    {
-        System.UInt64 hash = 345093625;
-        hash ^= (ulong)1218048196;
-        hash += hash << 11; hash ^= hash >> 7;
-        hash += (System.UInt64)self.currentValue;
-        hash += hash << 11; hash ^= hash >> 7;
-        hash += (System.UInt64)self.maxValue;
-        hash += hash << 11; hash ^= hash >> 7;
-        hash += (System.UInt64)self.type;
-        hash += hash << 11; hash ^= hash >> 7;
-        return hash;
-    }
-    public static ulong CalculateHash(this System.Collections.Generic.List<Game.GameCore.UnitStat> self, ZRHashHelper __helper) 
-    {
-        System.UInt64 hash = 345093625;
-        hash ^= (ulong)910491146;
-        hash += hash << 11; hash ^= hash >> 7;
-        var size = self.Count;
-        for (int i = 0; i < size; i++)
-        {
-            hash += self[i] != null ? self[i].CalculateHash(__helper) : 345093625;
-            hash += hash << 11; hash ^= hash >> 7;
-        }
-        return hash;
-    }
-    public static ulong CalculateHash(this UnityEngine.Vector3 self, ZRHashHelper __helper) 
-    {
-        System.UInt64 hash = 345093625;
-        hash ^= (ulong)701202043;
-        hash += hash << 11; hash ^= hash >> 7;
-        hash += (System.UInt64)self.x;
-        hash += hash << 11; hash ^= hash >> 7;
-        hash += (System.UInt64)self.y;
-        hash += hash << 11; hash ^= hash >> 7;
-        hash += (System.UInt64)self.z;
-        hash += hash << 11; hash ^= hash >> 7;
-        return hash;
-    }
-    public static ulong CalculateHash(this UnityEngine.Quaternion self, ZRHashHelper __helper) 
-    {
-        System.UInt64 hash = 345093625;
-        hash ^= (ulong)98633650;
-        hash += hash << 11; hash ^= hash >> 7;
-        hash += (System.UInt64)self.w;
-        hash += hash << 11; hash ^= hash >> 7;
-        hash += (System.UInt64)self.x;
-        hash += hash << 11; hash ^= hash >> 7;
-        hash += (System.UInt64)self.y;
-        hash += hash << 11; hash ^= hash >> 7;
-        hash += (System.UInt64)self.z;
-        hash += hash << 11; hash ^= hash >> 7;
-        return hash;
-    }
-    public static void CompareCheck(this System.Collections.Generic.List<Game.GameCore.UnitLevelConfig> self, System.Collections.Generic.List<Game.GameCore.UnitLevelConfig> other, ZRCompareCheckHelper __helper, Action<string> printer) 
-    {
-        if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
-        var count = Math.Min(self.Count, other.Count);
-        for (int i = 0; i < count; i++)
-        {
-            if (SerializationTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
-                __helper.Push(i.ToString());
-                self[i].CompareCheck(other[i], __helper, printer);
-                __helper.Pop();
-            }
-        }
-    }
-    public static void CompareCheck(this Game.GameCore.UnitStat self, Game.GameCore.UnitStat other, ZRCompareCheckHelper __helper, Action<string> printer) 
-    {
-        if (self.currentValue != other.currentValue) SerializationTools.LogCompError(__helper, "currentValue", printer, other.currentValue, self.currentValue);
-        if (self.maxValue != other.maxValue) SerializationTools.LogCompError(__helper, "maxValue", printer, other.maxValue, self.maxValue);
-        if (self.type != other.type) SerializationTools.LogCompError(__helper, "type", printer, other.type, self.type);
-    }
-    public static void CompareCheck(this System.Collections.Generic.List<Game.GameCore.UnitStat> self, System.Collections.Generic.List<Game.GameCore.UnitStat> other, ZRCompareCheckHelper __helper, Action<string> printer) 
-    {
-        if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
-        var count = Math.Min(self.Count, other.Count);
-        for (int i = 0; i < count; i++)
-        {
-            if (SerializationTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
-                __helper.Push(i.ToString());
-                self[i].CompareCheck(other[i], __helper, printer);
-                __helper.Pop();
-            }
-        }
-    }
-    public static void CompareCheck(this UnityEngine.Vector3 self, UnityEngine.Vector3 other, ZRCompareCheckHelper __helper, Action<string> printer) 
-    {
-        if (self.x != other.x) SerializationTools.LogCompError(__helper, "x", printer, other.x, self.x);
-        if (self.y != other.y) SerializationTools.LogCompError(__helper, "y", printer, other.y, self.y);
-        if (self.z != other.z) SerializationTools.LogCompError(__helper, "z", printer, other.z, self.z);
-    }
-    public static void CompareCheck(this UnityEngine.Quaternion self, UnityEngine.Quaternion other, ZRCompareCheckHelper __helper, Action<string> printer) 
-    {
-        if (self.w != other.w) SerializationTools.LogCompError(__helper, "w", printer, other.w, self.w);
-        if (self.x != other.x) SerializationTools.LogCompError(__helper, "x", printer, other.x, self.x);
-        if (self.y != other.y) SerializationTools.LogCompError(__helper, "y", printer, other.y, self.y);
-        if (self.z != other.z) SerializationTools.LogCompError(__helper, "z", printer, other.z, self.z);
-    }
-    public static bool ReadFromJson(this System.Collections.Generic.List<Game.GameCore.UnitLevelConfig> self, ZRJsonTextReader reader) 
-    {
-        if (reader.TokenType != JsonToken.StartArray) throw new JsonSerializationException("Bad Json Format");
-        while (reader.Read())
-        {
-            if (reader.TokenType == JsonToken.EndArray) { break; }
-            if (reader.TokenType == JsonToken.Null) { self.Add(null); continue; }
-            Game.GameCore.UnitLevelConfig val = default;
-            val = new Game.GameCore.UnitLevelConfig();
-            val.ReadFromJson(reader);
-            self.Add(val);
-        }
-        return true;
-    }
-    public static void WriteJson(this System.Collections.Generic.List<Game.GameCore.UnitLevelConfig> self, ZRJsonTextWriter writer) 
-    {
-        writer.WriteStartArray();
-        for (int i = 0; i < self.Count; i++)
-        {
-            if (self[i] == null)
-            {
-                writer.WriteNull();
-            }
-            else
-            {
-                self[i].WriteJson(writer);
-            }
-        }
-        writer.WriteEndArray();
-    }
-    public static bool ReadFromJson(this Game.GameCore.UnitStat self, ZRJsonTextReader reader) 
-    {
-        while (reader.Read())
-        {
-            if (reader.TokenType == JsonToken.PropertyName)
-            {
-                var __name = (string) reader.Value;
-                reader.Read();
-                switch(__name)
-                {
-                    case "currentValue":
-                    self.currentValue = (float)(double)reader.Value;
-                    break;
-                    case "maxValue":
-                    self.maxValue = (float)(double)reader.Value;
-                    break;
-                    case "type":
-                    self.type = ((string)reader.Value).ParseEnum<Game.GameCore.UnitStatType>();
-                    break;
-                    default: return false; break;
-                }
-            }
-            else if (reader.TokenType == JsonToken.EndObject) { break; }
-        }
-        return true;
-    }
-    public static void WriteJson(this Game.GameCore.UnitStat self, ZRJsonTextWriter writer) 
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("currentValue");
-        writer.WriteValue(self.currentValue);
-        writer.WritePropertyName("maxValue");
-        writer.WriteValue(self.maxValue);
-        writer.WritePropertyName("type");
-        writer.WriteValue(self.type.ToString());
-        writer.WriteEndObject();
-    }
-    public static bool ReadFromJson(this System.Collections.Generic.List<Game.GameCore.UnitStat> self, ZRJsonTextReader reader) 
-    {
-        if (reader.TokenType != JsonToken.StartArray) throw new JsonSerializationException("Bad Json Format");
-        while (reader.Read())
-        {
-            if (reader.TokenType == JsonToken.EndArray) { break; }
-            if (reader.TokenType == JsonToken.Null) { self.Add(null); continue; }
-            Game.GameCore.UnitStat val = default;
-            val = new Game.GameCore.UnitStat();
-            val.ReadFromJson(reader);
-            self.Add(val);
-        }
-        return true;
-    }
-    public static void WriteJson(this System.Collections.Generic.List<Game.GameCore.UnitStat> self, ZRJsonTextWriter writer) 
-    {
-        writer.WriteStartArray();
-        for (int i = 0; i < self.Count; i++)
-        {
-            if (self[i] == null)
-            {
-                writer.WriteNull();
-            }
-            else
-            {
-                self[i].WriteJson(writer);
-            }
-        }
-        writer.WriteEndArray();
-    }
-    public static UnityEngine.Vector3 ReadFromJsonUnityEngine_Vector3(this ZRJsonTextReader reader) 
-    {
-        var self = new UnityEngine.Vector3();
-        while (reader.Read())
-        {
-            if (reader.TokenType == JsonToken.PropertyName)
-            {
-                var __name = (string) reader.Value;
-                reader.Read();
-                switch(__name)
-                {
-                    case "x":
-                    self.x = (float)(double)reader.Value;
-                    break;
-                    case "y":
-                    self.y = (float)(double)reader.Value;
-                    break;
-                    case "z":
-                    self.z = (float)(double)reader.Value;
-                    break;
-                }
-            }
-            else if (reader.TokenType == JsonToken.EndObject) { break; }
-        }
-        return self;
-    }
-    public static void WriteJson(this UnityEngine.Vector3 self, ZRJsonTextWriter writer) 
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("x");
-        writer.WriteValue(self.x);
-        writer.WritePropertyName("y");
-        writer.WriteValue(self.y);
-        writer.WritePropertyName("z");
-        writer.WriteValue(self.z);
-        writer.WriteEndObject();
-    }
-    public static UnityEngine.Quaternion ReadFromJsonUnityEngine_Quaternion(this ZRJsonTextReader reader) 
-    {
-        var self = new UnityEngine.Quaternion();
-        while (reader.Read())
-        {
-            if (reader.TokenType == JsonToken.PropertyName)
-            {
-                var __name = (string) reader.Value;
-                reader.Read();
-                switch(__name)
-                {
-                    case "w":
-                    self.w = (float)(double)reader.Value;
-                    break;
-                    case "x":
-                    self.x = (float)(double)reader.Value;
-                    break;
-                    case "y":
-                    self.y = (float)(double)reader.Value;
-                    break;
-                    case "z":
-                    self.z = (float)(double)reader.Value;
-                    break;
-                }
-            }
-            else if (reader.TokenType == JsonToken.EndObject) { break; }
-        }
-        return self;
-    }
-    public static void WriteJson(this UnityEngine.Quaternion self, ZRJsonTextWriter writer) 
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("w");
-        writer.WriteValue(self.w);
-        writer.WritePropertyName("x");
-        writer.WriteValue(self.x);
-        writer.WritePropertyName("y");
-        writer.WriteValue(self.y);
-        writer.WritePropertyName("z");
-        writer.WriteValue(self.z);
-        writer.WriteEndObject();
-    }
     public static void UpdateFrom(this System.Collections.Generic.List<float> self, System.Collections.Generic.List<float> other, ZRUpdateFromHelper __helper) 
     {
         int i = 0;
@@ -914,6 +209,428 @@ public static partial class SerializationExtensions
         }
         writer.WriteEndArray();
     }
+    public static void UpdateFrom(this System.Collections.Generic.List<Game.GameCore.AnimationData> self, System.Collections.Generic.List<Game.GameCore.AnimationData> other, ZRUpdateFromHelper __helper) 
+    {
+        int i = 0;
+        int oldCount = self.Count;
+        int crossCount = Math.Min(oldCount, other.Count);
+        for (; i < crossCount; ++i)
+        {
+            if (other[i] == null) {
+                self[i] = null;
+            }
+            else { 
+                if (self[i] == null) {
+                    self[i] = new Game.GameCore.AnimationData();
+                }
+                self[i].UpdateFrom(other[i], __helper);
+            }
+        }
+        for (; i < other.Count; ++i)
+        {
+            Game.GameCore.AnimationData inst = default;
+            if (other[i] == null) {
+                inst = null;
+            }
+            else { 
+                inst = new Game.GameCore.AnimationData();
+                inst.UpdateFrom(other[i], __helper);
+            }
+            self.Add(inst);
+        }
+        for (; i < oldCount; ++i)
+        {
+            self.RemoveAt(self.Count - 1);
+        }
+    }
+    public static void UpdateFrom(this System.Collections.Generic.List<Game.GameCore.UnitLevelConfig> self, System.Collections.Generic.List<Game.GameCore.UnitLevelConfig> other, ZRUpdateFromHelper __helper) 
+    {
+        int i = 0;
+        int oldCount = self.Count;
+        int crossCount = Math.Min(oldCount, other.Count);
+        for (; i < crossCount; ++i)
+        {
+            if (other[i] == null) {
+                self[i] = null;
+            }
+            else { 
+                if (self[i] == null) {
+                    self[i] = new Game.GameCore.UnitLevelConfig();
+                }
+                self[i].UpdateFrom(other[i], __helper);
+            }
+        }
+        for (; i < other.Count; ++i)
+        {
+            Game.GameCore.UnitLevelConfig inst = default;
+            if (other[i] == null) {
+                inst = null;
+            }
+            else { 
+                inst = new Game.GameCore.UnitLevelConfig();
+                inst.UpdateFrom(other[i], __helper);
+            }
+            self.Add(inst);
+        }
+        for (; i < oldCount; ++i)
+        {
+            self.RemoveAt(self.Count - 1);
+        }
+    }
+    public static void Deserialize(this System.Collections.Generic.List<Game.GameCore.AnimationData> self, ZRBinaryReader reader) 
+    {
+        var size = reader.ReadInt32();
+        if(size > 100000) throw new ZergRushCorruptedOrInvalidDataLayout();
+        self.Capacity = size;
+        for (int i = 0; i < size; i++)
+        {
+            if (!reader.ReadBoolean()) { self.Add(null); continue; }
+            Game.GameCore.AnimationData val = default;
+            val = new Game.GameCore.AnimationData();
+            val.Deserialize(reader);
+            self.Add(val);
+        }
+    }
+    public static void Deserialize(this System.Collections.Generic.List<Game.GameCore.UnitLevelConfig> self, ZRBinaryReader reader) 
+    {
+        var size = reader.ReadInt32();
+        if(size > 100000) throw new ZergRushCorruptedOrInvalidDataLayout();
+        self.Capacity = size;
+        for (int i = 0; i < size; i++)
+        {
+            if (!reader.ReadBoolean()) { self.Add(null); continue; }
+            Game.GameCore.UnitLevelConfig val = default;
+            val = new Game.GameCore.UnitLevelConfig();
+            val.Deserialize(reader);
+            self.Add(val);
+        }
+    }
+    public static void Serialize(this System.Collections.Generic.List<Game.GameCore.AnimationData> self, ZRBinaryWriter writer) 
+    {
+        writer.Write(self.Count);
+        for (int i = 0; i < self.Count; i++)
+        {
+            writer.Write(self[i] != null);
+            if (self[i] != null)
+            {
+                self[i].Serialize(writer);
+            }
+        }
+    }
+    public static void Serialize(this System.Collections.Generic.List<Game.GameCore.UnitLevelConfig> self, ZRBinaryWriter writer) 
+    {
+        writer.Write(self.Count);
+        for (int i = 0; i < self.Count; i++)
+        {
+            writer.Write(self[i] != null);
+            if (self[i] != null)
+            {
+                self[i].Serialize(writer);
+            }
+        }
+    }
+    public static ulong CalculateHash(this System.Collections.Generic.List<Game.GameCore.AnimationData> self, ZRHashHelper __helper) 
+    {
+        System.UInt64 hash = 345093625;
+        hash ^= (ulong)910491146;
+        hash += hash << 11; hash ^= hash >> 7;
+        var size = self.Count;
+        for (int i = 0; i < size; i++)
+        {
+            hash += self[i] != null ? self[i].CalculateHash(__helper) : 345093625;
+            hash += hash << 11; hash ^= hash >> 7;
+        }
+        return hash;
+    }
+    public static ulong CalculateHash(this System.Collections.Generic.List<Game.GameCore.UnitLevelConfig> self, ZRHashHelper __helper) 
+    {
+        System.UInt64 hash = 345093625;
+        hash ^= (ulong)910491146;
+        hash += hash << 11; hash ^= hash >> 7;
+        var size = self.Count;
+        for (int i = 0; i < size; i++)
+        {
+            hash += self[i] != null ? self[i].CalculateHash(__helper) : 345093625;
+            hash += hash << 11; hash ^= hash >> 7;
+        }
+        return hash;
+    }
+    public static void CompareCheck(this System.Collections.Generic.List<Game.GameCore.AnimationData> self, System.Collections.Generic.List<Game.GameCore.AnimationData> other, ZRCompareCheckHelper __helper, Action<string> printer) 
+    {
+        if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
+        var count = Math.Min(self.Count, other.Count);
+        for (int i = 0; i < count; i++)
+        {
+            if (SerializationTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
+                __helper.Push(i.ToString());
+                self[i].CompareCheck(other[i], __helper, printer);
+                __helper.Pop();
+            }
+        }
+    }
+    public static void CompareCheck(this System.Collections.Generic.List<Game.GameCore.UnitLevelConfig> self, System.Collections.Generic.List<Game.GameCore.UnitLevelConfig> other, ZRCompareCheckHelper __helper, Action<string> printer) 
+    {
+        if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
+        var count = Math.Min(self.Count, other.Count);
+        for (int i = 0; i < count; i++)
+        {
+            if (SerializationTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
+                __helper.Push(i.ToString());
+                self[i].CompareCheck(other[i], __helper, printer);
+                __helper.Pop();
+            }
+        }
+    }
+    public static bool ReadFromJson(this System.Collections.Generic.List<Game.GameCore.AnimationData> self, ZRJsonTextReader reader) 
+    {
+        if (reader.TokenType != JsonToken.StartArray) throw new JsonSerializationException("Bad Json Format");
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonToken.EndArray) { break; }
+            if (reader.TokenType == JsonToken.Null) { self.Add(null); continue; }
+            Game.GameCore.AnimationData val = default;
+            val = new Game.GameCore.AnimationData();
+            val.ReadFromJson(reader);
+            self.Add(val);
+        }
+        return true;
+    }
+    public static void WriteJson(this System.Collections.Generic.List<Game.GameCore.AnimationData> self, ZRJsonTextWriter writer) 
+    {
+        writer.WriteStartArray();
+        for (int i = 0; i < self.Count; i++)
+        {
+            if (self[i] == null)
+            {
+                writer.WriteNull();
+            }
+            else
+            {
+                self[i].WriteJson(writer);
+            }
+        }
+        writer.WriteEndArray();
+    }
+    public static bool ReadFromJson(this System.Collections.Generic.List<Game.GameCore.UnitLevelConfig> self, ZRJsonTextReader reader) 
+    {
+        if (reader.TokenType != JsonToken.StartArray) throw new JsonSerializationException("Bad Json Format");
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonToken.EndArray) { break; }
+            if (reader.TokenType == JsonToken.Null) { self.Add(null); continue; }
+            Game.GameCore.UnitLevelConfig val = default;
+            val = new Game.GameCore.UnitLevelConfig();
+            val.ReadFromJson(reader);
+            self.Add(val);
+        }
+        return true;
+    }
+    public static void WriteJson(this System.Collections.Generic.List<Game.GameCore.UnitLevelConfig> self, ZRJsonTextWriter writer) 
+    {
+        writer.WriteStartArray();
+        for (int i = 0; i < self.Count; i++)
+        {
+            if (self[i] == null)
+            {
+                writer.WriteNull();
+            }
+            else
+            {
+                self[i].WriteJson(writer);
+            }
+        }
+        writer.WriteEndArray();
+    }
+    public static void UpdateFrom(this Game.GameCore.UnitStat self, Game.GameCore.UnitStat other, ZRUpdateFromHelper __helper) 
+    {
+        self.currentValue = other.currentValue;
+        self.maxValue = other.maxValue;
+        self.type = other.type;
+    }
+    public static void UpdateFrom(this System.Collections.Generic.List<Game.GameCore.UnitStat> self, System.Collections.Generic.List<Game.GameCore.UnitStat> other, ZRUpdateFromHelper __helper) 
+    {
+        int i = 0;
+        int oldCount = self.Count;
+        int crossCount = Math.Min(oldCount, other.Count);
+        for (; i < crossCount; ++i)
+        {
+            if (other[i] == null) {
+                self[i] = null;
+            }
+            else { 
+                if (self[i] == null) {
+                    self[i] = new Game.GameCore.UnitStat();
+                }
+                self[i].UpdateFrom(other[i], __helper);
+            }
+        }
+        for (; i < other.Count; ++i)
+        {
+            Game.GameCore.UnitStat inst = default;
+            if (other[i] == null) {
+                inst = null;
+            }
+            else { 
+                inst = new Game.GameCore.UnitStat();
+                inst.UpdateFrom(other[i], __helper);
+            }
+            self.Add(inst);
+        }
+        for (; i < oldCount; ++i)
+        {
+            self.RemoveAt(self.Count - 1);
+        }
+    }
+    public static void Deserialize(this Game.GameCore.UnitStat self, ZRBinaryReader reader) 
+    {
+        self.currentValue = reader.ReadSingle();
+        self.maxValue = reader.ReadSingle();
+        self.type = reader.ReadEnum<Game.GameCore.UnitStatType>();
+    }
+    public static void Deserialize(this System.Collections.Generic.List<Game.GameCore.UnitStat> self, ZRBinaryReader reader) 
+    {
+        var size = reader.ReadInt32();
+        if(size > 100000) throw new ZergRushCorruptedOrInvalidDataLayout();
+        self.Capacity = size;
+        for (int i = 0; i < size; i++)
+        {
+            if (!reader.ReadBoolean()) { self.Add(null); continue; }
+            Game.GameCore.UnitStat val = default;
+            val = new Game.GameCore.UnitStat();
+            val.Deserialize(reader);
+            self.Add(val);
+        }
+    }
+    public static void Serialize(this Game.GameCore.UnitStat self, ZRBinaryWriter writer) 
+    {
+        writer.Write(self.currentValue);
+        writer.Write(self.maxValue);
+        writer.Write((Int32)self.type);
+    }
+    public static void Serialize(this System.Collections.Generic.List<Game.GameCore.UnitStat> self, ZRBinaryWriter writer) 
+    {
+        writer.Write(self.Count);
+        for (int i = 0; i < self.Count; i++)
+        {
+            writer.Write(self[i] != null);
+            if (self[i] != null)
+            {
+                self[i].Serialize(writer);
+            }
+        }
+    }
+    public static ulong CalculateHash(this Game.GameCore.UnitStat self, ZRHashHelper __helper) 
+    {
+        System.UInt64 hash = 345093625;
+        hash ^= (ulong)1218048196;
+        hash += hash << 11; hash ^= hash >> 7;
+        hash += (System.UInt64)self.currentValue;
+        hash += hash << 11; hash ^= hash >> 7;
+        hash += (System.UInt64)self.maxValue;
+        hash += hash << 11; hash ^= hash >> 7;
+        hash += (System.UInt64)self.type;
+        hash += hash << 11; hash ^= hash >> 7;
+        return hash;
+    }
+    public static ulong CalculateHash(this System.Collections.Generic.List<Game.GameCore.UnitStat> self, ZRHashHelper __helper) 
+    {
+        System.UInt64 hash = 345093625;
+        hash ^= (ulong)910491146;
+        hash += hash << 11; hash ^= hash >> 7;
+        var size = self.Count;
+        for (int i = 0; i < size; i++)
+        {
+            hash += self[i] != null ? self[i].CalculateHash(__helper) : 345093625;
+            hash += hash << 11; hash ^= hash >> 7;
+        }
+        return hash;
+    }
+    public static void CompareCheck(this Game.GameCore.UnitStat self, Game.GameCore.UnitStat other, ZRCompareCheckHelper __helper, Action<string> printer) 
+    {
+        if (self.currentValue != other.currentValue) SerializationTools.LogCompError(__helper, "currentValue", printer, other.currentValue, self.currentValue);
+        if (self.maxValue != other.maxValue) SerializationTools.LogCompError(__helper, "maxValue", printer, other.maxValue, self.maxValue);
+        if (self.type != other.type) SerializationTools.LogCompError(__helper, "type", printer, other.type, self.type);
+    }
+    public static void CompareCheck(this System.Collections.Generic.List<Game.GameCore.UnitStat> self, System.Collections.Generic.List<Game.GameCore.UnitStat> other, ZRCompareCheckHelper __helper, Action<string> printer) 
+    {
+        if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
+        var count = Math.Min(self.Count, other.Count);
+        for (int i = 0; i < count; i++)
+        {
+            if (SerializationTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
+                __helper.Push(i.ToString());
+                self[i].CompareCheck(other[i], __helper, printer);
+                __helper.Pop();
+            }
+        }
+    }
+    public static bool ReadFromJson(this Game.GameCore.UnitStat self, ZRJsonTextReader reader) 
+    {
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonToken.PropertyName)
+            {
+                var __name = (string) reader.Value;
+                reader.Read();
+                switch(__name)
+                {
+                    case "currentValue":
+                    self.currentValue = (float)(double)reader.Value;
+                    break;
+                    case "maxValue":
+                    self.maxValue = (float)(double)reader.Value;
+                    break;
+                    case "type":
+                    self.type = ((string)reader.Value).ParseEnum<Game.GameCore.UnitStatType>();
+                    break;
+                    default: return false; break;
+                }
+            }
+            else if (reader.TokenType == JsonToken.EndObject) { break; }
+        }
+        return true;
+    }
+    public static void WriteJson(this Game.GameCore.UnitStat self, ZRJsonTextWriter writer) 
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("currentValue");
+        writer.WriteValue(self.currentValue);
+        writer.WritePropertyName("maxValue");
+        writer.WriteValue(self.maxValue);
+        writer.WritePropertyName("type");
+        writer.WriteValue(self.type.ToString());
+        writer.WriteEndObject();
+    }
+    public static bool ReadFromJson(this System.Collections.Generic.List<Game.GameCore.UnitStat> self, ZRJsonTextReader reader) 
+    {
+        if (reader.TokenType != JsonToken.StartArray) throw new JsonSerializationException("Bad Json Format");
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonToken.EndArray) { break; }
+            if (reader.TokenType == JsonToken.Null) { self.Add(null); continue; }
+            Game.GameCore.UnitStat val = default;
+            val = new Game.GameCore.UnitStat();
+            val.ReadFromJson(reader);
+            self.Add(val);
+        }
+        return true;
+    }
+    public static void WriteJson(this System.Collections.Generic.List<Game.GameCore.UnitStat> self, ZRJsonTextWriter writer) 
+    {
+        writer.WriteStartArray();
+        for (int i = 0; i < self.Count; i++)
+        {
+            if (self[i] == null)
+            {
+                writer.WriteNull();
+            }
+            else
+            {
+                self[i].WriteJson(writer);
+            }
+        }
+        writer.WriteEndArray();
+    }
     public static void UpdateFrom(this System.Collections.Generic.List<Game.GameCore.ControlData> self, System.Collections.Generic.List<Game.GameCore.ControlData> other, ZRUpdateFromHelper __helper) 
     {
         int i = 0;
@@ -982,6 +699,42 @@ public static partial class SerializationExtensions
             self.RemoveAt(self.Count - 1);
         }
     }
+    public static void UpdateFrom(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit> self, ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit> other, ZRUpdateFromHelper __helper) 
+    {
+        int i = 0;
+        int oldCount = self.Count;
+        int crossCount = Math.Min(oldCount, other.Count);
+        for (; i < crossCount; ++i)
+        {
+            var __self_i_ = self[i];
+            if (other[i] == null) {
+                __self_i_ = null;
+            }
+            else { 
+                if (__self_i_ == null) {
+                    __self_i_ = new Game.GameCore.Unit();
+                }
+                if (!__helper.TryLoadAlreadyUpdated(other[i], ref __self_i_)) __self_i_.UpdateFrom(other[i], __helper);
+            }
+            self[i] = __self_i_;
+        }
+        for (; i < other.Count; ++i)
+        {
+            Game.GameCore.Unit inst = default;
+            if (other[i] == null) {
+                inst = null;
+            }
+            else { 
+                inst = new Game.GameCore.Unit();
+                if (!__helper.TryLoadAlreadyUpdated(other[i], ref inst)) inst.UpdateFrom(other[i], __helper);
+            }
+            self.Add(inst);
+        }
+        for (; i < oldCount; ++i)
+        {
+            self.RemoveAt(self.Count - 1);
+        }
+    }
     public static void Deserialize(this System.Collections.Generic.List<Game.GameCore.ControlData> self, ZRBinaryReader reader) 
     {
         var size = reader.ReadInt32();
@@ -1010,6 +763,20 @@ public static partial class SerializationExtensions
             self.Add(val);
         }
     }
+    public static void Deserialize(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit> self, ZRBinaryReader reader) 
+    {
+        var size = reader.ReadInt32();
+        if(size > 100000) throw new ZergRushCorruptedOrInvalidDataLayout();
+        self.Capacity = size;
+        for (int i = 0; i < size; i++)
+        {
+            if (!reader.ReadBoolean()) { self.Add(null); continue; }
+            Game.GameCore.Unit val = default;
+            val = new Game.GameCore.Unit();
+            reader.ReadFromRef(ref val);
+            self.Add(val);
+        }
+    }
     public static void Serialize(this System.Collections.Generic.List<Game.GameCore.ControlData> self, ZRBinaryWriter writer) 
     {
         writer.Write(self.Count);
@@ -1031,6 +798,18 @@ public static partial class SerializationExtensions
             if (self[i] != null)
             {
                 self[i].Serialize(writer);
+            }
+        }
+    }
+    public static void Serialize(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit> self, ZRBinaryWriter writer) 
+    {
+        writer.Write(self.Count);
+        for (int i = 0; i < self.Count; i++)
+        {
+            writer.Write(self[i] != null);
+            if (self[i] != null)
+            {
+                writer.WriteObjectWithRef(self[i]);
             }
         }
     }
@@ -1060,6 +839,19 @@ public static partial class SerializationExtensions
         }
         return hash;
     }
+    public static ulong CalculateHash(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit> self, ZRHashHelper __helper) 
+    {
+        System.UInt64 hash = 345093625;
+        hash ^= (ulong)1261931807;
+        hash += hash << 11; hash ^= hash >> 7;
+        var size = self.Count;
+        for (int i = 0; i < size; i++)
+        {
+            hash += self[i] != null ? __helper.CalculateHash(self[i]) : 345093625;
+            hash += hash << 11; hash ^= hash >> 7;
+        }
+        return hash;
+    }
     public static void CompareCheck(this System.Collections.Generic.List<Game.GameCore.ControlData> self, System.Collections.Generic.List<Game.GameCore.ControlData> other, ZRCompareCheckHelper __helper, Action<string> printer) 
     {
         if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
@@ -1083,6 +875,21 @@ public static partial class SerializationExtensions
                 __helper.Push(i.ToString());
                 self[i].CompareCheck(other[i], __helper, printer);
                 __helper.Pop();
+            }
+        }
+    }
+    public static void CompareCheck(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit> self, ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit> other, ZRCompareCheckHelper __helper, Action<string> printer) 
+    {
+        if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
+        var count = Math.Min(self.Count, other.Count);
+        for (int i = 0; i < count; i++)
+        {
+            if (SerializationTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
+                if (__helper.NeedCompareCheck(i.ToString(), printer, self[i], other[i])) {
+                    __helper.Push(i.ToString());
+                    self[i].CompareCheck(other[i], __helper, printer);
+                    __helper.Pop();
+                }
             }
         }
     }
@@ -1145,6 +952,391 @@ public static partial class SerializationExtensions
             }
         }
         writer.WriteEndArray();
+    }
+    public static bool ReadFromJson(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit> self, ZRJsonTextReader reader) 
+    {
+        if (reader.TokenType != JsonToken.StartArray) throw new JsonSerializationException("Bad Json Format");
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonToken.EndArray) { break; }
+            if (reader.TokenType == JsonToken.Null) { self.Add(null); continue; }
+            Game.GameCore.Unit val = default;
+            val = new Game.GameCore.Unit();
+            reader.ReadFromRef(ref val);
+            self.Add(val);
+        }
+        return true;
+    }
+    public static void WriteJson(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit> self, ZRJsonTextWriter writer) 
+    {
+        writer.WriteStartArray();
+        for (int i = 0; i < self.Count; i++)
+        {
+            if (self[i] == null)
+            {
+                writer.WriteNull();
+            }
+            else
+            {
+                writer.WriteObjectWithRef(self[i]);
+            }
+        }
+        writer.WriteEndArray();
+    }
+    public static void UpdateFrom(this Game.GameCore.UnitAction self, Game.GameCore.UnitAction other, ZRUpdateFromHelper __helper) 
+    {
+        self.duration = other.duration;
+        self.state = other.state;
+        self.stateTimer.UpdateFrom(other.stateTimer, __helper);
+    }
+    public static void UpdateFrom(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, System.Collections.Generic.List<Game.GameCore.UnitAction> other, ZRUpdateFromHelper __helper) 
+    {
+        int i = 0;
+        int oldCount = self.Count;
+        int crossCount = Math.Min(oldCount, other.Count);
+        for (; i < crossCount; ++i)
+        {
+            if (other[i] == null) {
+                self[i] = null;
+            }
+            else { 
+                if (self[i] == null) {
+                    self[i] = new Game.GameCore.UnitAction();
+                }
+                self[i].UpdateFrom(other[i], __helper);
+            }
+        }
+        for (; i < other.Count; ++i)
+        {
+            Game.GameCore.UnitAction inst = default;
+            if (other[i] == null) {
+                inst = null;
+            }
+            else { 
+                inst = new Game.GameCore.UnitAction();
+                inst.UpdateFrom(other[i], __helper);
+            }
+            self.Add(inst);
+        }
+        for (; i < oldCount; ++i)
+        {
+            self.RemoveAt(self.Count - 1);
+        }
+    }
+    public static void Deserialize(this Game.GameCore.UnitAction self, ZRBinaryReader reader) 
+    {
+        self.duration = reader.ReadSingle();
+        self.state = reader.ReadEnum<Game.GameCore.ActionState>();
+        self.stateTimer.Deserialize(reader);
+    }
+    public static void Deserialize(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, ZRBinaryReader reader) 
+    {
+        var size = reader.ReadInt32();
+        if(size > 100000) throw new ZergRushCorruptedOrInvalidDataLayout();
+        self.Capacity = size;
+        for (int i = 0; i < size; i++)
+        {
+            if (!reader.ReadBoolean()) { self.Add(null); continue; }
+            Game.GameCore.UnitAction val = default;
+            val = new Game.GameCore.UnitAction();
+            val.Deserialize(reader);
+            self.Add(val);
+        }
+    }
+    public static void Serialize(this Game.GameCore.UnitAction self, ZRBinaryWriter writer) 
+    {
+        writer.Write(self.duration);
+        writer.Write((Int32)self.state);
+        self.stateTimer.Serialize(writer);
+    }
+    public static void Serialize(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, ZRBinaryWriter writer) 
+    {
+        writer.Write(self.Count);
+        for (int i = 0; i < self.Count; i++)
+        {
+            writer.Write(self[i] != null);
+            if (self[i] != null)
+            {
+                self[i].Serialize(writer);
+            }
+        }
+    }
+    public static ulong CalculateHash(this Game.GameCore.UnitAction self, ZRHashHelper __helper) 
+    {
+        System.UInt64 hash = 345093625;
+        hash ^= (ulong)1110380895;
+        hash += hash << 11; hash ^= hash >> 7;
+        hash += (System.UInt64)self.duration;
+        hash += hash << 11; hash ^= hash >> 7;
+        hash += (System.UInt64)self.state;
+        hash += hash << 11; hash ^= hash >> 7;
+        hash += self.stateTimer.CalculateHash(__helper);
+        hash += hash << 11; hash ^= hash >> 7;
+        return hash;
+    }
+    public static ulong CalculateHash(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, ZRHashHelper __helper) 
+    {
+        System.UInt64 hash = 345093625;
+        hash ^= (ulong)910491146;
+        hash += hash << 11; hash ^= hash >> 7;
+        var size = self.Count;
+        for (int i = 0; i < size; i++)
+        {
+            hash += self[i] != null ? self[i].CalculateHash(__helper) : 345093625;
+            hash += hash << 11; hash ^= hash >> 7;
+        }
+        return hash;
+    }
+    public static void CompareCheck(this Game.GameCore.UnitAction self, Game.GameCore.UnitAction other, ZRCompareCheckHelper __helper, Action<string> printer) 
+    {
+        if (self.duration != other.duration) SerializationTools.LogCompError(__helper, "duration", printer, other.duration, self.duration);
+        if (self.state != other.state) SerializationTools.LogCompError(__helper, "state", printer, other.state, self.state);
+        __helper.Push("stateTimer");
+        self.stateTimer.CompareCheck(other.stateTimer, __helper, printer);
+        __helper.Pop();
+    }
+    public static void CompareCheck(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, System.Collections.Generic.List<Game.GameCore.UnitAction> other, ZRCompareCheckHelper __helper, Action<string> printer) 
+    {
+        if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
+        var count = Math.Min(self.Count, other.Count);
+        for (int i = 0; i < count; i++)
+        {
+            if (SerializationTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
+                __helper.Push(i.ToString());
+                self[i].CompareCheck(other[i], __helper, printer);
+                __helper.Pop();
+            }
+        }
+    }
+    public static bool ReadFromJson(this Game.GameCore.UnitAction self, ZRJsonTextReader reader) 
+    {
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonToken.PropertyName)
+            {
+                var __name = (string) reader.Value;
+                reader.Read();
+                switch(__name)
+                {
+                    case "duration":
+                    self.duration = (float)(double)reader.Value;
+                    break;
+                    case "state":
+                    self.state = ((string)reader.Value).ParseEnum<Game.GameCore.ActionState>();
+                    break;
+                    case "stateTimer":
+                    self.stateTimer.ReadFromJson(reader);
+                    break;
+                    default: return false; break;
+                }
+            }
+            else if (reader.TokenType == JsonToken.EndObject) { break; }
+        }
+        return true;
+    }
+    public static void WriteJson(this Game.GameCore.UnitAction self, ZRJsonTextWriter writer) 
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("duration");
+        writer.WriteValue(self.duration);
+        writer.WritePropertyName("state");
+        writer.WriteValue(self.state.ToString());
+        writer.WritePropertyName("stateTimer");
+        self.stateTimer.WriteJson(writer);
+        writer.WriteEndObject();
+    }
+    public static bool ReadFromJson(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, ZRJsonTextReader reader) 
+    {
+        if (reader.TokenType != JsonToken.StartArray) throw new JsonSerializationException("Bad Json Format");
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonToken.EndArray) { break; }
+            if (reader.TokenType == JsonToken.Null) { self.Add(null); continue; }
+            Game.GameCore.UnitAction val = default;
+            val = new Game.GameCore.UnitAction();
+            val.ReadFromJson(reader);
+            self.Add(val);
+        }
+        return true;
+    }
+    public static void WriteJson(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, ZRJsonTextWriter writer) 
+    {
+        writer.WriteStartArray();
+        for (int i = 0; i < self.Count; i++)
+        {
+            if (self[i] == null)
+            {
+                writer.WriteNull();
+            }
+            else
+            {
+                self[i].WriteJson(writer);
+            }
+        }
+        writer.WriteEndArray();
+    }
+    public static void UpdateFrom(ref this UnityEngine.Vector3 self, UnityEngine.Vector3 other, ZRUpdateFromHelper __helper) 
+    {
+        self.x = other.x;
+        self.y = other.y;
+        self.z = other.z;
+    }
+    public static void UpdateFrom(ref this UnityEngine.Quaternion self, UnityEngine.Quaternion other, ZRUpdateFromHelper __helper) 
+    {
+        self.w = other.w;
+        self.x = other.x;
+        self.y = other.y;
+        self.z = other.z;
+    }
+    public static UnityEngine.Vector3 ReadUnityEngine_Vector3(this ZRBinaryReader reader) 
+    {
+        var self = new UnityEngine.Vector3();
+        self.x = reader.ReadSingle();
+        self.y = reader.ReadSingle();
+        self.z = reader.ReadSingle();
+        return self;
+    }
+    public static UnityEngine.Quaternion ReadUnityEngine_Quaternion(this ZRBinaryReader reader) 
+    {
+        var self = new UnityEngine.Quaternion();
+        self.w = reader.ReadSingle();
+        self.x = reader.ReadSingle();
+        self.y = reader.ReadSingle();
+        self.z = reader.ReadSingle();
+        return self;
+    }
+    public static void Serialize(this UnityEngine.Vector3 self, ZRBinaryWriter writer) 
+    {
+        writer.Write(self.x);
+        writer.Write(self.y);
+        writer.Write(self.z);
+    }
+    public static void Serialize(this UnityEngine.Quaternion self, ZRBinaryWriter writer) 
+    {
+        writer.Write(self.w);
+        writer.Write(self.x);
+        writer.Write(self.y);
+        writer.Write(self.z);
+    }
+    public static ulong CalculateHash(this UnityEngine.Vector3 self, ZRHashHelper __helper) 
+    {
+        System.UInt64 hash = 345093625;
+        hash ^= (ulong)701202043;
+        hash += hash << 11; hash ^= hash >> 7;
+        hash += (System.UInt64)self.x;
+        hash += hash << 11; hash ^= hash >> 7;
+        hash += (System.UInt64)self.y;
+        hash += hash << 11; hash ^= hash >> 7;
+        hash += (System.UInt64)self.z;
+        hash += hash << 11; hash ^= hash >> 7;
+        return hash;
+    }
+    public static ulong CalculateHash(this UnityEngine.Quaternion self, ZRHashHelper __helper) 
+    {
+        System.UInt64 hash = 345093625;
+        hash ^= (ulong)98633650;
+        hash += hash << 11; hash ^= hash >> 7;
+        hash += (System.UInt64)self.w;
+        hash += hash << 11; hash ^= hash >> 7;
+        hash += (System.UInt64)self.x;
+        hash += hash << 11; hash ^= hash >> 7;
+        hash += (System.UInt64)self.y;
+        hash += hash << 11; hash ^= hash >> 7;
+        hash += (System.UInt64)self.z;
+        hash += hash << 11; hash ^= hash >> 7;
+        return hash;
+    }
+    public static void CompareCheck(this UnityEngine.Vector3 self, UnityEngine.Vector3 other, ZRCompareCheckHelper __helper, Action<string> printer) 
+    {
+        if (self.x != other.x) SerializationTools.LogCompError(__helper, "x", printer, other.x, self.x);
+        if (self.y != other.y) SerializationTools.LogCompError(__helper, "y", printer, other.y, self.y);
+        if (self.z != other.z) SerializationTools.LogCompError(__helper, "z", printer, other.z, self.z);
+    }
+    public static void CompareCheck(this UnityEngine.Quaternion self, UnityEngine.Quaternion other, ZRCompareCheckHelper __helper, Action<string> printer) 
+    {
+        if (self.w != other.w) SerializationTools.LogCompError(__helper, "w", printer, other.w, self.w);
+        if (self.x != other.x) SerializationTools.LogCompError(__helper, "x", printer, other.x, self.x);
+        if (self.y != other.y) SerializationTools.LogCompError(__helper, "y", printer, other.y, self.y);
+        if (self.z != other.z) SerializationTools.LogCompError(__helper, "z", printer, other.z, self.z);
+    }
+    public static UnityEngine.Vector3 ReadFromJsonUnityEngine_Vector3(this ZRJsonTextReader reader) 
+    {
+        var self = new UnityEngine.Vector3();
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonToken.PropertyName)
+            {
+                var __name = (string) reader.Value;
+                reader.Read();
+                switch(__name)
+                {
+                    case "x":
+                    self.x = (float)(double)reader.Value;
+                    break;
+                    case "y":
+                    self.y = (float)(double)reader.Value;
+                    break;
+                    case "z":
+                    self.z = (float)(double)reader.Value;
+                    break;
+                }
+            }
+            else if (reader.TokenType == JsonToken.EndObject) { break; }
+        }
+        return self;
+    }
+    public static void WriteJson(this UnityEngine.Vector3 self, ZRJsonTextWriter writer) 
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("x");
+        writer.WriteValue(self.x);
+        writer.WritePropertyName("y");
+        writer.WriteValue(self.y);
+        writer.WritePropertyName("z");
+        writer.WriteValue(self.z);
+        writer.WriteEndObject();
+    }
+    public static UnityEngine.Quaternion ReadFromJsonUnityEngine_Quaternion(this ZRJsonTextReader reader) 
+    {
+        var self = new UnityEngine.Quaternion();
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonToken.PropertyName)
+            {
+                var __name = (string) reader.Value;
+                reader.Read();
+                switch(__name)
+                {
+                    case "w":
+                    self.w = (float)(double)reader.Value;
+                    break;
+                    case "x":
+                    self.x = (float)(double)reader.Value;
+                    break;
+                    case "y":
+                    self.y = (float)(double)reader.Value;
+                    break;
+                    case "z":
+                    self.z = (float)(double)reader.Value;
+                    break;
+                }
+            }
+            else if (reader.TokenType == JsonToken.EndObject) { break; }
+        }
+        return self;
+    }
+    public static void WriteJson(this UnityEngine.Quaternion self, ZRJsonTextWriter writer) 
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("w");
+        writer.WriteValue(self.w);
+        writer.WritePropertyName("x");
+        writer.WriteValue(self.x);
+        writer.WritePropertyName("y");
+        writer.WriteValue(self.y);
+        writer.WritePropertyName("z");
+        writer.WriteValue(self.z);
+        writer.WriteEndObject();
     }
     public static void UpdateFrom(ref this UnityEngine.Vector2 self, UnityEngine.Vector2 other, ZRUpdateFromHelper __helper) 
     {
@@ -1428,126 +1620,6 @@ public static partial class SerializationExtensions
         writer.WriteValue(self.m32);
         writer.WritePropertyName("m33");
         writer.WriteValue(self.m33);
-        writer.WriteEndObject();
-    }
-    public static void UpdateFrom(this UnityEngine.Vector3[] self, UnityEngine.Vector3[] other, ZRUpdateFromHelper __helper) 
-    {
-        for (int i = 0; i < self.Length; i++)
-        {
-            self[i].UpdateFrom(other[i], __helper);
-        }
-    }
-    public static void UpdateFrom(this UnityEngine.AI.NavMeshPath self, UnityEngine.AI.NavMeshPath other, ZRUpdateFromHelper __helper) 
-    {
-
-    }
-    public static UnityEngine.Vector3[] ReadUnityEngine_Vector3_Array(this ZRBinaryReader reader) 
-    {
-        var size = reader.ReadInt32();
-        if(size > 100000) throw new ZergRushCorruptedOrInvalidDataLayout();
-        var array = new UnityEngine.Vector3[size];
-        for (int i = 0; i < size; i++)
-        {
-            array[i] = reader.ReadUnityEngine_Vector3();
-        }
-        return array;
-    }
-    public static void Deserialize(this UnityEngine.AI.NavMeshPath self, ZRBinaryReader reader) 
-    {
-
-    }
-    public static void Serialize(this UnityEngine.Vector3[] self, ZRBinaryWriter writer) 
-    {
-        writer.Write(self.Length);
-        for (int i = 0; i < self.Length; i++)
-        {
-            {
-                self[i].Serialize(writer);
-            }
-        }
-    }
-    public static void Serialize(this UnityEngine.AI.NavMeshPath self, ZRBinaryWriter writer) 
-    {
-
-    }
-    public static ulong CalculateHash(this UnityEngine.Vector3[] self, ZRHashHelper __helper) 
-    {
-        System.UInt64 hash = 345093625;
-        hash ^= (ulong)1204357807;
-        hash += hash << 11; hash ^= hash >> 7;
-        var size = self.Length;
-        for (int i = 0; i < size; i++)
-        {
-            hash += self[i].CalculateHash(__helper);
-            hash += hash << 11; hash ^= hash >> 7;
-        }
-        return hash;
-    }
-    public static ulong CalculateHash(this UnityEngine.AI.NavMeshPath self, ZRHashHelper __helper) 
-    {
-        System.UInt64 hash = 345093625;
-        hash ^= (ulong)1983906321;
-        hash += hash << 11; hash ^= hash >> 7;
-        return hash;
-    }
-    public static void CompareCheck(this UnityEngine.Vector3[] self, UnityEngine.Vector3[] other, ZRCompareCheckHelper __helper, Action<string> printer) 
-    {
-        if (self.Length != other.Length) SerializationTools.LogCompError(__helper, "Length", printer, other.Length, self.Length);
-        var count = Math.Min(self.Length, other.Length);
-        for (int i = 0; i < count; i++)
-        {
-            __helper.Push(i.ToString());
-            self[i].CompareCheck(other[i], __helper, printer);
-            __helper.Pop();
-        }
-    }
-    public static void CompareCheck(this UnityEngine.AI.NavMeshPath self, UnityEngine.AI.NavMeshPath other, ZRCompareCheckHelper __helper, Action<string> printer) 
-    {
-
-    }
-    public static UnityEngine.Vector3[] ReadFromJson(this UnityEngine.Vector3[] self, ZRJsonTextReader reader) 
-    {
-        if (reader.TokenType != JsonToken.StartArray) throw new JsonSerializationException("Bad Json Format");
-        if(self == null || self.Length > 0) self = Array.Empty<UnityEngine.Vector3>();
-        while (reader.Read())
-        {
-            if (reader.TokenType == JsonToken.EndArray) { break; }
-            UnityEngine.Vector3 val = default;
-            val = (UnityEngine.Vector3)reader.ReadFromJsonUnityEngine_Vector3();
-            Array.Resize(ref self, self.Length + 1);
-            self[self.Length - 1] = val;
-        }
-        return self;
-    }
-    public static void WriteJson(this UnityEngine.Vector3[] self, ZRJsonTextWriter writer) 
-    {
-        writer.WriteStartArray();
-        for (int i = 0; i < self.Length; i++)
-        {
-            self[i].WriteJson(writer);
-        }
-        writer.WriteEndArray();
-    }
-    public static bool ReadFromJson(this UnityEngine.AI.NavMeshPath self, ZRJsonTextReader reader) 
-    {
-        while (reader.Read())
-        {
-            if (reader.TokenType == JsonToken.PropertyName)
-            {
-                var __name = (string) reader.Value;
-                reader.Read();
-                switch(__name)
-                {
-                    default: return false; break;
-                }
-            }
-            else if (reader.TokenType == JsonToken.EndObject) { break; }
-        }
-        return true;
-    }
-    public static void WriteJson(this UnityEngine.AI.NavMeshPath self, ZRJsonTextWriter writer) 
-    {
-        writer.WriteStartObject();
         writer.WriteEndObject();
     }
 }

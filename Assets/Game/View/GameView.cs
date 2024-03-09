@@ -22,7 +22,7 @@ public class RTSView : ReusableView
     public GameConfig config => GameConfig.Instance;
 }
 
-public class GameView : RTSView
+public partial class GameView : RTSView
 {
     public int serverPlayerId = 0;
     
@@ -55,7 +55,6 @@ public class GameView : RTSView
     
     public IEnumerable<UnitView> GetViewsByModel(IEnumerable<Unit> units) => unitsPresenter.Views().Where(uv => units.Contains(uv.currentUnit));
     public UnitView GetViewByModel(Unit unit) => unitsPresenter.Views().FirstOrDefault(uv => uv.currentUnit == unit);
-    
     public bool IsUnitSelected(Unit unit) => currentSelectionModels.Contains(unit);
 
     public void Awake()
@@ -118,99 +117,6 @@ public class GameView : RTSView
         }
     }
 
-    private void ProcessSelectionInput((SelectionRectClipSpace rectClipSpace, float time) t)
-    {
-        List<Unit> toSelect = new List<Unit>();
-        if (t.rectClipSpace.area < 1e-4) return;
-        
-        toSelect = game.GetUnitsInsideOpaqueQuadrangle(t.rectClipSpace, u => CanAddToCurrentSelection(u) == false);
-        ProcessSelection(toSelect, null);
-    }
-
-    private (IEnumerable<Unit> newbies, IEnumerable<Unit> toDelete) GetUnionDifference(List<Unit> newSelection)
-    {
-        var newUnits = newSelection.Except(currentSelection.Select(uv => uv.currentUnit));
-        var unitsToDelete = currentSelection.Select(uv => uv.currentUnit).Except(newSelection);
-        return (newUnits, unitsToDelete);
-    }
-
-    public void ResetSelection()
-    {
-        ProcessSelection(null, currentSelectionModels);
-    }
-
-    private void ProcessSelection(IEnumerable<Unit> newbies, IEnumerable<Unit> toDelete)
-    {
-        var toDeleteCached = toDelete == null ? new List<Unit>() : toDelete.ToList();
-        var newbiesCached = newbies == null ? new List<Unit>() : newbies.ToList();
-        
-        foreach (var unit in newbiesCached)
-        {
-            AddToSelection(unit);
-        }
-
-        foreach (var unit in toDeleteCached)
-        {
-            RemoveFromSelection(unit);
-        }
-
-        UpdateSelectionView();
-    }
-
-    public void AddToSelection(Unit unit)
-    {
-        if (CanAddToCurrentSelection(unit) == false) return;
-        
-        var view = GetViewByModel(unit);
-        currentSelection.Add(view);
-        view.OnSelectionToggle(true);
-        UpdateSelectionView();
-    }
-
-    public void RemoveFromSelection(Unit unit)
-    {
-        var view = GetViewByModel(unit);
-        if (view == null) return;
-        
-        currentSelection.Remove(view);
-        view.OnSelectionToggle(false);
-        UpdateSelectionView();
-    }
-
-    private bool CanAddToCurrentSelection(Unit unit)
-    {
-        return unit != null && unit.faction == localPlayerFaction && currentSelectionModels.All(m => m != unit);
-    }
-
-    private void UpdateSelectionView()
-    {
-        gameUI.selectionUI.ShowSelection(currentSelection);
-    }
-
-    private void OnSecondaryAction(InputAction.CallbackContext ctx)
-    {
-        Debug.Log($"{ctx.duration} seconds passed since the button was pressed");
-        if (game != null && game.gameState.value == GameState.InProgress)
-        {
-            if (cameraController.TryGetWorldMousePosition(out var worldMousePosition) == false) return;
-            if (cameraController.TryGetPointedUnit(out var unit))
-            {
-                unit.SetupAction(new DOT()
-                {
-                    duration = 3,
-                    preparingTime = 0,
-                });
-                
-            }
-            else
-            {
-                OnTerrainClick();
-                if (currentSelection.Count > 0)
-                    localPlayerFaction.MoveStackTo(currentSelection.Select(uv => uv.currentUnit).ToList(), worldMousePosition);
-            }
-        }
-    }
-    
     private void OnTerrainClick()
     {
         var go = Instantiate(Resources.Load<GameObject>("PointMark"), cameraController.worldMousePosition, Quaternion.identity);

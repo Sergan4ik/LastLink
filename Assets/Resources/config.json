@@ -1,6 +1,34 @@
 {
   "units": [
     {
+      "customAnimations": [
+        {
+          "__classId": 11,
+          "animationName": "Attack",
+          "duration": 0.5,
+          "loop": false,
+          "timer": {
+            "__classId": 4,
+            "elapsedTime": 0.0,
+            "currentInterval": 0,
+            "intervals": [],
+            "loop": false
+          }
+        }
+      ],
+      "idleAnimation": {
+        "__classId": 11,
+        "animationName": "Idle01",
+        "duration": 2.233,
+        "loop": true,
+        "timer": {
+          "__classId": 4,
+          "elapsedTime": 0.0,
+          "currentInterval": 0,
+          "intervals": [],
+          "loop": false
+        }
+      },
       "levelConfig": [
         {
           "stats": {
@@ -30,9 +58,50 @@
           }
         }
       ],
-      "name": "DefaultUnit"
+      "name": "DefaultUnit",
+      "walkAnimation": {
+        "__classId": 11,
+        "animationName": "Run_Forward",
+        "duration": 0.667,
+        "loop": true,
+        "timer": {
+          "__classId": 4,
+          "elapsedTime": 0.0,
+          "currentInterval": 0,
+          "intervals": [],
+          "loop": false
+        }
+      }
     },
     {
+      "customAnimations": [
+        {
+          "__classId": 11,
+          "animationName": "Attack",
+          "duration": 0.5,
+          "loop": false,
+          "timer": {
+            "__classId": 4,
+            "elapsedTime": 0.0,
+            "currentInterval": 0,
+            "intervals": [],
+            "loop": false
+          }
+        }
+      ],
+      "idleAnimation": {
+        "__classId": 11,
+        "animationName": "Idle01",
+        "duration": 2.267,
+        "loop": true,
+        "timer": {
+          "__classId": 4,
+          "elapsedTime": 0.0,
+          "currentInterval": 0,
+          "intervals": [],
+          "loop": false
+        }
+      },
       "levelConfig": [
         {
           "stats": {
@@ -62,7 +131,20 @@
           }
         }
       ],
-      "name": "DefaultEnemy"
+      "name": "DefaultEnemy",
+      "walkAnimation": {
+        "__classId": 11,
+        "animationName": "Run_Forward",
+        "duration": 0.667,
+        "loop": true,
+        "timer": {
+          "__classId": 4,
+          "elapsedTime": 0.0,
+          "currentInterval": 0,
+          "intervals": [],
+          "loop": false
+        }
+      }
     }
   ]
 }

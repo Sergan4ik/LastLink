@@ -90,12 +90,15 @@ namespace Game.GameCore
     {
         public string name;
         public List<UnitLevelConfig> levelConfig;
+        public List<AnimationData> customAnimations;
+        public AnimationData walkAnimation;
+        public AnimationData idleAnimation;
         
         public UnitLevelConfig GetLevelConfig(int level)
         {
             return levelConfig[level];
         }
-        
+
         public static UnitConfig CreateBaseUnit(string name = "DefaultUnit")
         {
             return new UnitConfig()
@@ -109,13 +112,34 @@ namespace Game.GameCore
                         {
                             stats = new List<UnitStat>()
                             {
-                                new UnitStat() {type = UnitStatType.Health, currentValue = 100, maxValue = 100},
-                                new UnitStat() {type = UnitStatType.Mana, currentValue = 100, maxValue = 100},
-                                new UnitStat() {type = UnitStatType.Armor, currentValue = 0, maxValue = 0},
-                                new UnitStat() {type = UnitStatType.MoveSpeed, currentValue = 5, maxValue = 5},
+                                new UnitStat() { type = UnitStatType.Health, currentValue = 100, maxValue = 100 },
+                                new UnitStat() { type = UnitStatType.Mana, currentValue = 100, maxValue = 100 },
+                                new UnitStat() { type = UnitStatType.Armor, currentValue = 0, maxValue = 0 },
+                                new UnitStat() { type = UnitStatType.MoveSpeed, currentValue = 5, maxValue = 5 },
                             }
                         }
                     }
+                },
+                customAnimations = new List<AnimationData>()
+                {
+                    new AnimationData()
+                    {
+                        animationName = "Attack",
+                        duration = 0.5f,
+                        loop = false,
+                    }
+                },
+                walkAnimation = new AnimationData()
+                {
+                    animationName = "Run_Forward",
+                    duration = 0.667f,
+                    loop = true,
+                },
+                idleAnimation = new AnimationData()
+                {
+                    animationName = "Idle01",
+                    duration = name == "DefaultUnit" ? 2.233f : 2.267f,
+                    loop = true,
                 }
             };
         }

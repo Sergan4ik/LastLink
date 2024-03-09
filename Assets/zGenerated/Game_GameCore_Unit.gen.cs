@@ -8,25 +8,29 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class Unit : IUpdatableFrom<Game.GameCore.Unit>, IUpdatableFrom<Game.NodeArchitecture.ContextNode>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.NodeArchitecture.ContextNode>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class Unit : IUpdatableFrom<Game.GameCore.Unit>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IsMultiRef, IPolymorphable, ICloneInst
     {
-        public override void UpdateFrom(Game.NodeArchitecture.ContextNode other, ZRUpdateFromHelper __helper) 
+        public override void UpdateFrom(Game.GameCore.RTSRuntimeData other, ZRUpdateFromHelper __helper) 
         {
             base.UpdateFrom(other,__helper);
             var otherConcrete = (Game.GameCore.Unit)other;
             cfg.UpdateFrom(otherConcrete.cfg, __helper);
+            currentAnimation.UpdateFrom(otherConcrete.currentAnimation, __helper);
+            factionSlot = otherConcrete.factionSlot;
             stats.UpdateFrom(otherConcrete.stats, __helper);
             transform.UpdateFrom(otherConcrete.transform, __helper);
             unitActions.UpdateFrom(otherConcrete.unitActions, __helper);
         }
         public void UpdateFrom(Game.GameCore.Unit other, ZRUpdateFromHelper __helper) 
         {
-            this.UpdateFrom((Game.NodeArchitecture.ContextNode)other, __helper);
+            this.UpdateFrom((Game.GameCore.RTSRuntimeData)other, __helper);
         }
         public override void Deserialize(ZRBinaryReader reader) 
         {
             base.Deserialize(reader);
             cfg.Deserialize(reader);
+            currentAnimation.Deserialize(reader);
+            factionSlot = reader.ReadEnum<Game.GameCore.FactionSlot>();
             stats.Deserialize(reader);
             transform.Deserialize(reader);
             unitActions.Deserialize(reader);
@@ -35,6 +39,8 @@ namespace Game.GameCore {
         {
             base.Serialize(writer);
             cfg.Serialize(writer);
+            currentAnimation.Serialize(writer);
+            writer.Write((Int32)factionSlot);
             stats.Serialize(writer);
             transform.Serialize(writer);
             unitActions.Serialize(writer);
@@ -47,6 +53,10 @@ namespace Game.GameCore {
             hash += hash << 11; hash ^= hash >> 7;
             hash += cfg.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
+            hash += currentAnimation.CalculateHash(__helper);
+            hash += hash << 11; hash ^= hash >> 7;
+            hash += (System.UInt64)factionSlot;
+            hash += hash << 11; hash ^= hash >> 7;
             hash += stats.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
             hash += transform.CalculateHash(__helper);
@@ -55,13 +65,17 @@ namespace Game.GameCore {
             hash += hash << 11; hash ^= hash >> 7;
             return hash;
         }
-        public override void CompareCheck(Game.NodeArchitecture.ContextNode other, ZRCompareCheckHelper __helper, Action<string> printer) 
+        public override void CompareCheck(Game.GameCore.RTSRuntimeData other, ZRCompareCheckHelper __helper, Action<string> printer) 
         {
             base.CompareCheck(other,__helper,printer);
             var otherConcrete = (Game.GameCore.Unit)other;
             __helper.Push("cfg");
             cfg.CompareCheck(otherConcrete.cfg, __helper, printer);
             __helper.Pop();
+            __helper.Push("currentAnimation");
+            currentAnimation.CompareCheck(otherConcrete.currentAnimation, __helper, printer);
+            __helper.Pop();
+            if (factionSlot != otherConcrete.factionSlot) SerializationTools.LogCompError(__helper, "factionSlot", printer, otherConcrete.factionSlot, factionSlot);
             __helper.Push("stats");
             stats.CompareCheck(otherConcrete.stats, __helper, printer);
             __helper.Pop();
@@ -79,6 +93,12 @@ namespace Game.GameCore {
             {
                 case "cfg":
                 cfg.ReadFromJson(reader);
+                break;
+                case "currentAnimation":
+                currentAnimation.ReadFromJson(reader);
+                break;
+                case "factionSlot":
+                factionSlot = ((string)reader.Value).ParseEnum<Game.GameCore.FactionSlot>();
                 break;
                 case "stats":
                 stats.ReadFromJson(reader);
@@ -98,6 +118,10 @@ namespace Game.GameCore {
             base.WriteJsonFields(writer);
             writer.WritePropertyName("cfg");
             cfg.WriteJson(writer);
+            writer.WritePropertyName("currentAnimation");
+            currentAnimation.WriteJson(writer);
+            writer.WritePropertyName("factionSlot");
+            writer.WriteValue(factionSlot.ToString());
             writer.WritePropertyName("stats");
             stats.WriteJson(writer);
             writer.WritePropertyName("transform");
@@ -108,6 +132,7 @@ namespace Game.GameCore {
         public  Unit() 
         {
             cfg = new Game.GameCore.UnitConfig();
+            currentAnimation = new Game.GameCore.AnimationData();
             stats = new Game.GameCore.UnitStatsContainer();
             transform = new Game.GameCore.RTSTransform();
             unitActions = new System.Collections.Generic.List<Game.GameCore.UnitAction>();
