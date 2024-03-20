@@ -15,6 +15,7 @@ namespace Game.GameCore {
             controlData.UpdateFrom(other.controlData, __helper);
             factions.UpdateFrom(other.factions, __helper);
             gameState.value = other.gameState.value;
+            idFactory = other.idFactory;
             random.UpdateFrom(other.random, __helper);
             stopWatch.UpdateFrom(other.stopWatch, __helper);
             units.UpdateFrom(other.units, __helper);
@@ -24,6 +25,7 @@ namespace Game.GameCore {
             controlData.Deserialize(reader);
             factions.Deserialize(reader);
             gameState.value = reader.ReadEnum<Game.GameCore.GameState>();
+            idFactory = reader.ReadInt32();
             random.Deserialize(reader);
             stopWatch.Deserialize(reader);
             units.Deserialize(reader);
@@ -33,6 +35,7 @@ namespace Game.GameCore {
             controlData.Serialize(writer);
             factions.Serialize(writer);
             writer.Write((Int32)gameState.value);
+            writer.Write(idFactory);
             random.Serialize(writer);
             stopWatch.Serialize(writer);
             units.Serialize(writer);
@@ -47,6 +50,8 @@ namespace Game.GameCore {
             hash += factions.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
             hash += (System.UInt64)gameState.value;
+            hash += hash << 11; hash ^= hash >> 7;
+            hash += (System.UInt64)idFactory;
             hash += hash << 11; hash ^= hash >> 7;
             hash += random.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
@@ -74,6 +79,7 @@ namespace Game.GameCore {
             factions.CompareCheck(other.factions, __helper, printer);
             __helper.Pop();
             if (gameState.value != other.gameState.value) SerializationTools.LogCompError(__helper, "gameState", printer, other.gameState.value, gameState.value);
+            if (idFactory != other.idFactory) SerializationTools.LogCompError(__helper, "idFactory", printer, other.idFactory, idFactory);
             __helper.Push("random");
             random.CompareCheck(other.random, __helper, printer);
             __helper.Pop();
@@ -97,6 +103,9 @@ namespace Game.GameCore {
                 case "gameState":
                 gameState.value = ((string)reader.Value).ParseEnum<Game.GameCore.GameState>();
                 break;
+                case "idFactory":
+                idFactory = (int)(Int64)reader.Value;
+                break;
                 case "random":
                 random.ReadFromJson(reader);
                 break;
@@ -118,6 +127,8 @@ namespace Game.GameCore {
             factions.WriteJson(writer);
             writer.WritePropertyName("gameState");
             writer.WriteValue(gameState.value.ToString());
+            writer.WritePropertyName("idFactory");
+            writer.WriteValue(idFactory);
             writer.WritePropertyName("random");
             random.WriteJson(writer);
             writer.WritePropertyName("stopWatch");

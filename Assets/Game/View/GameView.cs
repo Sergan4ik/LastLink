@@ -8,6 +8,7 @@ using NUnit.Framework;
 using Sirenix.OdinInspector;
 using Unity.XR.OpenVR;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.InputSystem;
 using ZergRush;
 using ZergRush.ReactiveCore;
@@ -117,9 +118,9 @@ public partial class GameView : RTSView
         }
     }
 
-    private void OnTerrainClick()
+    private void OnTerrainClick(Vector3 position)
     {
-        var go = Instantiate(Resources.Load<GameObject>("PointMark"), cameraController.worldMousePosition, Quaternion.identity);
+        var go = Instantiate(Resources.Load<GameObject>("PointMark"), position, Quaternion.identity);
         Destroy(go, 1);
     }
 
@@ -163,8 +164,61 @@ public partial class GameView : RTSView
             }
             unitsPresenter.UpdateFrom(game.allUnits);
         }
+
+        if (Keyboard.current.oKey.wasPressedThisFrame)
+        {
+            NavMesh.SamplePosition(cameraController.worldMousePosition, out var hit, 10, NavMesh.AllAreas);
+            OnTerrainClick(hit.position);
+        }
         
         selectionHandler.SelectionTick(input.RTS.UnitSelection);
+    }
+    
+    private void OnSecondaryAction(InputAction.CallbackContext ctx)
+    {
+        if (game != null && game.gameState.value == GameState.InProgress)
+        {
+            RTSInput gameInput = null;
+            if (cameraController.TryGetWorldMousePosition(out var worldMousePosition) == false) return;
+            if (cameraController.TryGetPointedUnit(out var unit))
+            {
+                if (currentSelection.Count > 0)
+                {
+                    gameInput = new RTSInput()
+                    {
+                        targetData = GetTargetData(),
+                        playerServerId = serverPlayerId,
+                        inputType = RTSInputType.AutoAttack
+                    };
+                }
+            }
+            else
+            {
+                OnTerrainClick(worldMousePosition);
+                if (currentSelection.Count > 0)
+                    gameInput = new RTSInput()
+                    {
+                        targetData = GetTargetData(),
+                        playerServerId = serverPlayerId,
+                        inputType = RTSInputType.Move
+                    };
+            }
+            
+            if (gameInput != null)
+            {
+                game.ApplyInput(gameInput);
+            }
+        }
+    }
+
+    public TargetData GetTargetData()
+    {
+        return new TargetData()
+        {
+            sourceIds = currentSelectionModels.Select(m => m.id).ToList(),
+            targetId = cameraController.pointedUnit?.id ?? -1,
+            worldPosition = cameraController.worldMousePosition
+        };
     }
 }
 

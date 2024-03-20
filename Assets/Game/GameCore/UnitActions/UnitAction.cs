@@ -4,7 +4,7 @@ using UnityEngine.Serialization;
 
 namespace Game.GameCore
 {
-    public partial class UnitAction : IActionSource
+    public partial class UnitAction : RTSRuntimeData, IActionSource
     {
         public string sourceName => $"Action {this.GetType()}";
         
@@ -13,22 +13,37 @@ namespace Game.GameCore
         public ActionState state = ActionState.NotStarted;
 
         public RTSTimerIntervals stateTimer;
+        public RTSInput initialInput;
+        
+        public virtual bool canExistParallel => false;
+        public virtual ActionStackingPolicy stackingPolicy => ActionStackingPolicy.Interruptable;
 
         public void Init(GameModel model, Unit owner)
         {
+            InitInternal(model, owner);
             stateTimer = new RTSTimerIntervals()
             {
                 intervals = new List<float> { duration },
                 loop = false
             };
-            InitInternal(model, owner);
         }
 
         protected virtual void InitInternal(GameModel model, Unit owner)
         {
             
         }
+
+        public void Activate(GameModel model, Unit owner, RTSInput input)
+        {
+            initialInput = input;
+            OnActivation(model, owner, input);
+        }
         
+        protected virtual void OnActivation(GameModel gameModel, Unit owner, RTSInput input)
+        {
+            
+        }
+
         public virtual void Tick(GameModel model, float dt, Unit owner)
         {
             if (state == ActionState.Finished) return;
@@ -44,7 +59,7 @@ namespace Game.GameCore
             }
         }
 
-        protected virtual void ProcessTick(GameModel model, float dt, Unit owner1)
+        protected virtual void ProcessTick(GameModel model, float dt, Unit owner)
         {
             
         }
@@ -65,11 +80,18 @@ namespace Game.GameCore
             state = ActionState.Finished;
             OnTerminate(model, owner, source); 
         }
-        
+
         public virtual void OnTerminate(GameModel model, Unit owner, IActionSource source)
         {
             
         }
+    }
+
+    public enum ActionStackingPolicy
+    {
+        Parallel,
+        Interruptable,
+        Stackable
     }
 
     public enum ActionState
@@ -77,5 +99,27 @@ namespace Game.GameCore
         NotStarted,
         Processing,
         Finished
+    }
+    
+    public partial class TargetData : RTSRuntimeData
+    {
+        public List<int> sourceIds;
+        public int targetId;
+        public Vector3 worldPosition;
+    }
+
+    public partial class RTSInput : RTSRuntimeData
+    {
+        public int playerServerId;
+        public RTSInputType inputType;
+        public int inputTypeVariation;
+        public TargetData targetData;
+    }
+
+    public enum RTSInputType
+    {
+        Move,
+        AutoAttack,
+        CastAbility
     }
 }

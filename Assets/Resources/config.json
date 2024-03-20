@@ -1,6 +1,20 @@
 {
   "units": [
     {
+      "autoAttackAnimation": {
+        "__classId": 11,
+        "animationName": "Combat_Cast_Attack",
+        "duration": 1.0,
+        "loop": false,
+        "timer": {
+          "__classId": 4,
+          "elapsedTime": 0.0,
+          "currentInterval": 0,
+          "intervals": [],
+          "loop": false,
+          "totalTimeElapsed": 0.0
+        }
+      },
       "customAnimations": [
         {
           "__classId": 11,
@@ -12,7 +26,8 @@
             "elapsedTime": 0.0,
             "currentInterval": 0,
             "intervals": [],
-            "loop": false
+            "loop": false,
+            "totalTimeElapsed": 0.0
           }
         }
       ],
@@ -26,7 +41,8 @@
           "elapsedTime": 0.0,
           "currentInterval": 0,
           "intervals": [],
-          "loop": false
+          "loop": false,
+          "totalTimeElapsed": 0.0
         }
       },
       "levelConfig": [
@@ -69,11 +85,26 @@
           "elapsedTime": 0.0,
           "currentInterval": 0,
           "intervals": [],
-          "loop": false
+          "loop": false,
+          "totalTimeElapsed": 0.0
         }
       }
     },
     {
+      "autoAttackAnimation": {
+        "__classId": 11,
+        "animationName": "Combat_Cast_Attack",
+        "duration": 1.0,
+        "loop": false,
+        "timer": {
+          "__classId": 4,
+          "elapsedTime": 0.0,
+          "currentInterval": 0,
+          "intervals": [],
+          "loop": false,
+          "totalTimeElapsed": 0.0
+        }
+      },
       "customAnimations": [
         {
           "__classId": 11,
@@ -85,7 +116,8 @@
             "elapsedTime": 0.0,
             "currentInterval": 0,
             "intervals": [],
-            "loop": false
+            "loop": false,
+            "totalTimeElapsed": 0.0
           }
         }
       ],
@@ -99,7 +131,8 @@
           "elapsedTime": 0.0,
           "currentInterval": 0,
           "intervals": [],
-          "loop": false
+          "loop": false,
+          "totalTimeElapsed": 0.0
         }
       },
       "levelConfig": [
@@ -142,7 +175,8 @@
           "elapsedTime": 0.0,
           "currentInterval": 0,
           "intervals": [],
-          "loop": false
+          "loop": false,
+          "totalTimeElapsed": 0.0
         }
       }
     }

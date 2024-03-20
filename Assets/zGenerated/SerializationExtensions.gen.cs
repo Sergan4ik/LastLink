@@ -983,12 +983,6 @@ public static partial class SerializationExtensions
         }
         writer.WriteEndArray();
     }
-    public static void UpdateFrom(this Game.GameCore.UnitAction self, Game.GameCore.UnitAction other, ZRUpdateFromHelper __helper) 
-    {
-        self.duration = other.duration;
-        self.state = other.state;
-        self.stateTimer.UpdateFrom(other.stateTimer, __helper);
-    }
     public static void UpdateFrom(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, System.Collections.Generic.List<Game.GameCore.UnitAction> other, ZRUpdateFromHelper __helper) 
     {
         int i = 0;
@@ -1000,8 +994,9 @@ public static partial class SerializationExtensions
                 self[i] = null;
             }
             else { 
-                if (self[i] == null) {
-                    self[i] = new Game.GameCore.UnitAction();
+                var self_i_ClassId = other[i].GetClassId();
+                if (self[i] == null || self[i].GetClassId() != self_i_ClassId) {
+                    self[i] = (Game.GameCore.UnitAction)other[i].NewInst();
                 }
                 self[i].UpdateFrom(other[i], __helper);
             }
@@ -1013,7 +1008,7 @@ public static partial class SerializationExtensions
                 inst = null;
             }
             else { 
-                inst = new Game.GameCore.UnitAction();
+                inst = (Game.GameCore.UnitAction)other[i].NewInst();
                 inst.UpdateFrom(other[i], __helper);
             }
             self.Add(inst);
@@ -1022,12 +1017,6 @@ public static partial class SerializationExtensions
         {
             self.RemoveAt(self.Count - 1);
         }
-    }
-    public static void Deserialize(this Game.GameCore.UnitAction self, ZRBinaryReader reader) 
-    {
-        self.duration = reader.ReadSingle();
-        self.state = reader.ReadEnum<Game.GameCore.ActionState>();
-        self.stateTimer.Deserialize(reader);
     }
     public static void Deserialize(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, ZRBinaryReader reader) 
     {
@@ -1038,16 +1027,10 @@ public static partial class SerializationExtensions
         {
             if (!reader.ReadBoolean()) { self.Add(null); continue; }
             Game.GameCore.UnitAction val = default;
-            val = new Game.GameCore.UnitAction();
+            val = (Game.GameCore.UnitAction)Game.GameCore.RTSRuntimeData.CreatePolymorphic(reader.ReadUInt16());
             val.Deserialize(reader);
             self.Add(val);
         }
-    }
-    public static void Serialize(this Game.GameCore.UnitAction self, ZRBinaryWriter writer) 
-    {
-        writer.Write(self.duration);
-        writer.Write((Int32)self.state);
-        self.stateTimer.Serialize(writer);
     }
     public static void Serialize(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, ZRBinaryWriter writer) 
     {
@@ -1057,22 +1040,10 @@ public static partial class SerializationExtensions
             writer.Write(self[i] != null);
             if (self[i] != null)
             {
+                writer.Write(self[i].GetClassId());
                 self[i].Serialize(writer);
             }
         }
-    }
-    public static ulong CalculateHash(this Game.GameCore.UnitAction self, ZRHashHelper __helper) 
-    {
-        System.UInt64 hash = 345093625;
-        hash ^= (ulong)1110380895;
-        hash += hash << 11; hash ^= hash >> 7;
-        hash += (System.UInt64)self.duration;
-        hash += hash << 11; hash ^= hash >> 7;
-        hash += (System.UInt64)self.state;
-        hash += hash << 11; hash ^= hash >> 7;
-        hash += self.stateTimer.CalculateHash(__helper);
-        hash += hash << 11; hash ^= hash >> 7;
-        return hash;
     }
     public static ulong CalculateHash(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, ZRHashHelper __helper) 
     {
@@ -1087,14 +1058,6 @@ public static partial class SerializationExtensions
         }
         return hash;
     }
-    public static void CompareCheck(this Game.GameCore.UnitAction self, Game.GameCore.UnitAction other, ZRCompareCheckHelper __helper, Action<string> printer) 
-    {
-        if (self.duration != other.duration) SerializationTools.LogCompError(__helper, "duration", printer, other.duration, self.duration);
-        if (self.state != other.state) SerializationTools.LogCompError(__helper, "state", printer, other.state, self.state);
-        __helper.Push("stateTimer");
-        self.stateTimer.CompareCheck(other.stateTimer, __helper, printer);
-        __helper.Pop();
-    }
     public static void CompareCheck(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, System.Collections.Generic.List<Game.GameCore.UnitAction> other, ZRCompareCheckHelper __helper, Action<string> printer) 
     {
         if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
@@ -1102,48 +1065,13 @@ public static partial class SerializationExtensions
         for (int i = 0; i < count; i++)
         {
             if (SerializationTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
-                __helper.Push(i.ToString());
-                self[i].CompareCheck(other[i], __helper, printer);
-                __helper.Pop();
-            }
-        }
-    }
-    public static bool ReadFromJson(this Game.GameCore.UnitAction self, ZRJsonTextReader reader) 
-    {
-        while (reader.Read())
-        {
-            if (reader.TokenType == JsonToken.PropertyName)
-            {
-                var __name = (string) reader.Value;
-                reader.Read();
-                switch(__name)
-                {
-                    case "duration":
-                    self.duration = (float)(double)reader.Value;
-                    break;
-                    case "state":
-                    self.state = ((string)reader.Value).ParseEnum<Game.GameCore.ActionState>();
-                    break;
-                    case "stateTimer":
-                    self.stateTimer.ReadFromJson(reader);
-                    break;
-                    default: return false; break;
+                if (SerializationTools.CompareClassId(__helper, i.ToString(), printer, self[i], other[i])) {
+                    __helper.Push(i.ToString());
+                    self[i].CompareCheck(other[i], __helper, printer);
+                    __helper.Pop();
                 }
             }
-            else if (reader.TokenType == JsonToken.EndObject) { break; }
         }
-        return true;
-    }
-    public static void WriteJson(this Game.GameCore.UnitAction self, ZRJsonTextWriter writer) 
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("duration");
-        writer.WriteValue(self.duration);
-        writer.WritePropertyName("state");
-        writer.WriteValue(self.state.ToString());
-        writer.WritePropertyName("stateTimer");
-        self.stateTimer.WriteJson(writer);
-        writer.WriteEndObject();
     }
     public static bool ReadFromJson(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, ZRJsonTextReader reader) 
     {
@@ -1153,7 +1081,7 @@ public static partial class SerializationExtensions
             if (reader.TokenType == JsonToken.EndArray) { break; }
             if (reader.TokenType == JsonToken.Null) { self.Add(null); continue; }
             Game.GameCore.UnitAction val = default;
-            val = new Game.GameCore.UnitAction();
+            val = (Game.GameCore.UnitAction)Game.GameCore.RTSRuntimeData.CreatePolymorphic(reader.ReadJsonClassId());
             val.ReadFromJson(reader);
             self.Add(val);
         }
@@ -1620,6 +1548,126 @@ public static partial class SerializationExtensions
         writer.WriteValue(self.m32);
         writer.WritePropertyName("m33");
         writer.WriteValue(self.m33);
+        writer.WriteEndObject();
+    }
+    public static void UpdateFrom(this UnityEngine.Vector3[] self, UnityEngine.Vector3[] other, ZRUpdateFromHelper __helper) 
+    {
+        for (int i = 0; i < self.Length; i++)
+        {
+            self[i].UpdateFrom(other[i], __helper);
+        }
+    }
+    public static void UpdateFrom(this UnityEngine.AI.NavMeshPath self, UnityEngine.AI.NavMeshPath other, ZRUpdateFromHelper __helper) 
+    {
+
+    }
+    public static UnityEngine.Vector3[] ReadUnityEngine_Vector3_Array(this ZRBinaryReader reader) 
+    {
+        var size = reader.ReadInt32();
+        if(size > 100000) throw new ZergRushCorruptedOrInvalidDataLayout();
+        var array = new UnityEngine.Vector3[size];
+        for (int i = 0; i < size; i++)
+        {
+            array[i] = reader.ReadUnityEngine_Vector3();
+        }
+        return array;
+    }
+    public static void Deserialize(this UnityEngine.AI.NavMeshPath self, ZRBinaryReader reader) 
+    {
+
+    }
+    public static void Serialize(this UnityEngine.Vector3[] self, ZRBinaryWriter writer) 
+    {
+        writer.Write(self.Length);
+        for (int i = 0; i < self.Length; i++)
+        {
+            {
+                self[i].Serialize(writer);
+            }
+        }
+    }
+    public static void Serialize(this UnityEngine.AI.NavMeshPath self, ZRBinaryWriter writer) 
+    {
+
+    }
+    public static ulong CalculateHash(this UnityEngine.Vector3[] self, ZRHashHelper __helper) 
+    {
+        System.UInt64 hash = 345093625;
+        hash ^= (ulong)1204357807;
+        hash += hash << 11; hash ^= hash >> 7;
+        var size = self.Length;
+        for (int i = 0; i < size; i++)
+        {
+            hash += self[i].CalculateHash(__helper);
+            hash += hash << 11; hash ^= hash >> 7;
+        }
+        return hash;
+    }
+    public static ulong CalculateHash(this UnityEngine.AI.NavMeshPath self, ZRHashHelper __helper) 
+    {
+        System.UInt64 hash = 345093625;
+        hash ^= (ulong)1983906321;
+        hash += hash << 11; hash ^= hash >> 7;
+        return hash;
+    }
+    public static void CompareCheck(this UnityEngine.Vector3[] self, UnityEngine.Vector3[] other, ZRCompareCheckHelper __helper, Action<string> printer) 
+    {
+        if (self.Length != other.Length) SerializationTools.LogCompError(__helper, "Length", printer, other.Length, self.Length);
+        var count = Math.Min(self.Length, other.Length);
+        for (int i = 0; i < count; i++)
+        {
+            __helper.Push(i.ToString());
+            self[i].CompareCheck(other[i], __helper, printer);
+            __helper.Pop();
+        }
+    }
+    public static void CompareCheck(this UnityEngine.AI.NavMeshPath self, UnityEngine.AI.NavMeshPath other, ZRCompareCheckHelper __helper, Action<string> printer) 
+    {
+
+    }
+    public static UnityEngine.Vector3[] ReadFromJson(this UnityEngine.Vector3[] self, ZRJsonTextReader reader) 
+    {
+        if (reader.TokenType != JsonToken.StartArray) throw new JsonSerializationException("Bad Json Format");
+        if(self == null || self.Length > 0) self = Array.Empty<UnityEngine.Vector3>();
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonToken.EndArray) { break; }
+            UnityEngine.Vector3 val = default;
+            val = (UnityEngine.Vector3)reader.ReadFromJsonUnityEngine_Vector3();
+            Array.Resize(ref self, self.Length + 1);
+            self[self.Length - 1] = val;
+        }
+        return self;
+    }
+    public static void WriteJson(this UnityEngine.Vector3[] self, ZRJsonTextWriter writer) 
+    {
+        writer.WriteStartArray();
+        for (int i = 0; i < self.Length; i++)
+        {
+            self[i].WriteJson(writer);
+        }
+        writer.WriteEndArray();
+    }
+    public static bool ReadFromJson(this UnityEngine.AI.NavMeshPath self, ZRJsonTextReader reader) 
+    {
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonToken.PropertyName)
+            {
+                var __name = (string) reader.Value;
+                reader.Read();
+                switch(__name)
+                {
+                    default: return false; break;
+                }
+            }
+            else if (reader.TokenType == JsonToken.EndObject) { break; }
+        }
+        return true;
+    }
+    public static void WriteJson(this UnityEngine.AI.NavMeshPath self, ZRJsonTextWriter writer) 
+    {
+        writer.WriteStartObject();
         writer.WriteEndObject();
     }
 }

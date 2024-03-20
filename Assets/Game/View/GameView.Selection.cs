@@ -77,25 +77,4 @@ public partial class GameView
         gameUI.selectionUI.ShowSelection(currentSelection);
     }
 
-    private void OnSecondaryAction(InputAction.CallbackContext ctx)
-    {
-        if (game != null && game.gameState.value == GameState.InProgress)
-        {
-            if (cameraController.TryGetWorldMousePosition(out var worldMousePosition) == false) return;
-            if (cameraController.TryGetPointedUnit(out var unit))
-            {
-                unit.SetupAction(game, new DOT()
-                {
-                    duration = 3,
-                });
-            }
-            else
-            {
-                OnTerrainClick();
-                if (currentSelection.Count > 0)
-                    localPlayerFaction.MoveStackTo(game, currentSelection.Select(uv => uv.currentUnit).ToList(),
-                        worldMousePosition);
-            }
-        }
-    }
 }

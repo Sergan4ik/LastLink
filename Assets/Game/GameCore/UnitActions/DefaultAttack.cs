@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Game.GameCore
 {
@@ -6,28 +8,31 @@ namespace Game.GameCore
     {
         public RTSTimerIntervals attackTimer;
 
-        public Unit target;
-        public float attackDamage;
-
         protected override void InitInternal(GameModel model, Unit owner)
         {
+            duration = owner.cfg.autoAttackAnimation.duration;
+        }
+
+        protected override void OnActivation(GameModel gameModel, Unit owner, RTSInput input)
+        {
+            owner.PlayAnimation(owner.cfg.autoAttackAnimation);
             attackTimer = new RTSTimerIntervals()
             {
-                intervals = new List<float> { 0.5f, },
+                intervals = new List<float> { 0.3f, 0.7f},
                 loop = false
             };
         }
 
-        protected override void ProcessTick(GameModel model, float dt, Unit owner1)
+        protected override void ProcessTick(GameModel model, float dt, Unit owner)
         {
-            attackTimer.Tick(dt);
-            switch (attackTimer.PassedIntervals)
+            bool isCastMoment = attackTimer.Tick(dt);
+            switch (attackTimer.PassedIntervals, isCastMoment)
             {
-                case 0:
-                    break;
-                case 1:
+                case (1, true) :
+                    model.Attack(new AttackInfo(owner, model.GetUnit(initialInput.targetData.targetId), this, 20));
                     break;
             }
         }
     }
+    
 }

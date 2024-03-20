@@ -14,6 +14,7 @@ namespace Game.GameCore {
         {
             base.UpdateFrom(other,__helper);
             var otherConcrete = (Game.GameCore.UnitConfig)other;
+            autoAttackAnimation.UpdateFrom(otherConcrete.autoAttackAnimation, __helper);
             customAnimations.UpdateFrom(otherConcrete.customAnimations, __helper);
             idleAnimation.UpdateFrom(otherConcrete.idleAnimation, __helper);
             levelConfig.UpdateFrom(otherConcrete.levelConfig, __helper);
@@ -27,6 +28,7 @@ namespace Game.GameCore {
         public override void Deserialize(ZRBinaryReader reader) 
         {
             base.Deserialize(reader);
+            autoAttackAnimation.Deserialize(reader);
             customAnimations.Deserialize(reader);
             idleAnimation.Deserialize(reader);
             levelConfig.Deserialize(reader);
@@ -36,6 +38,7 @@ namespace Game.GameCore {
         public override void Serialize(ZRBinaryWriter writer) 
         {
             base.Serialize(writer);
+            autoAttackAnimation.Serialize(writer);
             customAnimations.Serialize(writer);
             idleAnimation.Serialize(writer);
             levelConfig.Serialize(writer);
@@ -47,6 +50,8 @@ namespace Game.GameCore {
             var baseVal = base.CalculateHash(__helper);
             System.UInt64 hash = baseVal;
             hash ^= (ulong)2124769659;
+            hash += hash << 11; hash ^= hash >> 7;
+            hash += autoAttackAnimation.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
             hash += customAnimations.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
@@ -64,6 +69,9 @@ namespace Game.GameCore {
         {
             base.CompareCheck(other,__helper,printer);
             var otherConcrete = (Game.GameCore.UnitConfig)other;
+            __helper.Push("autoAttackAnimation");
+            autoAttackAnimation.CompareCheck(otherConcrete.autoAttackAnimation, __helper, printer);
+            __helper.Pop();
             __helper.Push("customAnimations");
             customAnimations.CompareCheck(otherConcrete.customAnimations, __helper, printer);
             __helper.Pop();
@@ -83,6 +91,9 @@ namespace Game.GameCore {
             if (base.ReadFromJsonField(reader, __name)) return true;
             switch(__name)
             {
+                case "autoAttackAnimation":
+                autoAttackAnimation.ReadFromJson(reader);
+                break;
                 case "customAnimations":
                 customAnimations.ReadFromJson(reader);
                 break;
@@ -105,6 +116,8 @@ namespace Game.GameCore {
         public override void WriteJsonFields(ZRJsonTextWriter writer) 
         {
             base.WriteJsonFields(writer);
+            writer.WritePropertyName("autoAttackAnimation");
+            autoAttackAnimation.WriteJson(writer);
             writer.WritePropertyName("customAnimations");
             customAnimations.WriteJson(writer);
             writer.WritePropertyName("idleAnimation");
@@ -118,6 +131,7 @@ namespace Game.GameCore {
         }
         public  UnitConfig() 
         {
+            autoAttackAnimation = new Game.GameCore.AnimationData();
             customAnimations = new System.Collections.Generic.List<Game.GameCore.AnimationData>();
             idleAnimation = new Game.GameCore.AnimationData();
             levelConfig = new System.Collections.Generic.List<Game.GameCore.UnitLevelConfig>();

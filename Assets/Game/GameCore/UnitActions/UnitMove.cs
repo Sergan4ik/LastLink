@@ -7,21 +7,27 @@ namespace Game.GameCore
     {
         public float moveSpeed;
         public Vector3 globalDestination;
-        
         public Vector3 localDestination => path.corners[currentWaypoint];
 
         public NavMeshPath path;
         public int currentWaypoint;
+
+        public float maxDistanceToTarget;
         
         const float DISTANCE_THRESHOLD = 0.1f;
-        protected override void InitInternal(GameModel model, Unit owner)
+
+        protected override void OnActivation(GameModel gameModel, Unit owner, RTSInput input)
         {
+            var nearestPossiblePoint = ((owner.transform.position - input.targetData.worldPosition) * maxDistanceToTarget) + input.targetData.worldPosition;
+            var canGoOnMaxDist = NavMesh.SamplePosition(nearestPossiblePoint, out var hit, 2f, NavMesh.AllAreas);
+
+            globalDestination = canGoOnMaxDist ? hit.position : input.targetData.worldPosition;
             path = new NavMeshPath();
             bool calculatePath = NavMesh.CalculatePath(owner.transform.position, globalDestination, NavMesh.AllAreas, path);
             currentWaypoint = 0;
             
             if (calculatePath == false)
-                Terminate(model, owner,this);
+                Terminate(gameModel, owner,this);
             
             owner.PlayAnimation(owner.cfg.walkAnimation);
         }
@@ -29,6 +35,13 @@ namespace Game.GameCore
         private Vector3[] cachedWaypoints;
         protected override void ProcessTick(GameModel model, float dt, Unit owner)
         {
+            if (initialInput.targetData.worldPosition != globalDestination &&
+                (owner.transform.position - globalDestination).sqrMagnitude < maxDistanceToTarget * maxDistanceToTarget)
+            {
+                Terminate(model, owner,this);
+                return;
+            }
+
             cachedWaypoints = path.corners;
             if (currentWaypoint >= cachedWaypoints.Length)
             {

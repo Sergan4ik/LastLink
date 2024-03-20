@@ -93,6 +93,7 @@ namespace Game.GameCore
         public List<AnimationData> customAnimations;
         public AnimationData walkAnimation;
         public AnimationData idleAnimation;
+        public AnimationData autoAttackAnimation;
         
         public UnitLevelConfig GetLevelConfig(int level)
         {
@@ -140,6 +141,12 @@ namespace Game.GameCore
                     animationName = "Idle01",
                     duration = name == "DefaultUnit" ? 2.233f : 2.267f,
                     loop = true,
+                },
+                autoAttackAnimation = new AnimationData()
+                {
+                    animationName = "Combat_Cast_Attack",
+                    duration = 1,
+                    loop = false
                 }
             };
         }

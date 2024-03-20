@@ -17,6 +17,7 @@ namespace Game.GameCore {
             cfg.UpdateFrom(otherConcrete.cfg, __helper);
             currentAnimation.UpdateFrom(otherConcrete.currentAnimation, __helper);
             factionSlot = otherConcrete.factionSlot;
+            id = otherConcrete.id;
             stats.UpdateFrom(otherConcrete.stats, __helper);
             transform.UpdateFrom(otherConcrete.transform, __helper);
             unitActions.UpdateFrom(otherConcrete.unitActions, __helper);
@@ -31,6 +32,7 @@ namespace Game.GameCore {
             cfg.Deserialize(reader);
             currentAnimation.Deserialize(reader);
             factionSlot = reader.ReadEnum<Game.GameCore.FactionSlot>();
+            id = reader.ReadInt32();
             stats.Deserialize(reader);
             transform.Deserialize(reader);
             unitActions.Deserialize(reader);
@@ -41,6 +43,7 @@ namespace Game.GameCore {
             cfg.Serialize(writer);
             currentAnimation.Serialize(writer);
             writer.Write((Int32)factionSlot);
+            writer.Write(id);
             stats.Serialize(writer);
             transform.Serialize(writer);
             unitActions.Serialize(writer);
@@ -56,6 +59,8 @@ namespace Game.GameCore {
             hash += currentAnimation.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
             hash += (System.UInt64)factionSlot;
+            hash += hash << 11; hash ^= hash >> 7;
+            hash += (System.UInt64)id;
             hash += hash << 11; hash ^= hash >> 7;
             hash += stats.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
@@ -76,6 +81,7 @@ namespace Game.GameCore {
             currentAnimation.CompareCheck(otherConcrete.currentAnimation, __helper, printer);
             __helper.Pop();
             if (factionSlot != otherConcrete.factionSlot) SerializationTools.LogCompError(__helper, "factionSlot", printer, otherConcrete.factionSlot, factionSlot);
+            if (id != otherConcrete.id) SerializationTools.LogCompError(__helper, "id", printer, otherConcrete.id, id);
             __helper.Push("stats");
             stats.CompareCheck(otherConcrete.stats, __helper, printer);
             __helper.Pop();
@@ -100,6 +106,9 @@ namespace Game.GameCore {
                 case "factionSlot":
                 factionSlot = ((string)reader.Value).ParseEnum<Game.GameCore.FactionSlot>();
                 break;
+                case "id":
+                id = (int)(Int64)reader.Value;
+                break;
                 case "stats":
                 stats.ReadFromJson(reader);
                 break;
@@ -122,6 +131,8 @@ namespace Game.GameCore {
             currentAnimation.WriteJson(writer);
             writer.WritePropertyName("factionSlot");
             writer.WriteValue(factionSlot.ToString());
+            writer.WritePropertyName("id");
+            writer.WriteValue(id);
             writer.WritePropertyName("stats");
             stats.WriteJson(writer);
             writer.WritePropertyName("transform");

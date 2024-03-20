@@ -67,6 +67,10 @@ namespace Game.GameCore
         public Cell<GameState> gameState;
 
         public IEnumerable<Unit> allUnits => units;
+
+        private int idFactory;
+        
+        public Unit GetUnit(int id) => units.FirstOrDefault(u => u.id == id);
  
         public void Init(IEnumerable<Faction> factions)
         {
@@ -74,6 +78,17 @@ namespace Game.GameCore
             {
                 this.factions.Add(faction);
             }
+        }
+        
+        public Unit CreateUnit(FactionSlot slot, UnitConfig cfg, int level)
+        {
+            var unit = new Unit
+            {
+                id = idFactory++
+            };
+            unit.Init(this, slot, cfg, level);
+            units.Add(unit);
+            return unit;
         }
 
         public void GameStart()
@@ -85,6 +100,31 @@ namespace Game.GameCore
         public void Touch()
         {
             Tick(0);
+        }
+
+        public void ApplyInput(RTSInput input)
+        {
+            Faction playerFaction = GetFactionByPlayerId(input.playerServerId);
+            List<Unit> stack = input.targetData.sourceIds.Select(GetUnit).ToList();
+
+            if (stack.Any(u => u.factionSlot != playerFaction.slot))
+            {
+                Debug.LogError($"Player {input.playerServerId} tried to control units from different factions");
+            }
+            
+            Unit target = GetUnit(input.targetData.targetId);
+            switch (input.inputType)
+            {
+                case RTSInputType.Move:
+                    playerFaction.MoveStackTo(this, stack, input.targetData.worldPosition);
+                    break;
+                case RTSInputType.AutoAttack:
+                    playerFaction.AutoAttackStack(this, stack, input);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            
         }
 
         public Faction GetFactionBySlot(FactionSlot slot) => factions.FirstOrDefault(f => f.slot == slot);
@@ -141,10 +181,30 @@ namespace Game.GameCore
                 var unit = units[i];
                 unit.Tick(this, dt);
             }
-            
-            
         }
 
+        public void Attack(AttackInfo info)
+        {
+            info.target.DealRawDamage(info.damage);
+        }
+
+    }
+
+    public struct AttackInfo 
+    {
+        public Unit attacker;
+        public Unit target;
+        public IActionSource source;
+        
+        public float damage;
+        
+        public AttackInfo(Unit attacker, Unit target, IActionSource source, float damage)
+        {
+            this.attacker = attacker;
+            this.target = target;
+            this.source = source;
+            this.damage = damage;
+        }
     }
 
     public partial class SelectionRectClipSpace : RTSRuntimeData

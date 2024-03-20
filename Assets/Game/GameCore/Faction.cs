@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -39,27 +40,52 @@ namespace Game.GameCore
         {
             foreach (var unitConfig in unitConfigs)
             {
-                var unitPrototype = new Unit();
-                unitPrototype.Init(gameModel, slot, unitConfig, 0);
-
-                gameModel.units.Add(unitPrototype);
+                gameModel.CreateUnit(slot, unitConfig, 0);
             }
+        }
+
+        private void SetupActionForStack(GameModel gameModel, List<Unit> stack, Func<Unit, RTSInput, UnitAction> actionFactory, RTSInput input)
+        {
+            for (var i = 0; i < stack.Count; i++)
+            {
+                var unit = stack[i];
+                unit.SetupAction(gameModel, actionFactory(unit, input), input);
+            }
+        }
+        
+        public void AutoAttackStack(GameModel gameModel, List<Unit> stack, RTSInput input)
+        {
+            SetupActionForStack(gameModel, stack, (unit, _) => new DefaultAttack()
+            {
+                duration = 2f
+            }, input);
         }
         
         public void MoveStackTo(GameModel gameModel, List<Unit> stack, Vector3 destination)
         {
             if (stack.Any(u => u.factionSlot != slot))
                 return;
+
+            RTSInput inputGeneral = new RTSInput()
+            {
+                inputType = RTSInputType.Move,
+                targetData = new TargetData()
+                {
+                    worldPosition = destination,
+                    sourceIds = stack.Select(u => u.id).ToList()
+                }
+            };
             
             Unit mainUnit = stack[0];
             for (var i = 0; i < stack.Count; i++)
             {
                 Vector3 offset = stack[i].transform.position - mainUnit.transform.position;
-                stack[i].MoveTo(gameModel, destination + offset);
-                // Debug.Log($"Moving {stack[i]} to {destination + offset}");
+                RTSInput inputForUnit = new RTSInput();
+                inputForUnit.UpdateFrom(inputGeneral);
+                inputForUnit.targetData.worldPosition = destination + offset;
+                stack[i].MoveTo(gameModel, destination + offset, inputForUnit);
             }
         }
-
         public void Tick(GameModel gameModel, float dt)
         {
         }

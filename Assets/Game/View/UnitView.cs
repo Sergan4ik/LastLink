@@ -58,7 +58,7 @@ public class UnitView : RTSView, ISimpleUpdatableFrom<Unit>
         if (stateInfo.IsName(unit.currentAnimation.animationName) == false ||
             IsAnimationTimeCorrect(CurrentAnimationTimeView, unit.currentAnimation.timer.elapsedTime, unit.currentAnimation.duration) == false)
         {
-            Debug.Log($"Playing animation {unit.currentAnimation.animationName} (now {animator.GetCurrentAnimatorClipInfo(0)[0].clip.name}) at {unit.currentAnimation.timer.elapsedTime}, current time is {CurrentAnimationTimeView}, duration is {unit.currentAnimation.duration}");
+            // Debug.Log($"Playing animation {unit.currentAnimation.animationName} (now {animator.GetCurrentAnimatorClipInfo(0)[0].clip.name}) at {unit.currentAnimation.timer.elapsedTime}, current time is {CurrentAnimationTimeView}, duration is {unit.currentAnimation.duration}");
             animator.Play(unit.currentAnimation.animationName, 0, unit.currentAnimation.normilizedTime);
         }
 

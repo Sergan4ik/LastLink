@@ -15,13 +15,20 @@ namespace Game.GameCore {
             RTSRuntimeData = 1,
             AnimationData = 11,
             ControlData = 7,
+            DefaultAttack = 14,
+            DOT = 15,
             Faction = 9,
+            RTSInput = 12,
             RTSStopWatch = 8,
             RTSTimerIntervals = 4,
             RTSTimerStatic = 5,
             RTSTransform = 2,
             SelectionRectClipSpace = 3,
+            TargetData = 13,
             Unit = 10,
+            UnitAction = 16,
+            UnitEffect = 17,
+            UnitMove = 18,
             UnitStatsContainer = 6,
         }
         static Func<RTSRuntimeData> [] polymorphConstructors = new Func<RTSRuntimeData> [] {
@@ -37,6 +44,13 @@ namespace Game.GameCore {
             () => new Game.GameCore.Faction(), // 9
             () => new Game.GameCore.Unit(), // 10
             () => new Game.GameCore.AnimationData(), // 11
+            () => new Game.GameCore.RTSInput(), // 12
+            () => new Game.GameCore.TargetData(), // 13
+            () => new Game.GameCore.DefaultAttack(), // 14
+            () => new Game.GameCore.DOT(), // 15
+            () => new Game.GameCore.UnitAction(), // 16
+            () => new Game.GameCore.UnitEffect(), // 17
+            () => new Game.GameCore.UnitMove(), // 18
         };
         public static RTSRuntimeData CreatePolymorphic(System.UInt16 typeId) {
             return polymorphConstructors[typeId]();

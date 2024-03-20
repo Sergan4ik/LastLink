@@ -1,5 +1,6 @@
 ﻿using System;
 using Game.GameCore;
+using JetBrains.Annotations;
 using Unity.AI.Navigation;
 using Unity.Mathematics;
 using UnityEngine;
@@ -73,6 +74,16 @@ namespace Game
             {
                 TryGetWorldMousePosition(out var pos);
                 return pos;
+            }
+        }
+        
+        [CanBeNull]
+        public Unit pointedUnit
+        {
+            get
+            {
+                TryGetPointedUnit(out var unit);
+                return unit;
             }
         }
     }

@@ -13,7 +13,8 @@ namespace Game.GameCore
     [GenMultipleRefs]
     public partial class Unit : RTSRuntimeData, IActionSource
     {
-        public string sourceName => $"Unit ${cfg.name}";
+        public int id;
+        public string sourceName => $"Unit ${cfg.name}_{id}";
         public RTSTransform transform;
 
         [GenIgnore, JetBrains.Annotations.CanBeNull] 
@@ -42,10 +43,10 @@ namespace Game.GameCore
             PlayIdle();
         }
         
-        public void PlayAnimation(AnimationData animationData)
+        public void PlayAnimation(AnimationData animationDataPrototype)
         {
             currentAnimation = new AnimationData();
-            currentAnimation.UpdateFrom(animationData);
+            currentAnimation.UpdateFrom(animationDataPrototype);
             currentAnimation.Init();
         }
 
@@ -68,25 +69,38 @@ namespace Game.GameCore
             {
                 if (unitActions[i].state == ActionState.Finished)
                 {
-                    Debug.Log($"Unit action {unitActions[i].sourceName} expired");
+                    Debug.Log($"Unit_#{id} action {unitActions[i].sourceName} expired");
                     unitActions.RemoveAt(i);
                 }
             }
+            
         }
 
-        public void SetupAction(GameModel gameModel,UnitAction action)
+        public void SetupAction(GameModel gameModel, UnitAction action, RTSInput input)
         {
             action.Init(gameModel, this);
+
+            foreach (var unitAction in unitActions)
+            {
+                if (action.canExistParallel == false && unitAction.canExistParallel == false)
+                {
+                    unitAction.Terminate(gameModel, this, action);
+                }
+                else if (action.stackingPolicy == ActionStackingPolicy.Interruptable &&
+                         unitAction.GetType() == action.GetType())
+                {
+                    unitAction.Terminate(gameModel, this, action);
+                }
+            }
+
+            action.Activate(gameModel, this, input);
+
             unitActions.Add(action);
         }
-        
-        public void MoveTo(GameModel gameModel, Vector3 destination)
+
+        public void MoveTo(GameModel gameModel, Vector3 destination, RTSInput input)
         {
-            if (unitActions.Any(a => a is UnitMove))
-            {
-                unitActions.Find(a => a is UnitMove).Terminate(gameModel, this, this);
-            }
-            SetupAction(gameModel, new UnitMove {globalDestination = destination, moveSpeed = moveSpeed});
+            SetupAction(gameModel, new UnitMove {moveSpeed = moveSpeed}, input);
         }
 
         public void DealRawDamage(float dps)
