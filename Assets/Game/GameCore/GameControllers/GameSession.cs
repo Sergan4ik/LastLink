@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -31,8 +32,22 @@ namespace Game.GameCore.GameControllers
         {
             GameConfig.Reload();
         }
+        
+        private void Update()
+        {
+            clientController.UnityUpdate(Time.deltaTime);
+        }
 
-        public async Task StartTestBattle()
+
+        public async Task StartGame(GameModel model)
+        {
+            await SceneManager.LoadSceneAsync("LevelTest");
+            await Task.Yield();
+            
+            GameView.instance.SetupGameModel(model, 0);
+        }
+
+        public GameModel GetTestModel()
         {
             GameModel game = new GameModel()
             {
@@ -89,11 +104,8 @@ namespace Game.GameCore.GameControllers
             game.units[7].transform.position = new Vector3(10, 0, 13);
             game.units[8].transform.position = new Vector3(13, 0, 13);
             game.units[9].transform.position = new Vector3(16, 0, 10);
-            
-            await SceneManager.LoadSceneAsync("LevelTest");
-            await Task.Yield();
-            
-            GameView.instance.SetupGameModel(game, 0);
+
+            return game;
         }
 
         private void OnApplicationQuit()
@@ -121,12 +133,7 @@ namespace Game.GameCore.GameControllers
             while (clientController.state != ControllerStatus.Normal)
                 await Task.Yield();
             
-            await StartTestBattle();
-        }
-
-        private void Update()
-        {
-            clientController.UnityUpdate(Time.deltaTime);
+            await StartGame(GetTestModel());
         }
 
         public async void StartHost()
@@ -144,10 +151,13 @@ namespace Game.GameCore.GameControllers
             multiplayerTransport.broadcastChannel += serverTransport.BroadcastToChannel;
             multiplayerTransport.onUserConnected += serverTransport.OnUserConnected;
             multiplayerTransport.onUserDisconnected += serverTransport.OnUserDisconnected;
-            
-            serverController.Init();
 
-            await StartTestBattle();
+            GameModel model = GetTestModel();
+            
+            var gamemodelDelegate = new MultiplayerServerGameModelDelegate();
+            serverController.Init(multiplayerTransport, gamemodelDelegate, model, new AutoResetEvent(false));
+
+            await StartGame(model);
         }
     }
 }

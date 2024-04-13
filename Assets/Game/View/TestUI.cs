@@ -12,7 +12,7 @@ namespace Game
 
         public void Start()
         {
-            connections += startTestBattle.Subscribe(() => GameSession.instance.StartTestBattle());
+            connections += startTestBattle.Subscribe(() => GameSession.instance.StartGame(GameSession.instance.GetTestModel()));
             connections += startHost.Subscribe(() => GameSession.instance.StartHost());
             connections += startClient.Subscribe(() => GameSession.instance.StartClient());
         }
