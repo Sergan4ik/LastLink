@@ -35,9 +35,16 @@ namespace Game.GameCore.GameControllers
         
         private void Update()
         {
-            clientController.UnityUpdate(Time.deltaTime);
+            clientController?.UnityUpdate(Time.deltaTime);
         }
 
+        private void OnApplicationQuit()
+        {
+            clientController?.Dispose();
+            serverController?.Dispose();
+            
+            GameConfig.Instance.Save();
+        }
 
         public async Task StartGame(GameModel model)
         {
@@ -108,11 +115,6 @@ namespace Game.GameCore.GameControllers
             return game;
         }
 
-        private void OnApplicationQuit()
-        {
-            GameConfig.Instance.Save();
-        }
-
         public async void StartClient()
         {
             GameObject transportClientGM = new GameObject("[Client]");
@@ -128,12 +130,12 @@ namespace Game.GameCore.GameControllers
             multiplayerTransportClient.sendToChannel += transport.SendToChannel;
             multiplayerTransportClient.listenToChannel += transport.ListenToChannel;
                 
-            clientController.Init(multiplayerTransportClient, GameModel.FrameTimeMS);
+            clientController.Init(multiplayerTransportClient, GetModelDelegate(), GameModel.FrameTimeMS);
             
             while (clientController.state != ControllerStatus.Normal)
                 await Task.Yield();
             
-            await StartGame(GetTestModel());
+            await StartGame(clientController.currentModel);
         }
 
         public async void StartHost()
@@ -142,7 +144,8 @@ namespace Game.GameCore.GameControllers
             gm.AddComponent<RTSServerTransport>();
             var serverTransport = gm.GetComponent<RTSServerTransport>();
             DontDestroyOnLoad(gm);
-            
+
+            serverTransport.InitTransport();
             serverController = new PredictionRollbackServerEngine<GameModel>();
 
             var multiplayerTransport = new MultiplayerTransportServer();
@@ -154,10 +157,23 @@ namespace Game.GameCore.GameControllers
 
             GameModel model = GetTestModel();
             
-            var gamemodelDelegate = new MultiplayerServerGameModelDelegate();
-            serverController.Init(multiplayerTransport, gamemodelDelegate, model, new AutoResetEvent(false));
+            var gamemodelDelegate = GetModelDelegate();
+
+            serverController.Init(multiplayerTransport, gamemodelDelegate, model, null);
 
             await StartGame(model);
+        }
+
+        private static MultiplayerServerGameModelDelegate GetModelDelegate()
+        {
+            var gamemodelDelegate = new MultiplayerServerGameModelDelegate();
+            gamemodelDelegate.gameRootCommandType = typeof(RTSCommand);
+            gamemodelDelegate.isUserAllowedToConnect += player => true;
+            gamemodelDelegate.newPlayerCommandGenerator +=
+                (connectionHandler, playerId, playerServerid) => new LogCommand(){ message = $"new player connected {playerId}" };
+            gamemodelDelegate.playerLeaveCommandGenerator +=
+                (connectionHandler, playerId, playerServerid) => new LogCommand(){ message = $"player disconnected {playerId}" };
+            return gamemodelDelegate;
         }
     }
 }

@@ -5,31 +5,39 @@ using System.Threading.Tasks;
 using Game.GameCore;
 using Unity.Collections;
 using Unity.Networking.Transport;
+using Unity.Networking.Transport.Utilities;
 using UnityEngine;
 
 public class RTSClientTransport : MonoBehaviour
 {
-    NetworkDriver m_Driver;
-    NetworkConnection m_Connection;
+    NetworkDriver networkDriver;
+    NetworkConnection connection;
+    NetworkPipeline pipeline;
 
     public bool isConnected;
     
     Dictionary<ushort, Action<Stream>> channelListeners = new Dictionary<ushort, Action<Stream>>();
     
-    void Start()
-    {
-        m_Driver = NetworkDriver.Create();
-    }
-
     public async Task ConnectToServer(long playerID)
     {
+        NetworkSettings settings = new NetworkSettings();
+        settings.WithFragmentationStageParameters(1024 * 10);
+        
+        networkDriver = NetworkDriver.Create(settings);
+
+        pipeline = networkDriver.CreatePipeline(typeof(FragmentationPipelineStage),
+            typeof(ReliableSequencedPipelineStage));
+            
         var endpoint = NetworkEndpoint.LoopbackIpv4.WithPort(7777);
-        NativeArray<byte> payload = new NativeArray<byte>(sizeof(long), Allocator.Temp);
+        NativeArray<byte> payload = new NativeArray<byte>(sizeof(long), Allocator.Persistent);
         
-        DataStreamWriter writer = new DataStreamWriter(payload);
-        writer.WriteLong(playerID);
+        // DataStreamWriter writer = new DataStreamWriter(payload);
+        // writer.WriteLong(playerID);
+        // writer.Flush();
+        //
+        // m_Connection = m_Driver.Connect(endpoint, payload);
         
-        m_Connection = m_Driver.Connect(endpoint, payload);
+        connection = networkDriver.Connect(endpoint);  
         
         while(isConnected == false)
             await Task.Yield();
@@ -37,21 +45,21 @@ public class RTSClientTransport : MonoBehaviour
 
     void OnDestroy()
     {
-        m_Driver.Dispose();
+        networkDriver.Dispose();
     }
 
     void Update()
     {
-        m_Driver.ScheduleUpdate().Complete();
+        networkDriver.ScheduleUpdate().Complete();
 
-        if (!m_Connection.IsCreated)
+        if (!connection.IsCreated)
         {
             return;
         }
 
         Unity.Collections.DataStreamReader stream;
         NetworkEvent.Type cmd;
-        while ((cmd = m_Connection.PopEvent(m_Driver, out stream)) != NetworkEvent.Type.Empty)
+        while ((cmd = connection.PopEvent(networkDriver, out stream, out var receivedPipeline)) != NetworkEvent.Type.Empty)
         {
             if (cmd == NetworkEvent.Type.Connect)
             {
@@ -60,27 +68,24 @@ public class RTSClientTransport : MonoBehaviour
             }
             else if (cmd == NetworkEvent.Type.Data)
             {
-                ushort channel = stream.ReadUShort();
-                var streamLength = stream.Length - sizeof(ushort);
-                byte[] buf = new byte[streamLength];
-                for (int i = 0; i < streamLength; ++i)
+                if (receivedPipeline != default)
                 {
-                    buf[i] = stream.ReadByte();
+                    Debug.Log($"Received message with pipeline {receivedPipeline}");
                 }
-                
-                if (channelListeners.ContainsKey(channel))
+                ushort channel = stream.ReadUShort();
+                if (channelListeners.TryGetValue(channel, out var listener))
                 {
-                    channelListeners[channel].Invoke(new MemoryStream(buf));
+                    UnityNetworkTools.ReadIncomingMessage(stream, connection, (o, st) => listener(st));
                 }
                 else
                 {
-                    Debug.Log("Received data of unknown channel: " + channel);
+                    Debug.Log($"Received message on channel {channel} but no listener was found.");
                 }
             }
             else if (cmd == NetworkEvent.Type.Disconnect)
             {
                 Debug.Log("Client got disconnected from server.");
-                m_Connection = default;
+                connection = default;
             }
         }
     }
@@ -88,7 +93,7 @@ public class RTSClientTransport : MonoBehaviour
 
     public void SendToChannel(ushort channelid, Action<Stream> writemessagetostreamcallback)
     {
-        m_Driver.SendMessageFromStream(channelid, m_Connection, writemessagetostreamcallback);
+        networkDriver.SendMessageFromStream(channelid, connection, writemessagetostreamcallback, NetworkPipeline.Null);
     }
 
     public void ListenToChannel(ushort channelid, Action<Stream> messagereceived)

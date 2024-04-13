@@ -25,7 +25,7 @@ namespace Game.GameCore {
         {
             base.Deserialize(reader);
             factionSlot = reader.ReadEnum<Game.GameCore.FactionSlot>();
-            serverPlayerId = reader.ReadInt32();
+            serverPlayerId = reader.ReadInt16();
         }
         public override void Serialize(ZRBinaryWriter writer) 
         {
@@ -65,7 +65,7 @@ namespace Game.GameCore {
                 factionSlot = ((string)reader.Value).ParseEnum<Game.GameCore.FactionSlot>();
                 break;
                 case "serverPlayerId":
-                serverPlayerId = (int)(Int64)reader.Value;
+                serverPlayerId = (short)(Int64)reader.Value;
                 break;
                 default: return false; break;
             }

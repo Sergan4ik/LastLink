@@ -20,6 +20,8 @@ namespace Game.GameCore {
             cachedWaypoints = cachedWaypointsTemp;
             cachedWaypoints.UpdateFrom(otherConcrete.cachedWaypoints, __helper);
             currentWaypoint = otherConcrete.currentWaypoint;
+            globalDestination.UpdateFrom(otherConcrete.globalDestination, __helper);
+            maxDistanceToTarget = otherConcrete.maxDistanceToTarget;
             moveSpeed = otherConcrete.moveSpeed;
             path.UpdateFrom(otherConcrete.path, __helper);
         }
@@ -32,6 +34,8 @@ namespace Game.GameCore {
             base.Deserialize(reader);
             cachedWaypoints = reader.ReadUnityEngine_Vector3_Array();
             currentWaypoint = reader.ReadInt32();
+            globalDestination = reader.ReadUnityEngine_Vector3();
+            maxDistanceToTarget = reader.ReadSingle();
             moveSpeed = reader.ReadSingle();
             path.Deserialize(reader);
         }
@@ -40,6 +44,8 @@ namespace Game.GameCore {
             base.Serialize(writer);
             cachedWaypoints.Serialize(writer);
             writer.Write(currentWaypoint);
+            globalDestination.Serialize(writer);
+            writer.Write(maxDistanceToTarget);
             writer.Write(moveSpeed);
             path.Serialize(writer);
         }
@@ -52,6 +58,10 @@ namespace Game.GameCore {
             hash += cachedWaypoints.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
             hash += (System.UInt64)currentWaypoint;
+            hash += hash << 11; hash ^= hash >> 7;
+            hash += globalDestination.CalculateHash(__helper);
+            hash += hash << 11; hash ^= hash >> 7;
+            hash += (System.UInt64)maxDistanceToTarget;
             hash += hash << 11; hash ^= hash >> 7;
             hash += (System.UInt64)moveSpeed;
             hash += hash << 11; hash ^= hash >> 7;
@@ -72,6 +82,10 @@ namespace Game.GameCore {
             cachedWaypoints.CompareCheck(otherConcrete.cachedWaypoints, __helper, printer);
             __helper.Pop();
             if (currentWaypoint != otherConcrete.currentWaypoint) SerializationTools.LogCompError(__helper, "currentWaypoint", printer, otherConcrete.currentWaypoint, currentWaypoint);
+            __helper.Push("globalDestination");
+            globalDestination.CompareCheck(otherConcrete.globalDestination, __helper, printer);
+            __helper.Pop();
+            if (maxDistanceToTarget != otherConcrete.maxDistanceToTarget) SerializationTools.LogCompError(__helper, "maxDistanceToTarget", printer, otherConcrete.maxDistanceToTarget, maxDistanceToTarget);
             if (moveSpeed != otherConcrete.moveSpeed) SerializationTools.LogCompError(__helper, "moveSpeed", printer, otherConcrete.moveSpeed, moveSpeed);
             __helper.Push("path");
             path.CompareCheck(otherConcrete.path, __helper, printer);
@@ -87,6 +101,12 @@ namespace Game.GameCore {
                 break;
                 case "currentWaypoint":
                 currentWaypoint = (int)(Int64)reader.Value;
+                break;
+                case "globalDestination":
+                globalDestination = (UnityEngine.Vector3)reader.ReadFromJsonUnityEngine_Vector3();
+                break;
+                case "maxDistanceToTarget":
+                maxDistanceToTarget = (float)(double)reader.Value;
                 break;
                 case "moveSpeed":
                 moveSpeed = (float)(double)reader.Value;
@@ -105,6 +125,10 @@ namespace Game.GameCore {
             cachedWaypoints.WriteJson(writer);
             writer.WritePropertyName("currentWaypoint");
             writer.WriteValue(currentWaypoint);
+            writer.WritePropertyName("globalDestination");
+            globalDestination.WriteJson(writer);
+            writer.WritePropertyName("maxDistanceToTarget");
+            writer.WriteValue(maxDistanceToTarget);
             writer.WritePropertyName("moveSpeed");
             writer.WriteValue(moveSpeed);
             writer.WritePropertyName("path");

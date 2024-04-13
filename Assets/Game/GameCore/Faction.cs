@@ -25,7 +25,7 @@ namespace Game.GameCore
 
     public partial class ControlData : RTSRuntimeData
     {
-        public int serverPlayerId = -1;
+        public short serverPlayerId = -1;
         public FactionSlot factionSlot;
     }
 

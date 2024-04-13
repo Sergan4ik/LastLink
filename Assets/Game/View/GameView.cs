@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Game;
 using Game.GameCore;
+using Game.GameCore.GameControllers;
 using NUnit.Framework;
 using Sirenix.OdinInspector;
 using Unity.XR.OpenVR;
@@ -21,6 +22,7 @@ public class RTSView : ReusableView
     public GameView gameView => GameView.instance;
     public GameModel game => gameView.game;
     public GameConfig config => GameConfig.Instance;
+    public GameSession gameSession => GameSession.instance;
 }
 
 public partial class GameView : RTSView
@@ -206,7 +208,17 @@ public partial class GameView : RTSView
             
             if (gameInput != null)
             {
-                game.ApplyInput(gameInput);
+                var inputCommand = new InputCommand()
+                {
+                    input = gameInput,
+                    serverPlayerId = localPlayerFaction.FactionControlData(game).serverPlayerId
+                };
+                gameSession.clientController?.WriteLocalAndSendCommand(inputCommand);
+                
+                if (gameSession.serverController != null)
+                {
+                    gameSession.serverController.EmitServerCommand(inputCommand, true);
+                }
             }
         }
     }

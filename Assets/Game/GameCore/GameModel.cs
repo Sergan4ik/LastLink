@@ -44,7 +44,7 @@ namespace Game.GameCore
             this.sourceName = sourceName;
         }
     }
-    
+
     [GenTask(GenTaskFlags.PolymorphicDataPack)]
     public partial class RTSRuntimeData { }
     
@@ -192,13 +192,29 @@ namespace Game.GameCore
 
         public void Init()
         {
-            throw new NotImplementedException();
         }
 
+        public long timeStepMs => FrameTimeMS;
         public int step { get; set; }
         public void Update(List<ZeroLagCommand> consideredCommands)
         {
+            foreach (var command in consideredCommands)
+            {
+                switch (command)
+                {
+                    case LogCommand logCommand:
+                        logger.Log(logCommand.message);
+                        break;
+                    case InputCommand moveCommand:
+                        ApplyInput(moveCommand.input);
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
+            }
+            
             Tick(FrameTime);
+            step++;
         }
 
         public bool IsPlayerCreated(long playerId)
@@ -206,7 +222,6 @@ namespace Game.GameCore
             return controlData.Any(c => c.serverPlayerId == playerId);
         }
 
-        public long timeStepMs { get; }
     }
 
     public struct AttackInfo 

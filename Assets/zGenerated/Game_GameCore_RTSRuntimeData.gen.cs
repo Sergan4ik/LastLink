@@ -13,44 +13,44 @@ namespace Game.GameCore {
         public enum Types : ushort
         {
             RTSRuntimeData = 1,
-            AnimationData = 11,
-            ControlData = 7,
-            DefaultAttack = 14,
-            DOT = 15,
-            Faction = 9,
-            RTSInput = 12,
+            AnimationData = 2,
+            ControlData = 3,
+            DefaultAttack = 4,
+            DOT = 5,
+            Faction = 6,
+            RTSInput = 7,
             RTSStopWatch = 8,
-            RTSTimerIntervals = 4,
-            RTSTimerStatic = 5,
-            RTSTransform = 2,
-            SelectionRectClipSpace = 3,
+            RTSTimerIntervals = 9,
+            RTSTimerStatic = 10,
+            RTSTransform = 11,
+            SelectionRectClipSpace = 12,
             TargetData = 13,
-            Unit = 10,
-            UnitAction = 16,
-            UnitEffect = 17,
-            UnitMove = 18,
-            UnitStatsContainer = 6,
+            Unit = 14,
+            UnitAction = 15,
+            UnitEffect = 16,
+            UnitMove = 17,
+            UnitStatsContainer = 18,
         }
         static Func<RTSRuntimeData> [] polymorphConstructors = new Func<RTSRuntimeData> [] {
             () => null, // 0
             () => new Game.GameCore.RTSRuntimeData(), // 1
-            () => new Game.GameCore.RTSTransform(), // 2
-            () => new Game.GameCore.SelectionRectClipSpace(), // 3
-            () => new Game.GameCore.RTSTimerIntervals(), // 4
-            () => new Game.GameCore.RTSTimerStatic(), // 5
-            () => new Game.GameCore.UnitStatsContainer(), // 6
-            () => new Game.GameCore.ControlData(), // 7
+            () => new Game.GameCore.AnimationData(), // 2
+            () => new Game.GameCore.ControlData(), // 3
+            () => new Game.GameCore.DefaultAttack(), // 4
+            () => new Game.GameCore.DOT(), // 5
+            () => new Game.GameCore.Faction(), // 6
+            () => new Game.GameCore.RTSInput(), // 7
             () => new Game.GameCore.RTSStopWatch(), // 8
-            () => new Game.GameCore.Faction(), // 9
-            () => new Game.GameCore.Unit(), // 10
-            () => new Game.GameCore.AnimationData(), // 11
-            () => new Game.GameCore.RTSInput(), // 12
+            () => new Game.GameCore.RTSTimerIntervals(), // 9
+            () => new Game.GameCore.RTSTimerStatic(), // 10
+            () => new Game.GameCore.RTSTransform(), // 11
+            () => new Game.GameCore.SelectionRectClipSpace(), // 12
             () => new Game.GameCore.TargetData(), // 13
-            () => new Game.GameCore.DefaultAttack(), // 14
-            () => new Game.GameCore.DOT(), // 15
-            () => new Game.GameCore.UnitAction(), // 16
-            () => new Game.GameCore.UnitEffect(), // 17
-            () => new Game.GameCore.UnitMove(), // 18
+            () => new Game.GameCore.Unit(), // 14
+            () => new Game.GameCore.UnitAction(), // 15
+            () => new Game.GameCore.UnitEffect(), // 16
+            () => new Game.GameCore.UnitMove(), // 17
+            () => new Game.GameCore.UnitStatsContainer(), // 18
         };
         public static RTSRuntimeData CreatePolymorphic(System.UInt16 typeId) {
             return polymorphConstructors[typeId]();
