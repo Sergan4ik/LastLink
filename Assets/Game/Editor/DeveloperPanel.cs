@@ -47,7 +47,8 @@ public partial class DevelopersPanel : OdinEditorWindow
         var scenePath = EditorSceneManager.GetActiveScene().path;
         Debug.Log($"active scene {scenePath}");
         EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
-        EditorSceneManager.OpenScene("Assets/Scenes/LevelTest.unity");
+        //get first scene in build settings
+        EditorSceneManager.OpenScene(EditorBuildSettings.scenes[0].path);
         EditorApplication.isPlaying = true;
 
         await Task.Delay(500);

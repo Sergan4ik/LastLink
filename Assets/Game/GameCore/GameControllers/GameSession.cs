@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using ZergRush.ReactiveCore;
 
 namespace Game.GameCore.GameControllers
 {
     public class GameSession : MonoBehaviour
     {
         public static GameSession instance;
+        public Pred
 
         private void Awake()
         {
@@ -17,6 +19,7 @@ namespace Game.GameCore.GameControllers
                 Destroy(gameObject);
                 return;
             }
+            
             
             instance = this;
             DontDestroyOnLoad(gameObject);
@@ -27,7 +30,7 @@ namespace Game.GameCore.GameControllers
             GameConfig.Reload();
         }
 
-        public async void StartTestBattle()
+        public async Task StartTestBattle()
         {
             GameModel game = new GameModel()
             {
@@ -94,6 +97,20 @@ namespace Game.GameCore.GameControllers
         private void OnApplicationQuit()
         {
             GameConfig.Instance.Save();
+        }
+
+        public async void StartClient()
+        {
+            await StartTestBattle();
+            GameObject gm = new GameObject("[Client]");
+            gm.AddComponent<RTSClientTransport>();
+        }
+
+        public async void StartHost()
+        {
+            await StartTestBattle();
+            GameObject gm = new GameObject("[Server]");
+            gm.AddComponent<RTSServerTransport>();
         }
     }
 }
