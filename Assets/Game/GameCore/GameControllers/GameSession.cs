@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using ZergRush.ReactiveCore;
@@ -10,7 +11,9 @@ namespace Game.GameCore.GameControllers
     public class GameSession : MonoBehaviour
     {
         public static GameSession instance;
-        public Pred
+        public PredictionRollbackClientMultiplayerController<GameModel> clientController;
+        public PredictionRollbackServerEngine<GameModel> serverController;
+
 
         private void Awake()
         {
@@ -19,7 +22,6 @@ namespace Game.GameCore.GameControllers
                 Destroy(gameObject);
                 return;
             }
-            
             
             instance = this;
             DontDestroyOnLoad(gameObject);
@@ -101,16 +103,51 @@ namespace Game.GameCore.GameControllers
 
         public async void StartClient()
         {
+            GameObject transportClientGM = new GameObject("[Client]");
+            transportClientGM.AddComponent<RTSClientTransport>();
+            var transport = transportClientGM.GetComponent<RTSClientTransport>();
+            DontDestroyOnLoad(transportClientGM);
+            
+            await transport.ConnectToServer(1);
+            
+            clientController = new PredictionRollbackClientMultiplayerController<GameModel>();
+
+            var multiplayerTransportClient = new MultiplayerTransportClient();
+            multiplayerTransportClient.sendToChannel += transport.SendToChannel;
+            multiplayerTransportClient.listenToChannel += transport.ListenToChannel;
+                
+            clientController.Init(multiplayerTransportClient, GameModel.FrameTimeMS);
+            
+            while (clientController.state != ControllerStatus.Normal)
+                await Task.Yield();
+            
             await StartTestBattle();
-            GameObject gm = new GameObject("[Client]");
-            gm.AddComponent<RTSClientTransport>();
+        }
+
+        private void Update()
+        {
+            clientController.UnityUpdate(Time.deltaTime);
         }
 
         public async void StartHost()
         {
-            await StartTestBattle();
             GameObject gm = new GameObject("[Server]");
             gm.AddComponent<RTSServerTransport>();
+            var serverTransport = gm.GetComponent<RTSServerTransport>();
+            DontDestroyOnLoad(gm);
+            
+            serverController = new PredictionRollbackServerEngine<GameModel>();
+
+            var multiplayerTransport = new MultiplayerTransportServer();
+            multiplayerTransport.sendToChannel += serverTransport.SendToChannel;
+            multiplayerTransport.listenToChannel += serverTransport.ListenToChannel;
+            multiplayerTransport.broadcastChannel += serverTransport.BroadcastToChannel;
+            multiplayerTransport.onUserConnected += serverTransport.OnUserConnected;
+            multiplayerTransport.onUserDisconnected += serverTransport.OnUserDisconnected;
+            
+            serverController.Init();
+
+            await StartTestBattle();
         }
     }
 }

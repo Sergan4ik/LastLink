@@ -1,11 +1,20 @@
-﻿using Unity.Collections;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using Game.GameCore;
+using Unity.Collections;
 using Unity.Networking.Transport;
+using Unity.Networking.Transport.Error;
 using UnityEngine;
 
 public class RTSServerTransport : MonoBehaviour
 {
     NetworkDriver m_Driver;
     NativeList<NetworkConnection> m_Connections;
+    
+    Action<object,DisconnectType> userDisconnectedCallback;
+    Action<object, long> userConnectedCallback;
+    Dictionary<ushort, Action<object, Stream>> channelListeners = new Dictionary<ushort, Action<object, Stream>>();
 
     void Start()
     {
@@ -49,12 +58,16 @@ public class RTSServerTransport : MonoBehaviour
 
         // Accept new connections.
         NetworkConnection c;
-        while ((c = m_Driver.Accept()) != default)
+        while ((c = m_Driver.Accept(out var payload)) != default)
         {
+            DataStreamReader reader = new DataStreamReader(payload);
+            long playerID = reader.ReadLong();
+            
             m_Connections.Add(c);
-            Debug.Log("Accepted a connection.");
+            userConnectedCallback.Invoke(c, playerID);
+            Debug.Log($"Accepted a connection player with id {playerID}.");
         }
-
+        
         for (int i = 0; i < m_Connections.Length; i++)
         {
             DataStreamReader stream;
@@ -63,22 +76,44 @@ public class RTSServerTransport : MonoBehaviour
             {
                 if (cmd == NetworkEvent.Type.Data)
                 {
-                    uint number = stream.ReadUInt();
-
-                    Debug.Log($"Got {number} from a client, adding 2 to it.");
-                    number += 2;
-
-                    m_Driver.BeginSend(NetworkPipeline.Null, m_Connections[i], out var writer);
-                    writer.WriteUInt(number);
-                    m_Driver.EndSend(writer);
+                    ushort channel = stream.ReadUShort();
+                    UnityNetworkTools.ReadIncomingMessage(stream, m_Connections[i], channelListeners[channel]);
                 }
                 else if (cmd == NetworkEvent.Type.Disconnect)
                 {
-                    Debug.Log("Client disconnected from the server.");
+                    var connectionReason = (DisconnectReason)stream.ReadByte();
+                    userDisconnectedCallback.Invoke(m_Connections[i], DisconnectType.Manual);
                     m_Connections[i] = default;
-                    break;
+                    Debug.Log($"Client disconnected from the server with {connectionReason}.");
                 }
             }
         }
+    }
+
+    public void SendToChannel(object connectionhandler, ushort channelid, Action<Stream> writemessagetostreamcallback)
+    {
+        NetworkConnection con = (NetworkConnection)connectionhandler;
+        m_Driver.SendMessageFromStream(channelid, con, writemessagetostreamcallback);
+    }
+
+
+    public void ListenToChannel(ushort channelid, Action<object, Stream> messagereceived)
+    {
+        channelListeners[channelid] = messagereceived;
+    }
+
+    public void BroadcastToChannel(ushort channelid, Action<Stream> writemessagetostreamcallback)
+    {
+        m_Driver.BroadcastMessageFromStream(channelid, m_Connections, writemessagetostreamcallback);
+    }
+
+    public void OnUserConnected(Action<object, long> userconnectedcallback)
+    {
+        userConnectedCallback = userconnectedcallback;
+    }
+
+    public void OnUserDisconnected(Action<object, DisconnectType> userdisconnectedcallback)
+    {
+        userDisconnectedCallback = userdisconnectedcallback;
     }
 }

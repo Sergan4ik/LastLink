@@ -7,6 +7,7 @@ using UnityEngine.Serialization;
 using ZergRush;
 using ZergRush.CodeGen;
 using ZergRush.ReactiveCore;
+using ZeroLag;
 
 namespace Game.GameCore
 {
@@ -48,12 +49,13 @@ namespace Game.GameCore
     public partial class RTSRuntimeData { }
     
     [GenTask(GenTaskFlags.SimpleDataPack)]
-    public partial class GameModel : IActionSource
+    public partial class GameModel : IActionSource, IDeterministicRealtimeModel<GameModel>
     {
         public List<ControlData> controlData;
         public string sourceName => $"GameModel";
         public const int TargetFps = 60;
         public const float FrameTime = 1.0f / TargetFps;
+        public const int FrameTimeMS = (int)(FrameTime * 1000);
         
         public ReactiveCollection<Faction> factions;
         public ReactiveCollection<Unit> units;
@@ -188,6 +190,23 @@ namespace Game.GameCore
             info.target.DealRawDamage(info.damage);
         }
 
+        public void Init()
+        {
+            throw new NotImplementedException();
+        }
+
+        public int step { get; set; }
+        public void Update(List<ZeroLagCommand> consideredCommands)
+        {
+            Tick(FrameTime);
+        }
+
+        public bool IsPlayerCreated(long playerId)
+        {
+            return controlData.Any(c => c.serverPlayerId == playerId);
+        }
+
+        public long timeStepMs { get; }
     }
 
     public struct AttackInfo 
