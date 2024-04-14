@@ -76,7 +76,8 @@ namespace Game.GameCore
 
         public void Terminate(GameModel model, Unit owner, IActionSource source)
         {
-            Debug.Log($"Action {this.GetType()} terminated by {source.sourceName}");
+            if (ZeroLagSettings.messageLogs)
+                Debug.Log($"Action {this.GetType()} terminated by {source.sourceName}");
             state = ActionState.Finished;
             OnTerminate(model, owner, source); 
         }

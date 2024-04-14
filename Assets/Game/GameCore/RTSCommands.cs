@@ -15,6 +15,11 @@ namespace Game.GameCore
         public string message;
     }
 
+    public partial class StartGameCommand : RTSCommand
+    {
+        
+    }
+
     [GenTask(GenTaskFlags.PolymorphicDataPack), GenInLocalFolder]
     public partial class RTSCommand : ZeroLagCommand
     {

@@ -8,31 +8,14 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class RTSCommand : IUpdatableFrom<Game.GameCore.RTSCommand>, IUpdatableFrom<ZeroLag.ZeroLagCommand>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<ZeroLag.ZeroLagCommand>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class StartGameCommand : IUpdatableFrom<Game.GameCore.StartGameCommand>, IUpdatableFrom<ZeroLag.ZeroLagCommand>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<ZeroLag.ZeroLagCommand>, IJsonSerializable, IPolymorphable, ICloneInst
     {
-        public enum Types : ushort
-        {
-            RTSCommand = 1,
-            InputCommand = 2,
-            LogCommand = 3,
-            StartGameCommand = 4,
-        }
-        static Func<RTSCommand> [] polymorphConstructors = new Func<RTSCommand> [] {
-            () => null, // 0
-            () => new Game.GameCore.RTSCommand(), // 1
-            () => new Game.GameCore.InputCommand(), // 2
-            () => new Game.GameCore.LogCommand(), // 3
-            () => new Game.GameCore.StartGameCommand(), // 4
-        };
-        public static RTSCommand CreatePolymorphic(System.UInt16 typeId) {
-            return polymorphConstructors[typeId]();
-        }
         public override void UpdateFrom(ZeroLag.ZeroLagCommand other, ZRUpdateFromHelper __helper) 
         {
             base.UpdateFrom(other,__helper);
-            var otherConcrete = (Game.GameCore.RTSCommand)other;
+            var otherConcrete = (Game.GameCore.StartGameCommand)other;
         }
-        public void UpdateFrom(Game.GameCore.RTSCommand other, ZRUpdateFromHelper __helper) 
+        public void UpdateFrom(Game.GameCore.StartGameCommand other, ZRUpdateFromHelper __helper) 
         {
             this.UpdateFrom((ZeroLag.ZeroLagCommand)other, __helper);
         }
@@ -50,11 +33,11 @@ namespace Game.GameCore {
         {
             var baseVal = base.CalculateHash(__helper);
             System.UInt64 hash = baseVal;
-            hash ^= (ulong)135429853;
+            hash ^= (ulong)2130331489;
             hash += hash << 11; hash ^= hash >> 7;
             return hash;
         }
-        public  RTSCommand() 
+        public  StartGameCommand() 
         {
 
         }
@@ -72,13 +55,13 @@ namespace Game.GameCore {
             base.WriteJsonFields(writer);
 
         }
-        public virtual ushort GetClassId() 
+        public override ushort GetClassId() 
         {
-        return (System.UInt16)Types.RTSCommand;
+        return (System.UInt16)Types.StartGameCommand;
         }
-        public virtual System.Object NewInst() 
+        public override System.Object NewInst() 
         {
-        return new RTSCommand();
+        return new StartGameCommand();
         }
     }
 }

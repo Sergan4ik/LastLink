@@ -15,7 +15,7 @@ namespace Game.GameCore.GameControllers
         public PredictionRollbackClientMultiplayerController<GameModel> clientController;
         public PredictionRollbackServerEngine<GameModel> serverController;
 
-
+        
         private void Awake()
         {
             if (instance != null)
@@ -35,6 +35,7 @@ namespace Game.GameCore.GameControllers
         
         private void Update()
         {
+            serverController?.UpdateBattleSimulation();
             clientController?.UnityUpdate(Time.deltaTime);
         }
 
@@ -45,21 +46,27 @@ namespace Game.GameCore.GameControllers
             
             GameConfig.Instance.Save();
         }
+        
 
-        public async Task StartGame(GameModel model)
+        public async Task StartGame(Func<GameModel> gmGetter)
         {
             await SceneManager.LoadSceneAsync("LevelTest");
             await Task.Yield();
             
-            GameView.instance.SetupGameModel(model, 0);
+            GameView.instance.SetupGameModel(gmGetter);
+        }
+        
+        public async Task StartGameLocal(GameModel model)
+        {
+            await SceneManager.LoadSceneAsync("LevelTest");
+            await Task.Yield();
+            
+            GameView.instance.SetupGameModel(() => model);
         }
 
         public GameModel GetTestModel()
         {
-            GameModel game = new GameModel()
-            {
-                logger = new UnityLogger()
-            };
+            GameModel game = new GameModel();
             Faction myFaction = new Faction()
             {
                 slot = FactionSlot.Player1
@@ -130,12 +137,19 @@ namespace Game.GameCore.GameControllers
             multiplayerTransportClient.sendToChannel += transport.SendToChannel;
             multiplayerTransportClient.listenToChannel += transport.ListenToChannel;
                 
-            clientController.Init(multiplayerTransportClient, GetModelDelegate(), GameModel.FrameTimeMS);
+            await InitAndWaitController(multiplayerTransportClient);
+
+            await StartGame(() => clientController.currentModel);
+        }
+
+        public async Task InitAndWaitController(MultiplayerTransportClient multiplayerTransportClient)
+        {
+            clientController.lagSimulation = true;
             
+            clientController.Init(multiplayerTransportClient, GetModelDelegate(), GameModel.FrameTimeMS);
+
             while (clientController.state != ControllerStatus.Normal)
                 await Task.Yield();
-            
-            await StartGame(clientController.currentModel);
         }
 
         public async void StartHost()
@@ -155,13 +169,19 @@ namespace Game.GameCore.GameControllers
             multiplayerTransport.onUserConnected += serverTransport.OnUserConnected;
             multiplayerTransport.onUserDisconnected += serverTransport.OnUserDisconnected;
 
+            var (newTransport, localConnectFactory, localDisconnect) =
+                MultiplayerTransportTools.LocalPlay(multiplayerTransport);
             GameModel model = GetTestModel();
             
             var gamemodelDelegate = GetModelDelegate();
 
-            serverController.Init(multiplayerTransport, gamemodelDelegate, model, null);
-
-            await StartGame(model);
+            serverController.Init(newTransport, gamemodelDelegate, model, null);
+            var localClientTransport = localConnectFactory.Invoke(0);
+            clientController = new PredictionRollbackClientMultiplayerController<GameModel>();
+            
+            await InitAndWaitController(localClientTransport);
+            
+            await StartGame(() => clientController.currentModel);
         }
 
         private static MultiplayerServerGameModelDelegate GetModelDelegate()
@@ -174,6 +194,11 @@ namespace Game.GameCore.GameControllers
             gamemodelDelegate.playerLeaveCommandGenerator +=
                 (connectionHandler, playerId, playerServerid) => new LogCommand(){ message = $"player disconnected {playerId}" };
             return gamemodelDelegate;
+        }
+        
+        public void SendRTSCommand(RTSCommand cmd)
+        {
+            clientController?.WriteLocalAndSendCommand(cmd);
         }
     }
 }

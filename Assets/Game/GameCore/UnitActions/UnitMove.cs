@@ -7,12 +7,14 @@ namespace Game.GameCore
     {
         public float moveSpeed;
         public Vector3 globalDestination;
-        public Vector3 localDestination => path.corners[currentWaypoint];
+        public Vector3 localDestination => cachedWaypoints[currentWaypoint];
 
-        public NavMeshPath path;
+        // public NavMeshPath path;
         public int currentWaypoint;
 
         public float maxDistanceToTarget;
+        
+        public Vector3[] cachedWaypoints;
         
         const float DISTANCE_THRESHOLD = 0.1f;
 
@@ -22,9 +24,10 @@ namespace Game.GameCore
             var canGoOnMaxDist = NavMesh.SamplePosition(nearestPossiblePoint, out var hit, 2f, NavMesh.AllAreas);
 
             globalDestination = canGoOnMaxDist ? hit.position : input.targetData.worldPosition;
-            path = new NavMeshPath();
+            var path = new NavMeshPath();
             bool calculatePath = NavMesh.CalculatePath(owner.transform.position, globalDestination, NavMesh.AllAreas, path);
             currentWaypoint = 0;
+            cachedWaypoints = path.corners;
             
             if (calculatePath == false)
                 Terminate(gameModel, owner,this);
@@ -32,7 +35,6 @@ namespace Game.GameCore
             owner.PlayAnimation(owner.cfg.walkAnimation);
         }
 
-        private Vector3[] cachedWaypoints;
         protected override void ProcessTick(GameModel model, float dt, Unit owner)
         {
             if (initialInput.targetData.worldPosition != globalDestination &&
@@ -42,7 +44,6 @@ namespace Game.GameCore
                 return;
             }
 
-            cachedWaypoints = path.corners;
             if (currentWaypoint >= cachedWaypoints.Length)
             {
                 Terminate(model, owner,this);

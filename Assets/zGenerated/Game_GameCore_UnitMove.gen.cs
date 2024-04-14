@@ -23,7 +23,6 @@ namespace Game.GameCore {
             globalDestination.UpdateFrom(otherConcrete.globalDestination, __helper);
             maxDistanceToTarget = otherConcrete.maxDistanceToTarget;
             moveSpeed = otherConcrete.moveSpeed;
-            path.UpdateFrom(otherConcrete.path, __helper);
         }
         public void UpdateFrom(Game.GameCore.UnitMove other, ZRUpdateFromHelper __helper) 
         {
@@ -37,7 +36,6 @@ namespace Game.GameCore {
             globalDestination = reader.ReadUnityEngine_Vector3();
             maxDistanceToTarget = reader.ReadSingle();
             moveSpeed = reader.ReadSingle();
-            path.Deserialize(reader);
         }
         public override void Serialize(ZRBinaryWriter writer) 
         {
@@ -47,7 +45,6 @@ namespace Game.GameCore {
             globalDestination.Serialize(writer);
             writer.Write(maxDistanceToTarget);
             writer.Write(moveSpeed);
-            path.Serialize(writer);
         }
         public override ulong CalculateHash(ZRHashHelper __helper) 
         {
@@ -65,14 +62,11 @@ namespace Game.GameCore {
             hash += hash << 11; hash ^= hash >> 7;
             hash += (System.UInt64)moveSpeed;
             hash += hash << 11; hash ^= hash >> 7;
-            hash += path.CalculateHash(__helper);
-            hash += hash << 11; hash ^= hash >> 7;
             return hash;
         }
         public  UnitMove() 
         {
             cachedWaypoints = Array.Empty<UnityEngine.Vector3>();
-            path = new UnityEngine.AI.NavMeshPath();
         }
         public override void CompareCheck(Game.GameCore.RTSRuntimeData other, ZRCompareCheckHelper __helper, Action<string> printer) 
         {
@@ -87,9 +81,6 @@ namespace Game.GameCore {
             __helper.Pop();
             if (maxDistanceToTarget != otherConcrete.maxDistanceToTarget) SerializationTools.LogCompError(__helper, "maxDistanceToTarget", printer, otherConcrete.maxDistanceToTarget, maxDistanceToTarget);
             if (moveSpeed != otherConcrete.moveSpeed) SerializationTools.LogCompError(__helper, "moveSpeed", printer, otherConcrete.moveSpeed, moveSpeed);
-            __helper.Push("path");
-            path.CompareCheck(otherConcrete.path, __helper, printer);
-            __helper.Pop();
         }
         public override bool ReadFromJsonField(ZRJsonTextReader reader, string __name) 
         {
@@ -111,9 +102,6 @@ namespace Game.GameCore {
                 case "moveSpeed":
                 moveSpeed = (float)(double)reader.Value;
                 break;
-                case "path":
-                path.ReadFromJson(reader);
-                break;
                 default: return false; break;
             }
             return true;
@@ -131,8 +119,6 @@ namespace Game.GameCore {
             writer.WriteValue(maxDistanceToTarget);
             writer.WritePropertyName("moveSpeed");
             writer.WriteValue(moveSpeed);
-            writer.WritePropertyName("path");
-            path.WriteJson(writer);
         }
         public override ushort GetClassId() 
         {

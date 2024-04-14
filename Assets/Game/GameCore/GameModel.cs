@@ -63,9 +63,6 @@ namespace Game.GameCore
         
         public RTSStopWatch stopWatch;
 
-        [GenIgnore]
-        public ILogger logger;
-        
         public Cell<GameState> gameState;
 
         public IEnumerable<Unit> allUnits => units;
@@ -195,6 +192,7 @@ namespace Game.GameCore
         }
 
         public long timeStepMs => FrameTimeMS;
+        [GenInclude]
         public int step { get; set; }
         public void Update(List<ZeroLagCommand> consideredCommands)
         {
@@ -203,10 +201,13 @@ namespace Game.GameCore
                 switch (command)
                 {
                     case LogCommand logCommand:
-                        logger.Log(logCommand.message);
+                        Debug.Log(logCommand.message);
                         break;
                     case InputCommand moveCommand:
                         ApplyInput(moveCommand.input);
+                        break;
+                    case StartGameCommand startGameCommand:
+                        GameStart();
                         break;
                     default:
                         throw new NotImplementedException();
@@ -221,7 +222,6 @@ namespace Game.GameCore
         {
             return controlData.Any(c => c.serverPlayerId == playerId);
         }
-
     }
 
     public struct AttackInfo 

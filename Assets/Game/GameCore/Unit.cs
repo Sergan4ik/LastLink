@@ -69,7 +69,8 @@ namespace Game.GameCore
             {
                 if (unitActions[i].state == ActionState.Finished)
                 {
-                    Debug.Log($"Unit_#{id} action {unitActions[i].sourceName} expired");
+                    if (ZeroLagSettings.messageLogs)
+                        Debug.Log($"Unit_#{id} action {unitActions[i].sourceName} expired");
                     unitActions.RemoveAt(i);
                 }
             }

@@ -410,6 +410,9 @@ namespace NHance.Assets.Scripts
 
         public void Save()
         {
+            #if !UNITY_EDITOR
+            return;
+            #else
             //chose file path
             string filePath = EditorUtility.SaveFilePanel("Select Directory to save prefab", "Assets/StylizedCharacter/Prefabs", $"{gameObject.name}_Prefab", "prefab");
             if (string.IsNullOrEmpty(filePath))
@@ -426,6 +429,7 @@ namespace NHance.Assets.Scripts
             PrefabUtility.SaveAsPrefabAsset(copy, filePath);
             //destroy on scene
             DestroyImmediate(copy);
+            #endif
         }
 
         public void AutoSocketTargetSetup()

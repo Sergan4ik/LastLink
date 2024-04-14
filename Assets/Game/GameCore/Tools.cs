@@ -41,7 +41,7 @@ namespace Game.GameCore
         {
             var stream = new MemoryStream();
             streamWriter(stream);
-            Debug.Log($"Broadcasting message from stream on channel {channelid} to {connections.Length} connections, size = {stream.Length}.");
+            // Debug.Log($"Broadcasting message from stream on channel {channelid} to {connections.Length} connections, size = {stream.Length}.");
 
             for (int i = 0; i < connections.Length; i++)
             {

@@ -35,7 +35,8 @@ public partial class GameView : RTSView
     public MapView mapView;
     public RTSCameraController cameraController => mapView.cameraController;
     
-    public GameModel game;
+    public GameModel game => modelGetter?.Invoke();
+    
     public IntervalRepeater gameTicker = new IntervalRepeater();
 
     public PlayerInput input;
@@ -47,6 +48,8 @@ public partial class GameView : RTSView
     public GameUI gameUI;
     
     private ListPresenter<Unit,UnitView> unitsPresenter;
+
+    private Func<GameModel> modelGetter;
 
     
     public Faction localPlayerFaction => game.GetFactionByPlayerId(serverPlayerId);
@@ -129,14 +132,13 @@ public partial class GameView : RTSView
     private void Start()
     {
     }
-
-    public void SetupGameModel(GameModel gameModel, int serverPlayerId)
+    
+    public void SetupGameModel(Func<GameModel> gameModelGetter)
     {
         gameConnections.DisconnectAll();
         unitsPresenter?.UnloadAll(true);
         
-        game = gameModel;
-        
+        modelGetter = gameModelGetter;
 
         gameTicker = new IntervalRepeater()
         {
@@ -147,7 +149,7 @@ public partial class GameView : RTSView
         unitsPresenter = new ListPresenter<Unit, UnitView>(u => u.cfg.name.GetUnitView() ,unitsRoot, 
             (unit, view) => view.ShowUnit(unit), view => view.OnUnload());
         
-        game.GameStart();
+        gameSession.SendRTSCommand(new StartGameCommand());
     }
 
     private void OnGameTick(float dt)

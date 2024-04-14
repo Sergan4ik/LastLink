@@ -1481,10 +1481,6 @@ public static partial class SerializationExtensions
             self[i].UpdateFrom(other[i], __helper);
         }
     }
-    public static void UpdateFrom(this UnityEngine.AI.NavMeshPath self, UnityEngine.AI.NavMeshPath other, ZRUpdateFromHelper __helper) 
-    {
-
-    }
     public static UnityEngine.Vector3[] ReadUnityEngine_Vector3_Array(this ZRBinaryReader reader) 
     {
         var size = reader.ReadInt32();
@@ -1496,10 +1492,6 @@ public static partial class SerializationExtensions
         }
         return array;
     }
-    public static void Deserialize(this UnityEngine.AI.NavMeshPath self, ZRBinaryReader reader) 
-    {
-
-    }
     public static void Serialize(this UnityEngine.Vector3[] self, ZRBinaryWriter writer) 
     {
         writer.Write(self.Length);
@@ -1509,10 +1501,6 @@ public static partial class SerializationExtensions
                 self[i].Serialize(writer);
             }
         }
-    }
-    public static void Serialize(this UnityEngine.AI.NavMeshPath self, ZRBinaryWriter writer) 
-    {
-
     }
     public static ulong CalculateHash(this UnityEngine.Vector3[] self, ZRHashHelper __helper) 
     {
@@ -1527,13 +1515,6 @@ public static partial class SerializationExtensions
         }
         return hash;
     }
-    public static ulong CalculateHash(this UnityEngine.AI.NavMeshPath self, ZRHashHelper __helper) 
-    {
-        System.UInt64 hash = 345093625;
-        hash ^= (ulong)1983906321;
-        hash += hash << 11; hash ^= hash >> 7;
-        return hash;
-    }
     public static void CompareCheck(this UnityEngine.Vector3[] self, UnityEngine.Vector3[] other, ZRCompareCheckHelper __helper, Action<string> printer) 
     {
         if (self.Length != other.Length) SerializationTools.LogCompError(__helper, "Length", printer, other.Length, self.Length);
@@ -1544,10 +1525,6 @@ public static partial class SerializationExtensions
             self[i].CompareCheck(other[i], __helper, printer);
             __helper.Pop();
         }
-    }
-    public static void CompareCheck(this UnityEngine.AI.NavMeshPath self, UnityEngine.AI.NavMeshPath other, ZRCompareCheckHelper __helper, Action<string> printer) 
-    {
-
     }
     public static UnityEngine.Vector3[] ReadFromJson(this UnityEngine.Vector3[] self, ZRJsonTextReader reader) 
     {
@@ -1571,28 +1548,6 @@ public static partial class SerializationExtensions
             self[i].WriteJson(writer);
         }
         writer.WriteEndArray();
-    }
-    public static bool ReadFromJson(this UnityEngine.AI.NavMeshPath self, ZRJsonTextReader reader) 
-    {
-        while (reader.Read())
-        {
-            if (reader.TokenType == JsonToken.PropertyName)
-            {
-                var __name = (string) reader.Value;
-                reader.Read();
-                switch(__name)
-                {
-                    default: return false; break;
-                }
-            }
-            else if (reader.TokenType == JsonToken.EndObject) { break; }
-        }
-        return true;
-    }
-    public static void WriteJson(this UnityEngine.AI.NavMeshPath self, ZRJsonTextWriter writer) 
-    {
-        writer.WriteStartObject();
-        writer.WriteEndObject();
     }
 }
 #endif
