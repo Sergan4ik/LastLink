@@ -83,7 +83,7 @@ namespace Game.GameCore
                 RTSInput inputForUnit = new RTSInput();
                 inputForUnit.UpdateFrom(inputGeneral);
                 inputForUnit.targetData.worldPosition = destination + offset;
-                stack[i].MoveTo(gameModel, destination + offset, inputForUnit);
+                stack[i].MoveTo(gameModel, inputForUnit);
             }
         }
         public void Tick(GameModel gameModel, float dt)

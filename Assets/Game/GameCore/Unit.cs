@@ -99,7 +99,7 @@ namespace Game.GameCore
             unitActions.Add(action);
         }
 
-        public void MoveTo(GameModel gameModel, Vector3 destination, RTSInput input)
+        public void MoveTo(GameModel gameModel, RTSInput input)
         {
             SetupAction(gameModel, new UnitMove {moveSpeed = moveSpeed}, input);
         }
