@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.NodeArchitecture {
 
-    public partial class ContextRoot : IUpdatableFrom<Game.NodeArchitecture.ContextRoot>, IUpdatableFrom<Game.NodeArchitecture.ContextNode>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.NodeArchitecture.ContextNode>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class ContextRoot : IUpdatableFrom<Game.NodeArchitecture.ContextRoot>, IUpdatableFrom<Game.NodeArchitecture.ContextNode>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareCheckable<Game.NodeArchitecture.ContextNode>, IJsonSerializable, IPolymorphable, ICloneInst
     {
         public override void UpdateFrom(Game.NodeArchitecture.ContextNode other, ZRUpdateFromHelper __helper) 
         {
@@ -48,7 +48,7 @@ namespace Game.NodeArchitecture {
         {
             base.CompareCheck(other,__helper,printer);
             var otherConcrete = (Game.NodeArchitecture.ContextRoot)other;
-            if (nodeCounter != otherConcrete.nodeCounter) SerializationTools.LogCompError(__helper, "nodeCounter", printer, otherConcrete.nodeCounter, nodeCounter);
+            if (nodeCounter != otherConcrete.nodeCounter) CodeGenImplTools.LogCompError(__helper, "nodeCounter", printer, otherConcrete.nodeCounter, nodeCounter);
         }
         public override bool ReadFromJsonField(ZRJsonTextReader reader, string __name) 
         {

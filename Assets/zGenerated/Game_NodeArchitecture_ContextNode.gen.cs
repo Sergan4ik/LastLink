@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.NodeArchitecture {
 
-    public partial class ContextNode : IUpdatableFrom<Game.NodeArchitecture.ContextNode>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.NodeArchitecture.ContextNode>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class ContextNode : IUpdatableFrom<Game.NodeArchitecture.ContextNode>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareCheckable<Game.NodeArchitecture.ContextNode>, IJsonSerializable, IPolymorphable, ICloneInst
     {
         public enum Types : ushort
         {
@@ -62,7 +62,7 @@ namespace Game.NodeArchitecture {
             __helper.Push("childs");
             childs.CompareCheck(other.childs, __helper, printer);
             __helper.Pop();
-            if (nodeId != other.nodeId) SerializationTools.LogCompError(__helper, "nodeId", printer, other.nodeId, nodeId);
+            if (nodeId != other.nodeId) CodeGenImplTools.LogCompError(__helper, "nodeId", printer, other.nodeId, nodeId);
         }
         public virtual bool ReadFromJsonField(ZRJsonTextReader reader, string __name) 
         {

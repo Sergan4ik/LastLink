@@ -75,7 +75,7 @@ namespace Game.GameCore
         
         public void Save()
         {
-            string json = this.SaveToJsonString();
+            string json = this.WriteToJsonString();
             foreach (var path in savePaths)
             {
                 File.WriteAllText(path, json);

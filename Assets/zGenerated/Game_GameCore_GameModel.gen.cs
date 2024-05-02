@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class GameModel : IUpdatableFrom<Game.GameCore.GameModel>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.GameModel>, IJsonSerializable
+    public partial class GameModel : IUpdatableFrom<Game.GameCore.GameModel>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareCheckable<Game.GameCore.GameModel>, IJsonSerializable
     {
         public virtual void UpdateFrom(Game.GameCore.GameModel other, ZRUpdateFromHelper __helper) 
         {
@@ -83,12 +83,12 @@ namespace Game.GameCore {
             __helper.Push("factions");
             factions.CompareCheck(other.factions, __helper, printer);
             __helper.Pop();
-            if (gameState.value != other.gameState.value) SerializationTools.LogCompError(__helper, "gameState", printer, other.gameState.value, gameState.value);
-            if (idFactory != other.idFactory) SerializationTools.LogCompError(__helper, "idFactory", printer, other.idFactory, idFactory);
+            if (gameState.value != other.gameState.value) CodeGenImplTools.LogCompError(__helper, "gameState", printer, other.gameState.value, gameState.value);
+            if (idFactory != other.idFactory) CodeGenImplTools.LogCompError(__helper, "idFactory", printer, other.idFactory, idFactory);
             __helper.Push("random");
             random.CompareCheck(other.random, __helper, printer);
             __helper.Pop();
-            if (step != other.step) SerializationTools.LogCompError(__helper, "step", printer, other.step, step);
+            if (step != other.step) CodeGenImplTools.LogCompError(__helper, "step", printer, other.step, step);
             __helper.Push("stopWatch");
             stopWatch.CompareCheck(other.stopWatch, __helper, printer);
             __helper.Pop();

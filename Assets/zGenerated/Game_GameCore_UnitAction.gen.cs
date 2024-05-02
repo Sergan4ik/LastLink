@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class UnitAction : IUpdatableFrom<Game.GameCore.UnitAction>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class UnitAction : IUpdatableFrom<Game.GameCore.UnitAction>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareCheckable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
     {
         public override void UpdateFrom(Game.GameCore.RTSRuntimeData other, ZRUpdateFromHelper __helper) 
         {
@@ -59,11 +59,11 @@ namespace Game.GameCore {
         {
             base.CompareCheck(other,__helper,printer);
             var otherConcrete = (Game.GameCore.UnitAction)other;
-            if (duration != otherConcrete.duration) SerializationTools.LogCompError(__helper, "duration", printer, otherConcrete.duration, duration);
+            if (duration != otherConcrete.duration) CodeGenImplTools.LogCompError(__helper, "duration", printer, otherConcrete.duration, duration);
             __helper.Push("initialInput");
             initialInput.CompareCheck(otherConcrete.initialInput, __helper, printer);
             __helper.Pop();
-            if (state != otherConcrete.state) SerializationTools.LogCompError(__helper, "state", printer, otherConcrete.state, state);
+            if (state != otherConcrete.state) CodeGenImplTools.LogCompError(__helper, "state", printer, otherConcrete.state, state);
             __helper.Push("stateTimer");
             stateTimer.CompareCheck(otherConcrete.stateTimer, __helper, printer);
             __helper.Pop();

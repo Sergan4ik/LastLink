@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class TargetData : IUpdatableFrom<Game.GameCore.TargetData>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class TargetData : IUpdatableFrom<Game.GameCore.TargetData>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareCheckable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
     {
         public override void UpdateFrom(Game.GameCore.RTSRuntimeData other, ZRUpdateFromHelper __helper) 
         {
@@ -57,7 +57,7 @@ namespace Game.GameCore {
             __helper.Push("sourceIds");
             sourceIds.CompareCheck(otherConcrete.sourceIds, __helper, printer);
             __helper.Pop();
-            if (targetId != otherConcrete.targetId) SerializationTools.LogCompError(__helper, "targetId", printer, otherConcrete.targetId, targetId);
+            if (targetId != otherConcrete.targetId) CodeGenImplTools.LogCompError(__helper, "targetId", printer, otherConcrete.targetId, targetId);
             __helper.Push("worldPosition");
             worldPosition.CompareCheck(otherConcrete.worldPosition, __helper, printer);
             __helper.Pop();

@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class RTSStopWatch : IUpdatableFrom<Game.GameCore.RTSStopWatch>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class RTSStopWatch : IUpdatableFrom<Game.GameCore.RTSStopWatch>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareCheckable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
     {
         public override void UpdateFrom(Game.GameCore.RTSRuntimeData other, ZRUpdateFromHelper __helper) 
         {
@@ -57,8 +57,8 @@ namespace Game.GameCore {
             __helper.Push("circles");
             circles.CompareCheck(otherConcrete.circles, __helper, printer);
             __helper.Pop();
-            if (elapsedTime != otherConcrete.elapsedTime) SerializationTools.LogCompError(__helper, "elapsedTime", printer, otherConcrete.elapsedTime, elapsedTime);
-            if (isPaused != otherConcrete.isPaused) SerializationTools.LogCompError(__helper, "isPaused", printer, otherConcrete.isPaused, isPaused);
+            if (elapsedTime != otherConcrete.elapsedTime) CodeGenImplTools.LogCompError(__helper, "elapsedTime", printer, otherConcrete.elapsedTime, elapsedTime);
+            if (isPaused != otherConcrete.isPaused) CodeGenImplTools.LogCompError(__helper, "isPaused", printer, otherConcrete.isPaused, isPaused);
         }
         public override bool ReadFromJsonField(ZRJsonTextReader reader, string __name) 
         {

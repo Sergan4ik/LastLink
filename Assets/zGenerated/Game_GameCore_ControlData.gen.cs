@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class ControlData : IUpdatableFrom<Game.GameCore.ControlData>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class ControlData : IUpdatableFrom<Game.GameCore.ControlData>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareCheckable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
     {
         public override void UpdateFrom(Game.GameCore.RTSRuntimeData other, ZRUpdateFromHelper __helper) 
         {
@@ -53,8 +53,8 @@ namespace Game.GameCore {
         {
             base.CompareCheck(other,__helper,printer);
             var otherConcrete = (Game.GameCore.ControlData)other;
-            if (factionSlot != otherConcrete.factionSlot) SerializationTools.LogCompError(__helper, "factionSlot", printer, otherConcrete.factionSlot, factionSlot);
-            if (serverPlayerId != otherConcrete.serverPlayerId) SerializationTools.LogCompError(__helper, "serverPlayerId", printer, otherConcrete.serverPlayerId, serverPlayerId);
+            if (factionSlot != otherConcrete.factionSlot) CodeGenImplTools.LogCompError(__helper, "factionSlot", printer, otherConcrete.factionSlot, factionSlot);
+            if (serverPlayerId != otherConcrete.serverPlayerId) CodeGenImplTools.LogCompError(__helper, "serverPlayerId", printer, otherConcrete.serverPlayerId, serverPlayerId);
         }
         public override bool ReadFromJsonField(ZRJsonTextReader reader, string __name) 
         {

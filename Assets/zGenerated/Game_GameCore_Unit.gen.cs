@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class Unit : IUpdatableFrom<Game.GameCore.Unit>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IsMultiRef, IPolymorphable, ICloneInst
+    public partial class Unit : IUpdatableFrom<Game.GameCore.Unit>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareCheckable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IsMultiRef, IPolymorphable, ICloneInst
     {
         public override void UpdateFrom(Game.GameCore.RTSRuntimeData other, ZRUpdateFromHelper __helper) 
         {
@@ -80,8 +80,8 @@ namespace Game.GameCore {
             __helper.Push("currentAnimation");
             currentAnimation.CompareCheck(otherConcrete.currentAnimation, __helper, printer);
             __helper.Pop();
-            if (factionSlot != otherConcrete.factionSlot) SerializationTools.LogCompError(__helper, "factionSlot", printer, otherConcrete.factionSlot, factionSlot);
-            if (id != otherConcrete.id) SerializationTools.LogCompError(__helper, "id", printer, otherConcrete.id, id);
+            if (factionSlot != otherConcrete.factionSlot) CodeGenImplTools.LogCompError(__helper, "factionSlot", printer, otherConcrete.factionSlot, factionSlot);
+            if (id != otherConcrete.id) CodeGenImplTools.LogCompError(__helper, "id", printer, otherConcrete.id, id);
             __helper.Push("stats");
             stats.CompareCheck(otherConcrete.stats, __helper, printer);
             __helper.Pop();

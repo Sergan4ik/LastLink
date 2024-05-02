@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class UnitMove : IUpdatableFrom<Game.GameCore.UnitMove>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class UnitMove : IUpdatableFrom<Game.GameCore.UnitMove>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareCheckable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
     {
         public override void UpdateFrom(Game.GameCore.RTSRuntimeData other, ZRUpdateFromHelper __helper) 
         {
@@ -75,12 +75,12 @@ namespace Game.GameCore {
             __helper.Push("cachedWaypoints");
             cachedWaypoints.CompareCheck(otherConcrete.cachedWaypoints, __helper, printer);
             __helper.Pop();
-            if (currentWaypoint != otherConcrete.currentWaypoint) SerializationTools.LogCompError(__helper, "currentWaypoint", printer, otherConcrete.currentWaypoint, currentWaypoint);
+            if (currentWaypoint != otherConcrete.currentWaypoint) CodeGenImplTools.LogCompError(__helper, "currentWaypoint", printer, otherConcrete.currentWaypoint, currentWaypoint);
             __helper.Push("globalDestination");
             globalDestination.CompareCheck(otherConcrete.globalDestination, __helper, printer);
             __helper.Pop();
-            if (maxDistanceToTarget != otherConcrete.maxDistanceToTarget) SerializationTools.LogCompError(__helper, "maxDistanceToTarget", printer, otherConcrete.maxDistanceToTarget, maxDistanceToTarget);
-            if (moveSpeed != otherConcrete.moveSpeed) SerializationTools.LogCompError(__helper, "moveSpeed", printer, otherConcrete.moveSpeed, moveSpeed);
+            if (maxDistanceToTarget != otherConcrete.maxDistanceToTarget) CodeGenImplTools.LogCompError(__helper, "maxDistanceToTarget", printer, otherConcrete.maxDistanceToTarget, maxDistanceToTarget);
+            if (moveSpeed != otherConcrete.moveSpeed) CodeGenImplTools.LogCompError(__helper, "moveSpeed", printer, otherConcrete.moveSpeed, moveSpeed);
         }
         public override bool ReadFromJsonField(ZRJsonTextReader reader, string __name) 
         {

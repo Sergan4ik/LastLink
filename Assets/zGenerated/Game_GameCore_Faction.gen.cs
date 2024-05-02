@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class Faction : IUpdatableFrom<Game.GameCore.Faction>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class Faction : IUpdatableFrom<Game.GameCore.Faction>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareCheckable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
     {
         public override void UpdateFrom(Game.GameCore.RTSRuntimeData other, ZRUpdateFromHelper __helper) 
         {
@@ -53,8 +53,8 @@ namespace Game.GameCore {
         {
             base.CompareCheck(other,__helper,printer);
             var otherConcrete = (Game.GameCore.Faction)other;
-            if (factionType != otherConcrete.factionType) SerializationTools.LogCompError(__helper, "factionType", printer, otherConcrete.factionType, factionType);
-            if (slot != otherConcrete.slot) SerializationTools.LogCompError(__helper, "slot", printer, otherConcrete.slot, slot);
+            if (factionType != otherConcrete.factionType) CodeGenImplTools.LogCompError(__helper, "factionType", printer, otherConcrete.factionType, factionType);
+            if (slot != otherConcrete.slot) CodeGenImplTools.LogCompError(__helper, "slot", printer, otherConcrete.slot, slot);
         }
         public override bool ReadFromJsonField(ZRJsonTextReader reader, string __name) 
         {

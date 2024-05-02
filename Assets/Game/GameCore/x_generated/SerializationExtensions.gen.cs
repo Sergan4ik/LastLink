@@ -44,9 +44,9 @@ public static partial class SerializationExtensions
     }
     public static void CompareCheck(this UnityEngine.Vector3 self, UnityEngine.Vector3 other, ZRCompareCheckHelper __helper, Action<string> printer) 
     {
-        if (self.x != other.x) SerializationTools.LogCompError(__helper, "x", printer, other.x, self.x);
-        if (self.y != other.y) SerializationTools.LogCompError(__helper, "y", printer, other.y, self.y);
-        if (self.z != other.z) SerializationTools.LogCompError(__helper, "z", printer, other.z, self.z);
+        if (self.x != other.x) CodeGenImplTools.LogCompError(__helper, "x", printer, other.x, self.x);
+        if (self.y != other.y) CodeGenImplTools.LogCompError(__helper, "y", printer, other.y, self.y);
+        if (self.z != other.z) CodeGenImplTools.LogCompError(__helper, "z", printer, other.z, self.z);
     }
     public static UnityEngine.Vector3 ReadFromJsonUnityEngine_Vector3(this ZRJsonTextReader reader) 
     {

@@ -65,11 +65,11 @@ public static partial class SerializationExtensions
     }
     public static void CompareCheck(this System.Collections.Generic.List<float> self, System.Collections.Generic.List<float> other, ZRCompareCheckHelper __helper, Action<string> printer) 
     {
-        if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
+        if (self.Count != other.Count) CodeGenImplTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
         var count = Math.Min(self.Count, other.Count);
         for (int i = 0; i < count; i++)
         {
-            if (self[i] != other[i]) SerializationTools.LogCompError(__helper, i.ToString(), printer, other[i], self[i]);
+            if (self[i] != other[i]) CodeGenImplTools.LogCompError(__helper, i.ToString(), printer, other[i], self[i]);
         }
     }
     public static bool ReadFromJson(this System.Collections.Generic.List<float> self, ZRJsonTextReader reader) 
@@ -168,11 +168,11 @@ public static partial class SerializationExtensions
     }
     public static void CompareCheck(this System.Collections.Generic.List<Game.GameCore.UnitConfig> self, System.Collections.Generic.List<Game.GameCore.UnitConfig> other, ZRCompareCheckHelper __helper, Action<string> printer) 
     {
-        if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
+        if (self.Count != other.Count) CodeGenImplTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
         var count = Math.Min(self.Count, other.Count);
         for (int i = 0; i < count; i++)
         {
-            if (SerializationTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
+            if (CodeGenImplTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
                 __helper.Push(i.ToString());
                 self[i].CompareCheck(other[i], __helper, printer);
                 __helper.Pop();
@@ -357,11 +357,11 @@ public static partial class SerializationExtensions
     }
     public static void CompareCheck(this System.Collections.Generic.List<Game.GameCore.AnimationData> self, System.Collections.Generic.List<Game.GameCore.AnimationData> other, ZRCompareCheckHelper __helper, Action<string> printer) 
     {
-        if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
+        if (self.Count != other.Count) CodeGenImplTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
         var count = Math.Min(self.Count, other.Count);
         for (int i = 0; i < count; i++)
         {
-            if (SerializationTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
+            if (CodeGenImplTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
                 __helper.Push(i.ToString());
                 self[i].CompareCheck(other[i], __helper, printer);
                 __helper.Pop();
@@ -370,11 +370,11 @@ public static partial class SerializationExtensions
     }
     public static void CompareCheck(this System.Collections.Generic.List<Game.GameCore.UnitLevelConfig> self, System.Collections.Generic.List<Game.GameCore.UnitLevelConfig> other, ZRCompareCheckHelper __helper, Action<string> printer) 
     {
-        if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
+        if (self.Count != other.Count) CodeGenImplTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
         var count = Math.Min(self.Count, other.Count);
         for (int i = 0; i < count; i++)
         {
-            if (SerializationTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
+            if (CodeGenImplTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
                 __helper.Push(i.ToString());
                 self[i].CompareCheck(other[i], __helper, printer);
                 __helper.Pop();
@@ -547,17 +547,17 @@ public static partial class SerializationExtensions
     }
     public static void CompareCheck(this Game.GameCore.UnitStat self, Game.GameCore.UnitStat other, ZRCompareCheckHelper __helper, Action<string> printer) 
     {
-        if (self.currentValue != other.currentValue) SerializationTools.LogCompError(__helper, "currentValue", printer, other.currentValue, self.currentValue);
-        if (self.maxValue != other.maxValue) SerializationTools.LogCompError(__helper, "maxValue", printer, other.maxValue, self.maxValue);
-        if (self.type != other.type) SerializationTools.LogCompError(__helper, "type", printer, other.type, self.type);
+        if (self.currentValue != other.currentValue) CodeGenImplTools.LogCompError(__helper, "currentValue", printer, other.currentValue, self.currentValue);
+        if (self.maxValue != other.maxValue) CodeGenImplTools.LogCompError(__helper, "maxValue", printer, other.maxValue, self.maxValue);
+        if (self.type != other.type) CodeGenImplTools.LogCompError(__helper, "type", printer, other.type, self.type);
     }
     public static void CompareCheck(this System.Collections.Generic.List<Game.GameCore.UnitStat> self, System.Collections.Generic.List<Game.GameCore.UnitStat> other, ZRCompareCheckHelper __helper, Action<string> printer) 
     {
-        if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
+        if (self.Count != other.Count) CodeGenImplTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
         var count = Math.Min(self.Count, other.Count);
         for (int i = 0; i < count; i++)
         {
-            if (SerializationTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
+            if (CodeGenImplTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
                 __helper.Push(i.ToString());
                 self[i].CompareCheck(other[i], __helper, printer);
                 __helper.Pop();
@@ -854,11 +854,11 @@ public static partial class SerializationExtensions
     }
     public static void CompareCheck(this System.Collections.Generic.List<Game.GameCore.ControlData> self, System.Collections.Generic.List<Game.GameCore.ControlData> other, ZRCompareCheckHelper __helper, Action<string> printer) 
     {
-        if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
+        if (self.Count != other.Count) CodeGenImplTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
         var count = Math.Min(self.Count, other.Count);
         for (int i = 0; i < count; i++)
         {
-            if (SerializationTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
+            if (CodeGenImplTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
                 __helper.Push(i.ToString());
                 self[i].CompareCheck(other[i], __helper, printer);
                 __helper.Pop();
@@ -867,11 +867,11 @@ public static partial class SerializationExtensions
     }
     public static void CompareCheck(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Faction> self, ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Faction> other, ZRCompareCheckHelper __helper, Action<string> printer) 
     {
-        if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
+        if (self.Count != other.Count) CodeGenImplTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
         var count = Math.Min(self.Count, other.Count);
         for (int i = 0; i < count; i++)
         {
-            if (SerializationTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
+            if (CodeGenImplTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
                 __helper.Push(i.ToString());
                 self[i].CompareCheck(other[i], __helper, printer);
                 __helper.Pop();
@@ -880,11 +880,11 @@ public static partial class SerializationExtensions
     }
     public static void CompareCheck(this ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit> self, ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit> other, ZRCompareCheckHelper __helper, Action<string> printer) 
     {
-        if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
+        if (self.Count != other.Count) CodeGenImplTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
         var count = Math.Min(self.Count, other.Count);
         for (int i = 0; i < count; i++)
         {
-            if (SerializationTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
+            if (CodeGenImplTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
                 if (__helper.NeedCompareCheck(i.ToString(), printer, self[i], other[i])) {
                     __helper.Push(i.ToString());
                     self[i].CompareCheck(other[i], __helper, printer);
@@ -1060,12 +1060,12 @@ public static partial class SerializationExtensions
     }
     public static void CompareCheck(this System.Collections.Generic.List<Game.GameCore.UnitAction> self, System.Collections.Generic.List<Game.GameCore.UnitAction> other, ZRCompareCheckHelper __helper, Action<string> printer) 
     {
-        if (self.Count != other.Count) SerializationTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
+        if (self.Count != other.Count) CodeGenImplTools.LogCompError(__helper, "Count", printer, other.Count, self.Count);
         var count = Math.Min(self.Count, other.Count);
         for (int i = 0; i < count; i++)
         {
-            if (SerializationTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
-                if (SerializationTools.CompareClassId(__helper, i.ToString(), printer, self[i], other[i])) {
+            if (CodeGenImplTools.CompareNull(__helper, i.ToString(), printer, self[i], other[i])) {
+                if (CodeGenImplTools.CompareClassId(__helper, i.ToString(), printer, self[i], other[i])) {
                     __helper.Push(i.ToString());
                     self[i].CompareCheck(other[i], __helper, printer);
                     __helper.Pop();
@@ -1143,10 +1143,10 @@ public static partial class SerializationExtensions
     }
     public static void CompareCheck(this UnityEngine.Quaternion self, UnityEngine.Quaternion other, ZRCompareCheckHelper __helper, Action<string> printer) 
     {
-        if (self.w != other.w) SerializationTools.LogCompError(__helper, "w", printer, other.w, self.w);
-        if (self.x != other.x) SerializationTools.LogCompError(__helper, "x", printer, other.x, self.x);
-        if (self.y != other.y) SerializationTools.LogCompError(__helper, "y", printer, other.y, self.y);
-        if (self.z != other.z) SerializationTools.LogCompError(__helper, "z", printer, other.z, self.z);
+        if (self.w != other.w) CodeGenImplTools.LogCompError(__helper, "w", printer, other.w, self.w);
+        if (self.x != other.x) CodeGenImplTools.LogCompError(__helper, "x", printer, other.x, self.x);
+        if (self.y != other.y) CodeGenImplTools.LogCompError(__helper, "y", printer, other.y, self.y);
+        if (self.z != other.z) CodeGenImplTools.LogCompError(__helper, "z", printer, other.z, self.z);
     }
     public static UnityEngine.Quaternion ReadFromJsonUnityEngine_Quaternion(this ZRJsonTextReader reader) 
     {
@@ -1318,27 +1318,27 @@ public static partial class SerializationExtensions
     }
     public static void CompareCheck(this UnityEngine.Vector2 self, UnityEngine.Vector2 other, ZRCompareCheckHelper __helper, Action<string> printer) 
     {
-        if (self.x != other.x) SerializationTools.LogCompError(__helper, "x", printer, other.x, self.x);
-        if (self.y != other.y) SerializationTools.LogCompError(__helper, "y", printer, other.y, self.y);
+        if (self.x != other.x) CodeGenImplTools.LogCompError(__helper, "x", printer, other.x, self.x);
+        if (self.y != other.y) CodeGenImplTools.LogCompError(__helper, "y", printer, other.y, self.y);
     }
     public static void CompareCheck(this UnityEngine.Matrix4x4 self, UnityEngine.Matrix4x4 other, ZRCompareCheckHelper __helper, Action<string> printer) 
     {
-        if (self.m00 != other.m00) SerializationTools.LogCompError(__helper, "m00", printer, other.m00, self.m00);
-        if (self.m01 != other.m01) SerializationTools.LogCompError(__helper, "m01", printer, other.m01, self.m01);
-        if (self.m02 != other.m02) SerializationTools.LogCompError(__helper, "m02", printer, other.m02, self.m02);
-        if (self.m03 != other.m03) SerializationTools.LogCompError(__helper, "m03", printer, other.m03, self.m03);
-        if (self.m10 != other.m10) SerializationTools.LogCompError(__helper, "m10", printer, other.m10, self.m10);
-        if (self.m11 != other.m11) SerializationTools.LogCompError(__helper, "m11", printer, other.m11, self.m11);
-        if (self.m12 != other.m12) SerializationTools.LogCompError(__helper, "m12", printer, other.m12, self.m12);
-        if (self.m13 != other.m13) SerializationTools.LogCompError(__helper, "m13", printer, other.m13, self.m13);
-        if (self.m20 != other.m20) SerializationTools.LogCompError(__helper, "m20", printer, other.m20, self.m20);
-        if (self.m21 != other.m21) SerializationTools.LogCompError(__helper, "m21", printer, other.m21, self.m21);
-        if (self.m22 != other.m22) SerializationTools.LogCompError(__helper, "m22", printer, other.m22, self.m22);
-        if (self.m23 != other.m23) SerializationTools.LogCompError(__helper, "m23", printer, other.m23, self.m23);
-        if (self.m30 != other.m30) SerializationTools.LogCompError(__helper, "m30", printer, other.m30, self.m30);
-        if (self.m31 != other.m31) SerializationTools.LogCompError(__helper, "m31", printer, other.m31, self.m31);
-        if (self.m32 != other.m32) SerializationTools.LogCompError(__helper, "m32", printer, other.m32, self.m32);
-        if (self.m33 != other.m33) SerializationTools.LogCompError(__helper, "m33", printer, other.m33, self.m33);
+        if (self.m00 != other.m00) CodeGenImplTools.LogCompError(__helper, "m00", printer, other.m00, self.m00);
+        if (self.m01 != other.m01) CodeGenImplTools.LogCompError(__helper, "m01", printer, other.m01, self.m01);
+        if (self.m02 != other.m02) CodeGenImplTools.LogCompError(__helper, "m02", printer, other.m02, self.m02);
+        if (self.m03 != other.m03) CodeGenImplTools.LogCompError(__helper, "m03", printer, other.m03, self.m03);
+        if (self.m10 != other.m10) CodeGenImplTools.LogCompError(__helper, "m10", printer, other.m10, self.m10);
+        if (self.m11 != other.m11) CodeGenImplTools.LogCompError(__helper, "m11", printer, other.m11, self.m11);
+        if (self.m12 != other.m12) CodeGenImplTools.LogCompError(__helper, "m12", printer, other.m12, self.m12);
+        if (self.m13 != other.m13) CodeGenImplTools.LogCompError(__helper, "m13", printer, other.m13, self.m13);
+        if (self.m20 != other.m20) CodeGenImplTools.LogCompError(__helper, "m20", printer, other.m20, self.m20);
+        if (self.m21 != other.m21) CodeGenImplTools.LogCompError(__helper, "m21", printer, other.m21, self.m21);
+        if (self.m22 != other.m22) CodeGenImplTools.LogCompError(__helper, "m22", printer, other.m22, self.m22);
+        if (self.m23 != other.m23) CodeGenImplTools.LogCompError(__helper, "m23", printer, other.m23, self.m23);
+        if (self.m30 != other.m30) CodeGenImplTools.LogCompError(__helper, "m30", printer, other.m30, self.m30);
+        if (self.m31 != other.m31) CodeGenImplTools.LogCompError(__helper, "m31", printer, other.m31, self.m31);
+        if (self.m32 != other.m32) CodeGenImplTools.LogCompError(__helper, "m32", printer, other.m32, self.m32);
+        if (self.m33 != other.m33) CodeGenImplTools.LogCompError(__helper, "m33", printer, other.m33, self.m33);
     }
     public static UnityEngine.Vector2 ReadFromJsonUnityEngine_Vector2(this ZRJsonTextReader reader) 
     {
@@ -1517,7 +1517,7 @@ public static partial class SerializationExtensions
     }
     public static void CompareCheck(this UnityEngine.Vector3[] self, UnityEngine.Vector3[] other, ZRCompareCheckHelper __helper, Action<string> printer) 
     {
-        if (self.Length != other.Length) SerializationTools.LogCompError(__helper, "Length", printer, other.Length, self.Length);
+        if (self.Length != other.Length) CodeGenImplTools.LogCompError(__helper, "Length", printer, other.Length, self.Length);
         var count = Math.Min(self.Length, other.Length);
         for (int i = 0; i < count; i++)
         {

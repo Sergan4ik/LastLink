@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class RTSInput : IUpdatableFrom<Game.GameCore.RTSInput>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class RTSInput : IUpdatableFrom<Game.GameCore.RTSInput>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareCheckable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
     {
         public override void UpdateFrom(Game.GameCore.RTSRuntimeData other, ZRUpdateFromHelper __helper) 
         {
@@ -59,9 +59,9 @@ namespace Game.GameCore {
         {
             base.CompareCheck(other,__helper,printer);
             var otherConcrete = (Game.GameCore.RTSInput)other;
-            if (inputType != otherConcrete.inputType) SerializationTools.LogCompError(__helper, "inputType", printer, otherConcrete.inputType, inputType);
-            if (inputTypeVariation != otherConcrete.inputTypeVariation) SerializationTools.LogCompError(__helper, "inputTypeVariation", printer, otherConcrete.inputTypeVariation, inputTypeVariation);
-            if (playerServerId != otherConcrete.playerServerId) SerializationTools.LogCompError(__helper, "playerServerId", printer, otherConcrete.playerServerId, playerServerId);
+            if (inputType != otherConcrete.inputType) CodeGenImplTools.LogCompError(__helper, "inputType", printer, otherConcrete.inputType, inputType);
+            if (inputTypeVariation != otherConcrete.inputTypeVariation) CodeGenImplTools.LogCompError(__helper, "inputTypeVariation", printer, otherConcrete.inputTypeVariation, inputTypeVariation);
+            if (playerServerId != otherConcrete.playerServerId) CodeGenImplTools.LogCompError(__helper, "playerServerId", printer, otherConcrete.playerServerId, playerServerId);
             __helper.Push("targetData");
             targetData.CompareCheck(otherConcrete.targetData, __helper, printer);
             __helper.Pop();

@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class UnitConfig : IUpdatableFrom<Game.GameCore.UnitConfig>, IUpdatableFrom<Game.GameCore.ConfigData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.ConfigData>, IJsonSerializable
+    public partial class UnitConfig : IUpdatableFrom<Game.GameCore.UnitConfig>, IUpdatableFrom<Game.GameCore.ConfigData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareCheckable<Game.GameCore.ConfigData>, IJsonSerializable
     {
         public override void UpdateFrom(Game.GameCore.ConfigData other, ZRUpdateFromHelper __helper) 
         {
@@ -81,7 +81,7 @@ namespace Game.GameCore {
             __helper.Push("levelConfig");
             levelConfig.CompareCheck(otherConcrete.levelConfig, __helper, printer);
             __helper.Pop();
-            if (name != otherConcrete.name) SerializationTools.LogCompError(__helper, "name", printer, otherConcrete.name, name);
+            if (name != otherConcrete.name) CodeGenImplTools.LogCompError(__helper, "name", printer, otherConcrete.name, name);
             __helper.Push("walkAnimation");
             walkAnimation.CompareCheck(otherConcrete.walkAnimation, __helper, printer);
             __helper.Pop();

@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class ConfigData : IUpdatableFrom<Game.GameCore.ConfigData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.ConfigData>, IJsonSerializable
+    public partial class ConfigData : IUpdatableFrom<Game.GameCore.ConfigData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareCheckable<Game.GameCore.ConfigData>, IJsonSerializable
     {
         public virtual void UpdateFrom(Game.GameCore.ConfigData other, ZRUpdateFromHelper __helper) 
         {

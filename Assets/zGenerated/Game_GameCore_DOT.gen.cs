@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class DOT : IUpdatableFrom<Game.GameCore.DOT>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class DOT : IUpdatableFrom<Game.GameCore.DOT>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareCheckable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
     {
         public override void UpdateFrom(Game.GameCore.RTSRuntimeData other, ZRUpdateFromHelper __helper) 
         {
@@ -48,7 +48,7 @@ namespace Game.GameCore {
         {
             base.CompareCheck(other,__helper,printer);
             var otherConcrete = (Game.GameCore.DOT)other;
-            if (dps != otherConcrete.dps) SerializationTools.LogCompError(__helper, "dps", printer, otherConcrete.dps, dps);
+            if (dps != otherConcrete.dps) CodeGenImplTools.LogCompError(__helper, "dps", printer, otherConcrete.dps, dps);
         }
         public override bool ReadFromJsonField(ZRJsonTextReader reader, string __name) 
         {

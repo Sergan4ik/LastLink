@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class SelectionRectClipSpace : IUpdatableFrom<Game.GameCore.SelectionRectClipSpace>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class SelectionRectClipSpace : IUpdatableFrom<Game.GameCore.SelectionRectClipSpace>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareCheckable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
     {
         public override void UpdateFrom(Game.GameCore.RTSRuntimeData other, ZRUpdateFromHelper __helper) 
         {
@@ -77,7 +77,7 @@ namespace Game.GameCore {
             __helper.Push("rightTop");
             rightTop.CompareCheck(otherConcrete.rightTop, __helper, printer);
             __helper.Pop();
-            if (selectionDuration != otherConcrete.selectionDuration) SerializationTools.LogCompError(__helper, "selectionDuration", printer, otherConcrete.selectionDuration, selectionDuration);
+            if (selectionDuration != otherConcrete.selectionDuration) CodeGenImplTools.LogCompError(__helper, "selectionDuration", printer, otherConcrete.selectionDuration, selectionDuration);
             __helper.Push("unitToViewportMatrix");
             unitToViewportMatrix.CompareCheck(otherConcrete.unitToViewportMatrix, __helper, printer);
             __helper.Pop();

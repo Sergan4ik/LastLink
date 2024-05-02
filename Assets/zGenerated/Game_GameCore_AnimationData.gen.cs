@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class AnimationData : IUpdatableFrom<Game.GameCore.AnimationData>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareChechable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class AnimationData : IUpdatableFrom<Game.GameCore.AnimationData>, IUpdatableFrom<Game.GameCore.RTSRuntimeData>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareCheckable<Game.GameCore.RTSRuntimeData>, IJsonSerializable, IPolymorphable, ICloneInst
     {
         public override void UpdateFrom(Game.GameCore.RTSRuntimeData other, ZRUpdateFromHelper __helper) 
         {
@@ -64,9 +64,9 @@ namespace Game.GameCore {
         {
             base.CompareCheck(other,__helper,printer);
             var otherConcrete = (Game.GameCore.AnimationData)other;
-            if (animationName != otherConcrete.animationName) SerializationTools.LogCompError(__helper, "animationName", printer, otherConcrete.animationName, animationName);
-            if (duration != otherConcrete.duration) SerializationTools.LogCompError(__helper, "duration", printer, otherConcrete.duration, duration);
-            if (loop != otherConcrete.loop) SerializationTools.LogCompError(__helper, "loop", printer, otherConcrete.loop, loop);
+            if (animationName != otherConcrete.animationName) CodeGenImplTools.LogCompError(__helper, "animationName", printer, otherConcrete.animationName, animationName);
+            if (duration != otherConcrete.duration) CodeGenImplTools.LogCompError(__helper, "duration", printer, otherConcrete.duration, duration);
+            if (loop != otherConcrete.loop) CodeGenImplTools.LogCompError(__helper, "loop", printer, otherConcrete.loop, loop);
             __helper.Push("timer");
             timer.CompareCheck(otherConcrete.timer, __helper, printer);
             __helper.Pop();
