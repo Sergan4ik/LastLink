@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using GameKit.Unity.UnityNetork;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -125,8 +126,8 @@ namespace Game.GameCore.GameControllers
         public async void StartClient()
         {
             GameObject transportClientGM = new GameObject("[Client]");
-            transportClientGM.AddComponent<RTSClientTransport>();
-            var transport = transportClientGM.GetComponent<RTSClientTransport>();
+            transportClientGM.AddComponent<UnityNetworkClient>();
+            var transport = transportClientGM.GetComponent<UnityNetworkClient>();
             DontDestroyOnLoad(transportClientGM);
             
             await transport.ConnectToServer(1);
@@ -155,8 +156,8 @@ namespace Game.GameCore.GameControllers
         public async void StartHost()
         {
             GameObject gm = new GameObject("[Server]");
-            gm.AddComponent<RTSServerTransport>();
-            var serverTransport = gm.GetComponent<RTSServerTransport>();
+            gm.AddComponent<UnityNetworkServer>();
+            var serverTransport = gm.GetComponent<UnityNetworkServer>();
             DontDestroyOnLoad(gm);
 
             serverTransport.InitTransport();

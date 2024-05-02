@@ -48,8 +48,17 @@ public class UnitView : RTSView, ISimpleUpdatableFrom<Unit>
     {
         ShowUnit(unit);
 
-        transform.position = unit.transform.position;
-        transform.rotation = unit.transform.rotation;
+        var sqrMagnitude = (transform.position - unit.transform.position).sqrMagnitude;
+        if (sqrMagnitude > unit.moveSpeed * Time.deltaTime * unit.moveSpeed * Time.deltaTime && sqrMagnitude < unit.moveSpeed * unit.moveSpeed * 0.25f)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, unit.transform.position, unit.moveSpeed * (2 * Time.deltaTime));
+            transform.rotation = unit.transform.rotation;
+        }
+        else
+        {
+            transform.position = unit.transform.position;
+            transform.rotation = unit.transform.rotation;
+        }
 
         hpBar.SetProgress(unit.hp, unit.maxHp);
 
