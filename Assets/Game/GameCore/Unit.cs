@@ -30,6 +30,9 @@ namespace Game.GameCore
         public FactionSlot factionSlot;
         
         public AnimationData currentAnimation;
+        
+        public UnitBehaviour behaviour;
+        
         public Faction UnitFaction(GameModel gameModel) => gameModel.GetFactionBySlot(factionSlot);
         public bool isMoving => unitActions.Any(a => a is UnitMove);
         
@@ -41,6 +44,7 @@ namespace Game.GameCore
             stats.UpdateFrom(levelCfg.stats);
             
             PlayIdle();
+            behaviour.Init(model, this);
         }
         
         public void PlayAnimation(AnimationData animationDataPrototype)
@@ -59,6 +63,8 @@ namespace Game.GameCore
         {
             if (currentAnimation.timer.Tick(dt) && currentAnimation.loop == false)
                 PlayIdle();
+            
+            behaviour.Tick(gameModel, this, dt);
             
             foreach (var unitAction in unitActions)
             {

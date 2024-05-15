@@ -101,35 +101,39 @@ namespace Game.GameCore
             Tick(0);
         }
 
-        public void ApplyInput(RTSInput input)
+        public void ApplyInput(InputCommand input)
         {
-            Faction playerFaction = GetFactionByPlayerId(input.playerServerId);
-            List<Unit> stack = input.targetData.sourceIds.Select(GetUnit).ToList();
+            Faction playerFaction = GetFactionByPlayerId(input.serverPlayerId);
+            List<Unit> stack = input.input.targetData.sourceIds.Select(GetUnit).ToList();
 
             if (stack.Any(u => u.factionSlot != playerFaction.slot))
             {
-                Debug.LogError($"Player {input.playerServerId} tried to control units from different factions");
+                Debug.LogError($"Player {input.serverPlayerId} tried to control units from different factions");
             }
             
-            Unit target = GetUnit(input.targetData.targetId);
-            switch (input.inputType)
+            Unit target = GetUnit(input.input.targetData.targetId);
+            switch (input.input.inputType)
             {
                 case RTSInputType.Move:
-                    playerFaction.MoveStackTo(this, stack, input.targetData.worldPosition);
+                    playerFaction.MoveStackTo(this, stack, input.input.targetData.worldPosition);
                     break;
                 case RTSInputType.AutoAttack:
-                    playerFaction.AutoAttackStack(this, stack, input);
+                    playerFaction.AutoAttackStack(this, stack, input.input);
                     break;
                 default:
                     throw new NotImplementedException();
             }
             
+            foreach (var unit in stack)
+            {
+                unit.behaviour.ProcessInput(this, unit, input.input);
+            }
         }
 
         public Faction GetFactionBySlot(FactionSlot slot) => factions.FirstOrDefault(f => f.slot == slot);
 
-        public Faction GetFactionByPlayerId(int playerId) =>
-            GetFactionBySlot(controlData.FirstOrDefault(cd => cd.serverPlayerId == playerId).factionSlot);
+        public Faction GetFactionByPlayerId(short serverPlayerId) =>
+            GetFactionBySlot(controlData.FirstOrDefault(cd => cd.serverPlayerId == serverPlayerId).factionSlot);
         
         
         public List<Unit> GetUnitsInsideOpaqueQuadrangle(SelectionRectClipSpace selectionRectClipSpace, Func<Unit, bool> skipIf = null)
@@ -203,8 +207,16 @@ namespace Game.GameCore
                     case LogCommand logCommand:
                         Debug.Log(logCommand.message);
                         break;
-                    case InputCommand moveCommand:
-                        ApplyInput(moveCommand.input);
+                    case ConnectCommand connectCommand:
+                        controlData.Add(new ControlData()
+                        {
+                            factionSlot = connectCommand.slot,
+                            serverPlayerId = connectCommand.serverPlayerId,
+                            globalPlayerId = connectCommand.globalPlayerId
+                        });
+                        break;
+                    case InputCommand inputCommand:
+                        ApplyInput(inputCommand);
                         break;
                     case StartGameCommand startGameCommand:
                         GameStart();
@@ -220,7 +232,7 @@ namespace Game.GameCore
 
         public bool IsPlayerCreated(long playerId)
         {
-            return controlData.Any(c => c.serverPlayerId == playerId);
+            return controlData.Any(c => c.globalPlayerId == playerId);
         }
     }
 

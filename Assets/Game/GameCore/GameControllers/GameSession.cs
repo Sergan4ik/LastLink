@@ -79,17 +79,6 @@ namespace Game.GameCore.GameControllers
             
             game.Init(new[] { myFaction, enemyFaction });
             
-            game.controlData.Add(new ControlData()
-            {
-                factionSlot = FactionSlot.Player1,
-                serverPlayerId = 0
-            });
-            game.controlData.Add(new ControlData()
-            {
-                factionSlot = FactionSlot.Player2,
-                serverPlayerId = -1
-            });
-            
             game.factions[0].Init(game,new List<UnitConfig>()
             {
                 GameConfig.Instance.units[0],
@@ -191,7 +180,11 @@ namespace Game.GameCore.GameControllers
             gamemodelDelegate.gameRootCommandType = typeof(RTSCommand);
             gamemodelDelegate.isUserAllowedToConnect += player => true;
             gamemodelDelegate.newPlayerCommandGenerator +=
-                (connectionHandler, playerId, playerServerid) => new LogCommand(){ message = $"new player connected {playerId}" };
+                (connectionHandler, playerId, playerServerid) => new ConnectCommand()
+                {
+                    globalPlayerId = playerId,
+                    slot = playerId == 0 ? FactionSlot.Player1 : FactionSlot.Player2,
+                };
             gamemodelDelegate.playerLeaveCommandGenerator +=
                 (connectionHandler, playerId, playerServerid) => new LogCommand(){ message = $"player disconnected {playerId}" };
             return gamemodelDelegate;

@@ -27,6 +27,7 @@ namespace Game.GameCore
     {
         public short serverPlayerId = -1;
         public FactionSlot factionSlot;
+        public long globalPlayerId;
     }
 
     public partial class Faction : RTSRuntimeData, IActionSource 

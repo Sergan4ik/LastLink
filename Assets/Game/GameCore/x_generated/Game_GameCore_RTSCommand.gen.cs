@@ -13,6 +13,7 @@ namespace Game.GameCore {
         public enum Types : ushort
         {
             RTSCommand = 1,
+            ConnectCommand = 5,
             InputCommand = 2,
             LogCommand = 3,
             StartGameCommand = 4,
@@ -23,6 +24,7 @@ namespace Game.GameCore {
             () => new Game.GameCore.InputCommand(), // 2
             () => new Game.GameCore.LogCommand(), // 3
             () => new Game.GameCore.StartGameCommand(), // 4
+            () => new Game.GameCore.ConnectCommand(), // 5
         };
         public static RTSCommand CreatePolymorphic(System.UInt16 typeId) {
             return polymorphConstructors[typeId]();

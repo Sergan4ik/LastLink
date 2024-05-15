@@ -14,6 +14,11 @@ namespace Game.GameCore {
         {
             base.UpdateFrom(other,__helper);
             var otherConcrete = (Game.GameCore.Unit)other;
+            var behaviourClassId = otherConcrete.behaviour.GetClassId();
+            if (behaviour == null || behaviour.GetClassId() != behaviourClassId) {
+                behaviour = (Game.GameCore.UnitBehaviour)otherConcrete.behaviour.NewInst();
+            }
+            behaviour.UpdateFrom(otherConcrete.behaviour, __helper);
             cfg.UpdateFrom(otherConcrete.cfg, __helper);
             currentAnimation.UpdateFrom(otherConcrete.currentAnimation, __helper);
             factionSlot = otherConcrete.factionSlot;
@@ -29,6 +34,11 @@ namespace Game.GameCore {
         public override void Deserialize(ZRBinaryReader reader) 
         {
             base.Deserialize(reader);
+            var behaviourClassId = reader.ReadUInt16();
+            if (behaviour == null || behaviour.GetClassId() != behaviourClassId) {
+                behaviour = (Game.GameCore.UnitBehaviour)Game.GameCore.RTSRuntimeData.CreatePolymorphic(behaviourClassId);
+            }
+            behaviour.Deserialize(reader);
             cfg.Deserialize(reader);
             currentAnimation.Deserialize(reader);
             factionSlot = reader.ReadEnum<Game.GameCore.FactionSlot>();
@@ -40,6 +50,8 @@ namespace Game.GameCore {
         public override void Serialize(ZRBinaryWriter writer) 
         {
             base.Serialize(writer);
+            writer.Write(behaviour.GetClassId());
+            behaviour.Serialize(writer);
             cfg.Serialize(writer);
             currentAnimation.Serialize(writer);
             writer.Write((Int32)factionSlot);
@@ -53,6 +65,8 @@ namespace Game.GameCore {
             var baseVal = base.CalculateHash(__helper);
             System.UInt64 hash = baseVal;
             hash ^= (ulong)1347601703;
+            hash += hash << 11; hash ^= hash >> 7;
+            hash += behaviour.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
             hash += cfg.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
@@ -74,6 +88,11 @@ namespace Game.GameCore {
         {
             base.CompareCheck(other,__helper,printer);
             var otherConcrete = (Game.GameCore.Unit)other;
+            if (CodeGenImplTools.CompareClassId(__helper, "behaviour", printer, behaviour, otherConcrete.behaviour)) {
+                __helper.Push("behaviour");
+                behaviour.CompareCheck(otherConcrete.behaviour, __helper, printer);
+                __helper.Pop();
+            }
             __helper.Push("cfg");
             cfg.CompareCheck(otherConcrete.cfg, __helper, printer);
             __helper.Pop();
@@ -97,6 +116,13 @@ namespace Game.GameCore {
             if (base.ReadFromJsonField(reader, __name)) return true;
             switch(__name)
             {
+                case "behaviour":
+                var behaviourClassId = reader.ReadJsonClassId();
+                if (behaviour == null || behaviour.GetClassId() != behaviourClassId) {
+                    behaviour = (Game.GameCore.UnitBehaviour)Game.GameCore.RTSRuntimeData.CreatePolymorphic(behaviourClassId);
+                }
+                behaviour.ReadFromJson(reader);
+                break;
                 case "cfg":
                 cfg.ReadFromJson(reader);
                 break;
@@ -125,6 +151,8 @@ namespace Game.GameCore {
         public override void WriteJsonFields(ZRJsonTextWriter writer) 
         {
             base.WriteJsonFields(writer);
+            writer.WritePropertyName("behaviour");
+            behaviour.WriteJson(writer);
             writer.WritePropertyName("cfg");
             cfg.WriteJson(writer);
             writer.WritePropertyName("currentAnimation");
@@ -142,6 +170,7 @@ namespace Game.GameCore {
         }
         public  Unit() 
         {
+            behaviour = (Game.GameCore.UnitBehaviour)new Game.GameCore.UnitBehaviour();
             cfg = new Game.GameCore.UnitConfig();
             currentAnimation = new Game.GameCore.AnimationData();
             stats = new Game.GameCore.UnitStatsContainer();

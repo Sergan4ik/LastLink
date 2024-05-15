@@ -40,7 +40,7 @@ public static class BuildMethods
             scenes = pathToScenes.ToArray(),
             locationPathName = $"Builds/Servers/V {DateTime.Now:dd_MM}-{DateTime.Now:hh_mm}/soph_server.exe",
             target = BuildTarget.StandaloneWindows64,
-            subtarget = (int)StandaloneBuildSubtarget.Server
+            subtarget = (int)StandaloneBuildSubtarget.Server,
         };
         var report = BuildPipeline.BuildPlayer(buildPlayerOptions);
         

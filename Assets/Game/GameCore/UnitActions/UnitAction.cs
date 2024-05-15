@@ -111,7 +111,6 @@ namespace Game.GameCore
 
     public partial class RTSInput : RTSRuntimeData
     {
-        public int playerServerId;
         public RTSInputType inputType;
         public int inputTypeVariation;
         public TargetData targetData;

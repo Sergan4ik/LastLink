@@ -23,12 +23,11 @@ public class RTSView : ReusableView
     public GameModel game => gameView.game;
     public GameConfig config => GameConfig.Instance;
     public GameSession gameSession => GameSession.instance;
+    public short serverPlayerId => gameSession.clientController.serverPlayerId;
 }
 
 public partial class GameView : RTSView
 {
-    public int serverPlayerId = 0;
-    
     public static GameView instance;
     public static GameConfig config => GameConfig.Instance;
     
@@ -50,7 +49,6 @@ public partial class GameView : RTSView
     private ListPresenter<Unit,UnitView> unitsPresenter;
 
     private Func<GameModel> modelGetter;
-
     
     public Faction localPlayerFaction => game.GetFactionByPlayerId(serverPlayerId);
     
@@ -191,7 +189,6 @@ public partial class GameView : RTSView
                     gameInput = new RTSInput()
                     {
                         targetData = GetTargetData(),
-                        playerServerId = serverPlayerId,
                         inputType = RTSInputType.AutoAttack
                     };
                 }
@@ -203,7 +200,6 @@ public partial class GameView : RTSView
                     gameInput = new RTSInput()
                     {
                         targetData = GetTargetData(),
-                        playerServerId = serverPlayerId,
                         inputType = RTSInputType.Move
                     };
             }
@@ -213,7 +209,6 @@ public partial class GameView : RTSView
                 var inputCommand = new InputCommand()
                 {
                     input = gameInput,
-                    serverPlayerId = localPlayerFaction.FactionControlData(game).serverPlayerId
                 };
                 gameSession.clientController?.WriteLocalAndSendCommand(inputCommand);
                 

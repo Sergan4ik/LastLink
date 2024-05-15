@@ -15,6 +15,7 @@ namespace Game.GameCore {
             base.UpdateFrom(other,__helper);
             var otherConcrete = (Game.GameCore.ControlData)other;
             factionSlot = otherConcrete.factionSlot;
+            globalPlayerId = otherConcrete.globalPlayerId;
             serverPlayerId = otherConcrete.serverPlayerId;
         }
         public void UpdateFrom(Game.GameCore.ControlData other, ZRUpdateFromHelper __helper) 
@@ -25,12 +26,14 @@ namespace Game.GameCore {
         {
             base.Deserialize(reader);
             factionSlot = reader.ReadEnum<Game.GameCore.FactionSlot>();
+            globalPlayerId = reader.ReadInt64();
             serverPlayerId = reader.ReadInt16();
         }
         public override void Serialize(ZRBinaryWriter writer) 
         {
             base.Serialize(writer);
             writer.Write((Int32)factionSlot);
+            writer.Write(globalPlayerId);
             writer.Write(serverPlayerId);
         }
         public override ulong CalculateHash(ZRHashHelper __helper) 
@@ -40,6 +43,8 @@ namespace Game.GameCore {
             hash ^= (ulong)1434085133;
             hash += hash << 11; hash ^= hash >> 7;
             hash += (System.UInt64)factionSlot;
+            hash += hash << 11; hash ^= hash >> 7;
+            hash += (System.UInt64)globalPlayerId;
             hash += hash << 11; hash ^= hash >> 7;
             hash += (System.UInt64)serverPlayerId;
             hash += hash << 11; hash ^= hash >> 7;
@@ -54,6 +59,7 @@ namespace Game.GameCore {
             base.CompareCheck(other,__helper,printer);
             var otherConcrete = (Game.GameCore.ControlData)other;
             if (factionSlot != otherConcrete.factionSlot) CodeGenImplTools.LogCompError(__helper, "factionSlot", printer, otherConcrete.factionSlot, factionSlot);
+            if (globalPlayerId != otherConcrete.globalPlayerId) CodeGenImplTools.LogCompError(__helper, "globalPlayerId", printer, otherConcrete.globalPlayerId, globalPlayerId);
             if (serverPlayerId != otherConcrete.serverPlayerId) CodeGenImplTools.LogCompError(__helper, "serverPlayerId", printer, otherConcrete.serverPlayerId, serverPlayerId);
         }
         public override bool ReadFromJsonField(ZRJsonTextReader reader, string __name) 
@@ -63,6 +69,9 @@ namespace Game.GameCore {
             {
                 case "factionSlot":
                 factionSlot = ((string)reader.Value).ParseEnum<Game.GameCore.FactionSlot>();
+                break;
+                case "globalPlayerId":
+                globalPlayerId = (long)(Int64)reader.Value;
                 break;
                 case "serverPlayerId":
                 serverPlayerId = (short)(Int64)reader.Value;
@@ -76,6 +85,8 @@ namespace Game.GameCore {
             base.WriteJsonFields(writer);
             writer.WritePropertyName("factionSlot");
             writer.WriteValue(factionSlot.ToString());
+            writer.WritePropertyName("globalPlayerId");
+            writer.WriteValue(globalPlayerId);
             writer.WritePropertyName("serverPlayerId");
             writer.WriteValue(serverPlayerId);
         }

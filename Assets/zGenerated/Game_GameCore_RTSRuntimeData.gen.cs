@@ -14,6 +14,7 @@ namespace Game.GameCore {
         {
             RTSRuntimeData = 1,
             AnimationData = 2,
+            BattleUnitBehaviour = 19,
             ControlData = 3,
             DefaultAttack = 4,
             DOT = 5,
@@ -27,6 +28,7 @@ namespace Game.GameCore {
             TargetData = 13,
             Unit = 14,
             UnitAction = 15,
+            UnitBehaviour = 20,
             UnitEffect = 16,
             UnitMove = 17,
             UnitStatsContainer = 18,
@@ -51,6 +53,8 @@ namespace Game.GameCore {
             () => new Game.GameCore.UnitEffect(), // 16
             () => new Game.GameCore.UnitMove(), // 17
             () => new Game.GameCore.UnitStatsContainer(), // 18
+            () => new Game.GameCore.BattleUnitBehaviour(), // 19
+            () => new Game.GameCore.UnitBehaviour(), // 20
         };
         public static RTSRuntimeData CreatePolymorphic(System.UInt16 typeId) {
             return polymorphConstructors[typeId]();

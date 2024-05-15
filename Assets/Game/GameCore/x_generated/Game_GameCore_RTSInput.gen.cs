@@ -16,7 +16,6 @@ namespace Game.GameCore {
             var otherConcrete = (Game.GameCore.RTSInput)other;
             inputType = otherConcrete.inputType;
             inputTypeVariation = otherConcrete.inputTypeVariation;
-            playerServerId = otherConcrete.playerServerId;
             targetData.UpdateFrom(otherConcrete.targetData, __helper);
         }
         public void UpdateFrom(Game.GameCore.RTSInput other, ZRUpdateFromHelper __helper) 
@@ -28,7 +27,6 @@ namespace Game.GameCore {
             base.Deserialize(reader);
             inputType = reader.ReadEnum<Game.GameCore.RTSInputType>();
             inputTypeVariation = reader.ReadInt32();
-            playerServerId = reader.ReadInt32();
             targetData.Deserialize(reader);
         }
         public override void Serialize(ZRBinaryWriter writer) 
@@ -36,7 +34,6 @@ namespace Game.GameCore {
             base.Serialize(writer);
             writer.Write((Int32)inputType);
             writer.Write(inputTypeVariation);
-            writer.Write(playerServerId);
             targetData.Serialize(writer);
         }
         public override ulong CalculateHash(ZRHashHelper __helper) 
@@ -49,8 +46,6 @@ namespace Game.GameCore {
             hash += hash << 11; hash ^= hash >> 7;
             hash += (System.UInt64)inputTypeVariation;
             hash += hash << 11; hash ^= hash >> 7;
-            hash += (System.UInt64)playerServerId;
-            hash += hash << 11; hash ^= hash >> 7;
             hash += targetData.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
             return hash;
@@ -61,7 +56,6 @@ namespace Game.GameCore {
             var otherConcrete = (Game.GameCore.RTSInput)other;
             if (inputType != otherConcrete.inputType) CodeGenImplTools.LogCompError(__helper, "inputType", printer, otherConcrete.inputType, inputType);
             if (inputTypeVariation != otherConcrete.inputTypeVariation) CodeGenImplTools.LogCompError(__helper, "inputTypeVariation", printer, otherConcrete.inputTypeVariation, inputTypeVariation);
-            if (playerServerId != otherConcrete.playerServerId) CodeGenImplTools.LogCompError(__helper, "playerServerId", printer, otherConcrete.playerServerId, playerServerId);
             __helper.Push("targetData");
             targetData.CompareCheck(otherConcrete.targetData, __helper, printer);
             __helper.Pop();
@@ -77,9 +71,6 @@ namespace Game.GameCore {
                 case "inputTypeVariation":
                 inputTypeVariation = (int)(Int64)reader.Value;
                 break;
-                case "playerServerId":
-                playerServerId = (int)(Int64)reader.Value;
-                break;
                 case "targetData":
                 targetData.ReadFromJson(reader);
                 break;
@@ -94,8 +85,6 @@ namespace Game.GameCore {
             writer.WriteValue(inputType.ToString());
             writer.WritePropertyName("inputTypeVariation");
             writer.WriteValue(inputTypeVariation);
-            writer.WritePropertyName("playerServerId");
-            writer.WriteValue(playerServerId);
             writer.WritePropertyName("targetData");
             targetData.WriteJson(writer);
         }
