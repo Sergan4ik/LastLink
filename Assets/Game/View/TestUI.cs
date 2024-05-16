@@ -1,6 +1,8 @@
 using System;
 using Game.GameCore.GameControllers;
+using TMPro;
 using UnityEngine.UI;
+using ZergRush;
 
 namespace Game
 {
@@ -9,9 +11,19 @@ namespace Game
         public Button startTestBattle;
         public Button startHost;
         public Button startClient;
-
+        
+        public TMP_InputField ipToConnect;
+        public TMP_InputField portToConnect;
+        
+        public TMP_InputField portToHost;
+        
         public bool autoStartHost = false;
         public bool autoStartClient = false;
+        
+        public ushort portToHostValue => ushort.TryParse(portToHost.text, out var result) ? result : (ushort)7777;
+        public ushort portToConnectValue => ushort.TryParse(portToConnect.text, out var result) ? result : (ushort)7777;
+        public string ipToConnectValue => ipToConnect.text.IsNullOrEmpty() ? "127.0.0.1" : ipToConnect.text;
+        
 
         public void Start()
         {
@@ -21,16 +33,22 @@ namespace Game
             #endif
             
             connections += startTestBattle.Subscribe(() => GameSession.instance.StartGame(() => GameSession.instance.GetTestModel()));
-            connections += startHost.Subscribe(() => GameSession.instance.StartHost());
-            connections += startClient.Subscribe(() => GameSession.instance.StartClient());
+            connections += startHost.Subscribe(() =>
+            {
+                GameSession.instance.StartHost(portToHostValue);
+            });
+            connections += startClient.Subscribe(() =>
+            {
+                GameSession.instance.StartClient(ipToConnectValue, portToConnectValue);
+            });
             
             if (autoStartHost)
             {
-                GameSession.instance.StartHost();
+                GameSession.instance.StartHost(portToHostValue);
             }
             else if (autoStartClient)
             {
-                GameSession.instance.StartClient();
+                GameSession.instance.StartClient(ipToConnectValue, portToConnectValue);
             }
         }
     }

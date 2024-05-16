@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using GameKit.Unity.UnityNetork;
+using Unity.Networking.Transport;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -112,14 +113,19 @@ namespace Game.GameCore.GameControllers
             return game;
         }
 
-        public async void StartClient()
+        public async void StartClient(string ip, ushort port)
         {
             GameObject transportClientGM = new GameObject("[Client]");
             transportClientGM.AddComponent<UnityNetworkClient>();
             var transport = transportClientGM.GetComponent<UnityNetworkClient>();
             DontDestroyOnLoad(transportClientGM);
+
+            if (NetworkEndpoint.TryParse(ip, port, out var endpoint, NetworkFamily.Ipv4) == false)
+            {
+                Debug.LogError($"Can't parse endpoint {ip}:{port}");
+            }
             
-            await transport.ConnectToServer(1);
+            await transport.ConnectToServer(endpoint,1);
             
             clientController = new PredictionRollbackClientMultiplayerController<GameModel>();
 
@@ -142,14 +148,14 @@ namespace Game.GameCore.GameControllers
                 await Task.Yield();
         }
 
-        public async void StartHost()
+        public async void StartHost(ushort port)
         {
             GameObject gm = new GameObject("[Server]");
             gm.AddComponent<UnityNetworkServer>();
             var serverTransport = gm.GetComponent<UnityNetworkServer>();
             DontDestroyOnLoad(gm);
 
-            serverTransport.InitTransport();
+            serverTransport.InitTransport(port);
             serverController = new PredictionRollbackServerEngine<GameModel>();
 
             var multiplayerTransport = new MultiplayerTransportServer();
