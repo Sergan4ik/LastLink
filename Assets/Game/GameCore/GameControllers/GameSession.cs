@@ -148,7 +148,7 @@ namespace Game.GameCore.GameControllers
                 await Task.Yield();
         }
 
-        public async void StartHost(ushort port)
+        public async void StartHost(ushort port, bool localPlay)
         {
             GameObject gm = new GameObject("[Server]");
             gm.AddComponent<UnityNetworkServer>();
@@ -165,19 +165,30 @@ namespace Game.GameCore.GameControllers
             multiplayerTransport.onUserConnected += serverTransport.OnUserConnected;
             multiplayerTransport.onUserDisconnected += serverTransport.OnUserDisconnected;
 
-            var (newTransport, localConnectFactory, localDisconnect) =
-                MultiplayerTransportTools.LocalPlay(multiplayerTransport);
-            GameModel model = GetTestModel();
-            
-            var gamemodelDelegate = GetModelDelegate();
+            if (localPlay == true)
+            {
+                var (newTransport, localConnectFactory, localDisconnect) =
+                    MultiplayerTransportTools.LocalPlay(multiplayerTransport);
+                GameModel model = GetTestModel();
 
-            serverController.Init(newTransport, gamemodelDelegate, model, null);
-            var localClientTransport = localConnectFactory.Invoke(0);
-            clientController = new PredictionRollbackClientMultiplayerController<GameModel>();
-            
-            await InitAndWaitController(localClientTransport);
-            
-            await StartGame(() => clientController.currentModel);
+                var gamemodelDelegate = GetModelDelegate();
+
+                serverController.Init(newTransport, gamemodelDelegate, model, null);
+                var localClientTransport = localConnectFactory.Invoke(0);
+                clientController = new PredictionRollbackClientMultiplayerController<GameModel>();
+
+                await InitAndWaitController(localClientTransport);
+
+                await StartGame(() => clientController.currentModel);
+            }
+            else
+            {
+                GameModel model = GetTestModel();
+
+                var gamemodelDelegate = GetModelDelegate();
+
+                serverController.Init(multiplayerTransport, gamemodelDelegate, model, null);
+            }
         }
 
         private static MultiplayerServerGameModelDelegate GetModelDelegate()

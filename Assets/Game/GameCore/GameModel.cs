@@ -132,10 +132,19 @@ namespace Game.GameCore
 
         public Faction GetFactionBySlot(FactionSlot slot) => factions.FirstOrDefault(f => f.slot == slot);
 
-        public Faction GetFactionByPlayerId(short serverPlayerId) =>
-            GetFactionBySlot(controlData.FirstOrDefault(cd => cd.serverPlayerId == serverPlayerId).factionSlot);
-        
-        
+        public Faction GetFactionByPlayerId(short serverPlayerId)
+        {
+            var cd = controlData.FirstOrDefault(cd => cd.serverPlayerId == serverPlayerId);
+            if (cd == default)
+            {
+                Debug.LogError($"Player with id {serverPlayerId} is not connected");
+                return null;
+            }
+            
+            return GetFactionBySlot(cd.factionSlot);
+        }
+
+
         public List<Unit> GetUnitsInsideOpaqueQuadrangle(SelectionRectClipSpace selectionRectClipSpace, Func<Unit, bool> skipIf = null)
         {
             // (Vector2 leftBottom2, Vector2 rightBottom2, Vector2 leftUpper2, Vector2 rightUpper2) =

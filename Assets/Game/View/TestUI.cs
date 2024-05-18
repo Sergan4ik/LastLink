@@ -11,11 +11,15 @@ namespace Game
         public Button startTestBattle;
         public Button startHost;
         public Button startClient;
+
+        public TMP_InputField username;
         
         public TMP_InputField ipToConnect;
         public TMP_InputField portToConnect;
         
         public TMP_InputField portToHost;
+
+        public Toggle localPlayToggle;
         
         public bool autoStartHost = false;
         public bool autoStartClient = false;
@@ -35,7 +39,7 @@ namespace Game
             connections += startTestBattle.Subscribe(() => GameSession.instance.StartGame(() => GameSession.instance.GetTestModel()));
             connections += startHost.Subscribe(() =>
             {
-                GameSession.instance.StartHost(portToHostValue);
+                GameSession.instance.StartHost(portToHostValue, localPlayToggle.isOn);
             });
             connections += startClient.Subscribe(() =>
             {
@@ -44,7 +48,7 @@ namespace Game
             
             if (autoStartHost)
             {
-                GameSession.instance.StartHost(portToHostValue);
+                GameSession.instance.StartHost(portToHostValue, localPlayToggle.isOn);
             }
             else if (autoStartClient)
             {
