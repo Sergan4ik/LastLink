@@ -43,7 +43,7 @@ namespace Game
             });
             connections += startClient.Subscribe(() =>
             {
-                GameSession.instance.StartClient(ipToConnectValue, portToConnectValue);
+                GameSession.instance.StartClient(ipToConnectValue, portToConnectValue, int.Parse(username.text));
             });
             
             if (autoStartHost)
@@ -52,7 +52,7 @@ namespace Game
             }
             else if (autoStartClient)
             {
-                GameSession.instance.StartClient(ipToConnectValue, portToConnectValue);
+                GameSession.instance.StartClient(ipToConnectValue, portToConnectValue, int.Parse(username.text));
             }
         }
     }

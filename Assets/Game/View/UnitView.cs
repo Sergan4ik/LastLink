@@ -67,7 +67,7 @@ public class UnitView : RTSView, ISimpleUpdatableFrom<Unit>
         if (stateInfo.IsName(unit.currentAnimation.animationName) == false ||
             IsAnimationTimeCorrect(CurrentAnimationTimeView, unit.currentAnimation.timer.elapsedTime, unit.currentAnimation.duration) == false)
         {
-            // animator.Play(unit.currentAnimation.animationName, 0, unit.currentAnimation.normilizedTime);
+            animator.Play(unit.currentAnimation.animationName, 0, unit.currentAnimation.normilizedTime);
         }
 
         unit.view = this;

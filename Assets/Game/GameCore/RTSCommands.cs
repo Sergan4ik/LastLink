@@ -32,9 +32,9 @@ namespace Game.GameCore
     {
     }
 }
-public partial class GeneratedCommand : RTSCommand
-{
-    public int commandId;
-    public byte[] args;
-    public int objId;
-}
+// public partial class GeneratedCommand : RTSCommand
+// {
+//     public int commandId;
+//     public byte[] args;
+//     public int objId;
+// }

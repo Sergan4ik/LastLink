@@ -113,7 +113,7 @@ namespace Game.GameCore.GameControllers
             return game;
         }
 
-        public async void StartClient(string ip, ushort port)
+        public async void StartClient(string ip, ushort port, long playerID)
         {
             GameObject transportClientGM = new GameObject("[Client]");
             transportClientGM.AddComponent<UnityNetworkClient>();
@@ -125,7 +125,7 @@ namespace Game.GameCore.GameControllers
                 Debug.LogError($"Can't parse endpoint {ip}:{port}");
             }
             
-            await transport.ConnectToServer(endpoint,1);
+            await transport.ConnectToServer(endpoint,playerID);
             
             clientController = new PredictionRollbackClientMultiplayerController<GameModel>();
 
@@ -140,8 +140,6 @@ namespace Game.GameCore.GameControllers
 
         public async Task InitAndWaitController(MultiplayerTransportClient multiplayerTransportClient)
         {
-            clientController.lagSimulation = true;
-            
             clientController.Init(multiplayerTransportClient, GetModelDelegate(), GameModel.FrameTimeMS);
 
             while (clientController.state != ControllerStatus.Normal)
