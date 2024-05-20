@@ -37,21 +37,27 @@ namespace Game
             }
         }
 
-        public bool TryGetPointedUnit(out Unit unit)
+        public bool TryGetPointedUnitView(out UnitView view)
         {
-            unit = null;
+            view = null;
             var ray = currentCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
             if (Physics.Raycast(ray, out var hit, 99999999, 1 << LayerMask.NameToLayer("Unit")))
             {
                 bool isUnit = hit.transform.TryGetComponent<UnitView>(out var unitView);
                 if (isUnit)
-                    unit = unitView.currentUnit;
+                    view = unitView;
                 return isUnit;
             }
             else
             {
                 return false;
             }
+        }
+        public bool TryGetPointedUnit(out Unit unit)
+        {
+            bool res = TryGetPointedUnitView(out var view);
+            unit = view?.currentUnit;
+            return res;
         }
         public bool TryGetWorldMousePosition(out Vector3 worldMousePosition)
         {
@@ -74,6 +80,16 @@ namespace Game
             {
                 TryGetWorldMousePosition(out var pos);
                 return pos;
+            }
+        }
+        
+        [CanBeNull]
+        public UnitView pointedUnitView
+        {
+            get
+            {
+                TryGetPointedUnitView(out var view);
+                return view;
             }
         }
         

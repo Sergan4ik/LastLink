@@ -168,12 +168,6 @@ public partial class GameView : RTSView
             unitsPresenter.UpdateFrom(game.allUnits);
         }
 
-        if (Keyboard.current.oKey.wasPressedThisFrame)
-        {
-            NavMesh.SamplePosition(cameraController.worldMousePosition, out var hit, 10, NavMesh.AllAreas);
-            OnTerrainClick(hit.position);
-        }
-        
         selectionHandler.SelectionTick(input.RTS.UnitSelection);
     }
     

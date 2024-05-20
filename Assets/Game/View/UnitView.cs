@@ -1,4 +1,6 @@
+using Game;
 using Game.GameCore;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 using ZergRush.ReactiveUI;
@@ -8,6 +10,8 @@ public class UnitView : RTSView, ISimpleUpdatableFrom<Unit>
     public Unit currentUnit;
     public GameObject selectionVFX;
     public ProgressBar hpBar;
+    public TextMeshProUGUI unitName;
+    public RTSWorldCanvas worldCanvas;
 
     public Animator animator;
     public bool isSelected;
@@ -36,6 +40,8 @@ public class UnitView : RTSView, ISimpleUpdatableFrom<Unit>
     {
         currentUnit = unit;
         animator = GetComponentInChildren<Animator>();
+        unitName.text = unit.cfg.name;
+        unitName.color = gameView.localPlayerFaction.slot == unit.factionSlot ? Color.green : Color.red;
     }
     
     public void OnSelectionToggle(bool select)
@@ -60,7 +66,7 @@ public class UnitView : RTSView, ISimpleUpdatableFrom<Unit>
             transform.rotation = unit.transform.rotation;
         }
 
-        hpBar.SetProgress(unit.hp, unit.maxHp);
+        hpBar.SetProgress(unit.hp, unit.maxHp, "0");
 
         var stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
@@ -71,6 +77,7 @@ public class UnitView : RTSView, ISimpleUpdatableFrom<Unit>
         }
 
         unit.view = this;
+        worldCanvas.SetActiveSafe(isSelected || gameView.cameraController.pointedUnitView == this);
     }
 
     public float OnUnload()
