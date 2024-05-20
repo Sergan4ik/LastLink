@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Game.GameCore;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -25,6 +26,7 @@ namespace Game.GameCore
         public UnitStatsContainer stats;
         public ref float hp => ref stats.Health;
         public float maxHp => stats.MaxHealth;
+        public bool isDead => hp <= 0;
         public float moveSpeed => stats.MoveSpeed;
         public UnitConfig cfg;
         public FactionSlot factionSlot;
@@ -61,7 +63,7 @@ namespace Game.GameCore
         
         public void Tick(GameModel gameModel, float dt)
         {
-            if (currentAnimation.timer.Tick(dt) && currentAnimation.loop == false)
+            if (currentAnimation.timer.Tick(dt) && currentAnimation.loop == false && isDead == false)
                 PlayIdle();
             
             behaviour.Tick(gameModel, this, dt);
@@ -85,6 +87,9 @@ namespace Game.GameCore
 
         public void SetupAction(GameModel gameModel, UnitAction action, RTSInput input)
         {
+            if (isDead)
+                return;
+            
             action.Init(gameModel, this);
 
             foreach (var unitAction in unitActions)
@@ -110,12 +115,26 @@ namespace Game.GameCore
             SetupAction(gameModel, new UnitMove {moveSpeed = moveSpeed}, input);
         }
 
-        public void DealRawDamage(float dps)
+        public void DealRawDamage(GameModel model, AttackInfo attack)
         {
-            if (hp > dps)
-                hp -= dps;
-            else
+            if (hp > attack.damage)
+            {
+                hp -= attack.damage;
+            }
+            else if (hp > 0)
+            {
                 hp = 0;
+                OnDied(model, attack.source);
+            }
+        }
+
+        public void OnDied(GameModel model, IActionSource source)
+        {
+            foreach (var unitAction in unitActions)
+            {
+                unitAction.Terminate(model, this, source);
+            }
+            PlayAnimation(cfg.deathAnimation);
         }
     }
     
@@ -134,6 +153,8 @@ namespace Game.GameCore
                 intervals = new List<float> { duration },
                 loop = loop
             };
+            if (loop == false)
+                timer.intervals.Add(-1);
         }
     }
 }

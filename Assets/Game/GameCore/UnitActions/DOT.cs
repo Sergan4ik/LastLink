@@ -6,7 +6,7 @@ namespace Game.GameCore
         
         protected override void ProcessTick(GameModel model, float dt, Unit owner)
         {
-            model.Attack(new AttackInfo()
+            model.Attack(model, new AttackInfo()
             {
                 source = this,
                 target = owner,

@@ -16,6 +16,7 @@ namespace Game
         
         public TMP_InputField ipToConnect;
         public TMP_InputField portToConnect;
+        public TMP_InputField joinCode;
         
         public TMP_InputField portToHost;
 
@@ -43,7 +44,7 @@ namespace Game
             });
             connections += startClient.Subscribe(() =>
             {
-                GameSession.instance.StartClient(ipToConnectValue, portToConnectValue, int.Parse(username.text));
+                GameSession.instance.StartClient(ipToConnectValue, portToConnectValue, int.Parse(username.text), joinCode.text);
             });
             
             if (autoStartHost)
@@ -52,7 +53,7 @@ namespace Game
             }
             else if (autoStartClient)
             {
-                GameSession.instance.StartClient(ipToConnectValue, portToConnectValue, int.Parse(username.text));
+                GameSession.instance.StartClient(ipToConnectValue, portToConnectValue, int.Parse(username.text), joinCode.text);
             }
         }
     }

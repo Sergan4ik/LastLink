@@ -123,7 +123,8 @@ public partial class GameView : RTSView
 
     private void OnTerrainClick(Vector3 position)
     {
-        var go = Instantiate(Resources.Load<GameObject>("PointMark"), position, Quaternion.identity);
+        var mark = Resources.Load<GameObject>("PointMark");
+        var go = Instantiate(mark, position, mark.transform.rotation);
         Destroy(go, 1);
     }
 

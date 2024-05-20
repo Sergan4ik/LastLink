@@ -94,6 +94,7 @@ namespace Game.GameCore
         public AnimationData walkAnimation;
         public AnimationData idleAnimation;
         public AnimationData autoAttackAnimation;
+        public AnimationData deathAnimation;
         
         public UnitLevelConfig GetLevelConfig(int level)
         {
@@ -146,6 +147,12 @@ namespace Game.GameCore
                 {
                     animationName = "Combat_Cast_Attack",
                     duration = 1,
+                    loop = false
+                },
+                deathAnimation = new AnimationData()
+                {
+                    animationName = "Death",
+                    duration = (name == "DefaultUnit" ? 57f : 58f )/60f,
                     loop = false
                 }
             };

@@ -54,7 +54,7 @@ public static class BuildMethods
         }
     }
     
-    [MenuItem("📦Build/Build client")]
+    [MenuItem("📦Build/👌Build client")]
     public static void BuildClient()
     {
         EditorUserBuildSettings.SwitchActiveBuildTarget(NamedBuildTarget.Standalone, BuildTarget.StandaloneWindows);

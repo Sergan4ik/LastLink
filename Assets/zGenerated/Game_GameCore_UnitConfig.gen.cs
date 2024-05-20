@@ -16,6 +16,7 @@ namespace Game.GameCore {
             var otherConcrete = (Game.GameCore.UnitConfig)other;
             autoAttackAnimation.UpdateFrom(otherConcrete.autoAttackAnimation, __helper);
             customAnimations.UpdateFrom(otherConcrete.customAnimations, __helper);
+            deathAnimation.UpdateFrom(otherConcrete.deathAnimation, __helper);
             idleAnimation.UpdateFrom(otherConcrete.idleAnimation, __helper);
             levelConfig.UpdateFrom(otherConcrete.levelConfig, __helper);
             name = otherConcrete.name;
@@ -30,6 +31,7 @@ namespace Game.GameCore {
             base.Deserialize(reader);
             autoAttackAnimation.Deserialize(reader);
             customAnimations.Deserialize(reader);
+            deathAnimation.Deserialize(reader);
             idleAnimation.Deserialize(reader);
             levelConfig.Deserialize(reader);
             name = reader.ReadString();
@@ -40,6 +42,7 @@ namespace Game.GameCore {
             base.Serialize(writer);
             autoAttackAnimation.Serialize(writer);
             customAnimations.Serialize(writer);
+            deathAnimation.Serialize(writer);
             idleAnimation.Serialize(writer);
             levelConfig.Serialize(writer);
             writer.Write(name);
@@ -54,6 +57,8 @@ namespace Game.GameCore {
             hash += autoAttackAnimation.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
             hash += customAnimations.CalculateHash(__helper);
+            hash += hash << 11; hash ^= hash >> 7;
+            hash += deathAnimation.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
             hash += idleAnimation.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
@@ -74,6 +79,9 @@ namespace Game.GameCore {
             __helper.Pop();
             __helper.Push("customAnimations");
             customAnimations.CompareCheck(otherConcrete.customAnimations, __helper, printer);
+            __helper.Pop();
+            __helper.Push("deathAnimation");
+            deathAnimation.CompareCheck(otherConcrete.deathAnimation, __helper, printer);
             __helper.Pop();
             __helper.Push("idleAnimation");
             idleAnimation.CompareCheck(otherConcrete.idleAnimation, __helper, printer);
@@ -96,6 +104,9 @@ namespace Game.GameCore {
                 break;
                 case "customAnimations":
                 customAnimations.ReadFromJson(reader);
+                break;
+                case "deathAnimation":
+                deathAnimation.ReadFromJson(reader);
                 break;
                 case "idleAnimation":
                 idleAnimation.ReadFromJson(reader);
@@ -120,6 +131,8 @@ namespace Game.GameCore {
             autoAttackAnimation.WriteJson(writer);
             writer.WritePropertyName("customAnimations");
             customAnimations.WriteJson(writer);
+            writer.WritePropertyName("deathAnimation");
+            deathAnimation.WriteJson(writer);
             writer.WritePropertyName("idleAnimation");
             idleAnimation.WriteJson(writer);
             writer.WritePropertyName("levelConfig");
@@ -133,6 +146,7 @@ namespace Game.GameCore {
         {
             autoAttackAnimation = new Game.GameCore.AnimationData();
             customAnimations = new System.Collections.Generic.List<Game.GameCore.AnimationData>();
+            deathAnimation = new Game.GameCore.AnimationData();
             idleAnimation = new Game.GameCore.AnimationData();
             levelConfig = new System.Collections.Generic.List<Game.GameCore.UnitLevelConfig>();
             name = string.Empty;

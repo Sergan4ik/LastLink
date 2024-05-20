@@ -195,9 +195,9 @@ namespace Game.GameCore
             }
         }
 
-        public void Attack(AttackInfo info)
+        public void Attack(GameModel model, AttackInfo info)
         {
-            info.target.DealRawDamage(info.damage);
+            info.target.DealRawDamage(model, info);
         }
 
         public void Init()

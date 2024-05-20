@@ -29,7 +29,7 @@ namespace Game.GameCore
             switch (attackTimer.PassedIntervals, isCastMoment)
             {
                 case (1, true) :
-                    model.Attack(new AttackInfo(owner, model.GetUnit(initialInput.targetData.targetId), this, 20));
+                    model.Attack(model, new AttackInfo(owner, model.GetUnit(initialInput.targetData.targetId), this, 20));
                     break;
             }
         }

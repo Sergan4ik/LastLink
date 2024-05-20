@@ -113,7 +113,7 @@ namespace Game.GameCore.GameControllers
             return game;
         }
 
-        public async void StartClient(string ip, ushort port, long playerID)
+        public async void StartClient(string ip, ushort port, long playerID, string joinCode)
         {
             GameObject transportClientGM = new GameObject("[Client]");
             transportClientGM.AddComponent<UnityNetworkClient>();
@@ -125,7 +125,7 @@ namespace Game.GameCore.GameControllers
                 Debug.LogError($"Can't parse endpoint {ip}:{port}");
             }
             
-            await transport.ConnectToServer(endpoint,playerID);
+            await transport.ConnectToServerWithRelay(playerID, joinCode);
             
             clientController = new PredictionRollbackClientMultiplayerController<GameModel>();
 
@@ -153,7 +153,7 @@ namespace Game.GameCore.GameControllers
             var serverTransport = gm.GetComponent<UnityNetworkServer>();
             DontDestroyOnLoad(gm);
 
-            serverTransport.InitTransport(port);
+            await serverTransport.InitTransportWithRelay(port);
             serverController = new PredictionRollbackServerEngine<GameModel>();
 
             var multiplayerTransport = new MultiplayerTransportServer();
