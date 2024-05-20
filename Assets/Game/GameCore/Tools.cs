@@ -1,10 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Game.GameCore
 {
     public static class Tools
     {
+        public static Vector3 Sum<T>(this IEnumerable<T> coll, Func<T, Vector3> selector)
+        {
+            Vector3 sum = Vector3.zero;
+            foreach (var item in coll)
+            {
+                sum += selector(item);
+            }
+
+            return sum;
+        }
+        
         public static float Cross2D(Vector2 a, Vector2 b)
         {
             return a.x * b.y - a.y * b.x;

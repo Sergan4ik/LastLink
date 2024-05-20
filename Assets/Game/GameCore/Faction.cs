@@ -77,10 +77,11 @@ namespace Game.GameCore
                 }
             };
             
-            Unit mainUnit = stack[0];
+            Vector3 centerOfMass = stack.Sum(s => s.transform.position) / stack.Count;
+            
             for (var i = 0; i < stack.Count; i++)
             {
-                Vector3 offset = stack[i].transform.position - mainUnit.transform.position;
+                Vector3 offset = stack[i].transform.position - centerOfMass;
                 RTSInput inputForUnit = new RTSInput();
                 inputForUnit.UpdateFrom(inputGeneral);
                 inputForUnit.targetData.worldPosition = destination + offset;
