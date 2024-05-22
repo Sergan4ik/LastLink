@@ -50,7 +50,7 @@ public partial class GameView : RTSView
 
     private Func<GameModel> modelGetter;
     
-    public Faction localPlayerFaction => game.GetFactionByPlayerId(serverPlayerId);
+    public Faction localPlayerFaction => game.GetFactionByServerPlayerId(serverPlayerId);
     
     [HideInInspector]
     public List<UnitView> currentSelection;
@@ -147,8 +147,6 @@ public partial class GameView : RTSView
        
         unitsPresenter = new ListPresenter<Unit, UnitView>(u => u.cfg.name.GetUnitView() ,unitsRoot, 
             (unit, view) => view.ShowUnit(unit), view => view.OnUnload());
-        
-        gameSession.SendRTSCommand(new StartGameCommand());
     }
 
     private void OnGameTick(float dt)
@@ -201,6 +199,9 @@ public partial class GameView : RTSView
             
             if (gameInput != null)
             {
+                gameInput.flags |= input.RTS.ControlModifier.IsPressed() ? RTSInputFlags.ControlModifier : 0;
+                gameInput.flags |= input.RTS.DirrectionalModifier.IsPressed() ? RTSInputFlags.IsDirectionalModifier : 0;
+                
                 var inputCommand = new InputCommand()
                 {
                     input = gameInput,

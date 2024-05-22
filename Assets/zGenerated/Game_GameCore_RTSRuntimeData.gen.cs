@@ -21,6 +21,7 @@ namespace Game.GameCore {
             Faction = 6,
             RTSInput = 7,
             RTSStopWatch = 8,
+            RTSTimerCountDown = 21,
             RTSTimerIntervals = 9,
             RTSTimerStatic = 10,
             RTSTransform = 11,
@@ -55,6 +56,7 @@ namespace Game.GameCore {
             () => new Game.GameCore.UnitStatsContainer(), // 18
             () => new Game.GameCore.BattleUnitBehaviour(), // 19
             () => new Game.GameCore.UnitBehaviour(), // 20
+            () => new Game.GameCore.RTSTimerCountDown(), // 21
         };
         public static RTSRuntimeData CreatePolymorphic(System.UInt16 typeId) {
             return polymorphConstructors[typeId]();

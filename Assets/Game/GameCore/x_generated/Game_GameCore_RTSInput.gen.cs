@@ -14,6 +14,7 @@ namespace Game.GameCore {
         {
             base.UpdateFrom(other,__helper);
             var otherConcrete = (Game.GameCore.RTSInput)other;
+            flags = otherConcrete.flags;
             inputType = otherConcrete.inputType;
             inputTypeVariation = otherConcrete.inputTypeVariation;
             targetData.UpdateFrom(otherConcrete.targetData, __helper);
@@ -25,6 +26,7 @@ namespace Game.GameCore {
         public override void Deserialize(ZRBinaryReader reader) 
         {
             base.Deserialize(reader);
+            flags = reader.ReadEnum<Game.GameCore.RTSInputFlags>();
             inputType = reader.ReadEnum<Game.GameCore.RTSInputType>();
             inputTypeVariation = reader.ReadInt32();
             targetData.Deserialize(reader);
@@ -32,6 +34,7 @@ namespace Game.GameCore {
         public override void Serialize(ZRBinaryWriter writer) 
         {
             base.Serialize(writer);
+            writer.Write((Int32)flags);
             writer.Write((Int32)inputType);
             writer.Write(inputTypeVariation);
             targetData.Serialize(writer);
@@ -41,6 +44,8 @@ namespace Game.GameCore {
             var baseVal = base.CalculateHash(__helper);
             System.UInt64 hash = baseVal;
             hash ^= (ulong)978946045;
+            hash += hash << 11; hash ^= hash >> 7;
+            hash += (System.UInt64)flags;
             hash += hash << 11; hash ^= hash >> 7;
             hash += (System.UInt64)inputType;
             hash += hash << 11; hash ^= hash >> 7;
@@ -54,6 +59,7 @@ namespace Game.GameCore {
         {
             base.CompareCheck(other,__helper,printer);
             var otherConcrete = (Game.GameCore.RTSInput)other;
+            if (flags != otherConcrete.flags) CodeGenImplTools.LogCompError(__helper, "flags", printer, otherConcrete.flags, flags);
             if (inputType != otherConcrete.inputType) CodeGenImplTools.LogCompError(__helper, "inputType", printer, otherConcrete.inputType, inputType);
             if (inputTypeVariation != otherConcrete.inputTypeVariation) CodeGenImplTools.LogCompError(__helper, "inputTypeVariation", printer, otherConcrete.inputTypeVariation, inputTypeVariation);
             __helper.Push("targetData");
@@ -65,6 +71,9 @@ namespace Game.GameCore {
             if (base.ReadFromJsonField(reader, __name)) return true;
             switch(__name)
             {
+                case "flags":
+                flags = ((string)reader.Value).ParseEnum<Game.GameCore.RTSInputFlags>();
+                break;
                 case "inputType":
                 inputType = ((string)reader.Value).ParseEnum<Game.GameCore.RTSInputType>();
                 break;
@@ -81,6 +90,8 @@ namespace Game.GameCore {
         public override void WriteJsonFields(ZRJsonTextWriter writer) 
         {
             base.WriteJsonFields(writer);
+            writer.WritePropertyName("flags");
+            writer.WriteValue(flags.ToString());
             writer.WritePropertyName("inputType");
             writer.WriteValue(inputType.ToString());
             writer.WritePropertyName("inputTypeVariation");

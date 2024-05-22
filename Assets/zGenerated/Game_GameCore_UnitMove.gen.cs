@@ -20,9 +20,11 @@ namespace Game.GameCore {
             cachedWaypoints = cachedWaypointsTemp;
             cachedWaypoints.UpdateFrom(otherConcrete.cachedWaypoints, __helper);
             currentWaypoint = otherConcrete.currentWaypoint;
+            dirrectionalMoveDelay.UpdateFrom(otherConcrete.dirrectionalMoveDelay, __helper);
             globalDestination.UpdateFrom(otherConcrete.globalDestination, __helper);
             maxDistanceToTarget = otherConcrete.maxDistanceToTarget;
             moveSpeed = otherConcrete.moveSpeed;
+            rotationSpeed = otherConcrete.rotationSpeed;
         }
         public void UpdateFrom(Game.GameCore.UnitMove other, ZRUpdateFromHelper __helper) 
         {
@@ -33,18 +35,22 @@ namespace Game.GameCore {
             base.Deserialize(reader);
             cachedWaypoints = reader.ReadUnityEngine_Vector3_Array();
             currentWaypoint = reader.ReadInt32();
+            dirrectionalMoveDelay.Deserialize(reader);
             globalDestination = reader.ReadUnityEngine_Vector3();
             maxDistanceToTarget = reader.ReadSingle();
             moveSpeed = reader.ReadSingle();
+            rotationSpeed = reader.ReadSingle();
         }
         public override void Serialize(ZRBinaryWriter writer) 
         {
             base.Serialize(writer);
             cachedWaypoints.Serialize(writer);
             writer.Write(currentWaypoint);
+            dirrectionalMoveDelay.Serialize(writer);
             globalDestination.Serialize(writer);
             writer.Write(maxDistanceToTarget);
             writer.Write(moveSpeed);
+            writer.Write(rotationSpeed);
         }
         public override ulong CalculateHash(ZRHashHelper __helper) 
         {
@@ -56,17 +62,22 @@ namespace Game.GameCore {
             hash += hash << 11; hash ^= hash >> 7;
             hash += (System.UInt64)currentWaypoint;
             hash += hash << 11; hash ^= hash >> 7;
+            hash += dirrectionalMoveDelay.CalculateHash(__helper);
+            hash += hash << 11; hash ^= hash >> 7;
             hash += globalDestination.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
             hash += (System.UInt64)maxDistanceToTarget;
             hash += hash << 11; hash ^= hash >> 7;
             hash += (System.UInt64)moveSpeed;
             hash += hash << 11; hash ^= hash >> 7;
+            hash += (System.UInt64)rotationSpeed;
+            hash += hash << 11; hash ^= hash >> 7;
             return hash;
         }
         public  UnitMove() 
         {
             cachedWaypoints = Array.Empty<UnityEngine.Vector3>();
+            dirrectionalMoveDelay = new Game.GameCore.RTSTimerCountDown();
         }
         public override void CompareCheck(Game.GameCore.RTSRuntimeData other, ZRCompareCheckHelper __helper, Action<string> printer) 
         {
@@ -76,11 +87,15 @@ namespace Game.GameCore {
             cachedWaypoints.CompareCheck(otherConcrete.cachedWaypoints, __helper, printer);
             __helper.Pop();
             if (currentWaypoint != otherConcrete.currentWaypoint) CodeGenImplTools.LogCompError(__helper, "currentWaypoint", printer, otherConcrete.currentWaypoint, currentWaypoint);
+            __helper.Push("dirrectionalMoveDelay");
+            dirrectionalMoveDelay.CompareCheck(otherConcrete.dirrectionalMoveDelay, __helper, printer);
+            __helper.Pop();
             __helper.Push("globalDestination");
             globalDestination.CompareCheck(otherConcrete.globalDestination, __helper, printer);
             __helper.Pop();
             if (maxDistanceToTarget != otherConcrete.maxDistanceToTarget) CodeGenImplTools.LogCompError(__helper, "maxDistanceToTarget", printer, otherConcrete.maxDistanceToTarget, maxDistanceToTarget);
             if (moveSpeed != otherConcrete.moveSpeed) CodeGenImplTools.LogCompError(__helper, "moveSpeed", printer, otherConcrete.moveSpeed, moveSpeed);
+            if (rotationSpeed != otherConcrete.rotationSpeed) CodeGenImplTools.LogCompError(__helper, "rotationSpeed", printer, otherConcrete.rotationSpeed, rotationSpeed);
         }
         public override bool ReadFromJsonField(ZRJsonTextReader reader, string __name) 
         {
@@ -93,6 +108,9 @@ namespace Game.GameCore {
                 case "currentWaypoint":
                 currentWaypoint = (int)(Int64)reader.Value;
                 break;
+                case "dirrectionalMoveDelay":
+                dirrectionalMoveDelay.ReadFromJson(reader);
+                break;
                 case "globalDestination":
                 globalDestination = (UnityEngine.Vector3)reader.ReadFromJsonUnityEngine_Vector3();
                 break;
@@ -101,6 +119,9 @@ namespace Game.GameCore {
                 break;
                 case "moveSpeed":
                 moveSpeed = (float)(double)reader.Value;
+                break;
+                case "rotationSpeed":
+                rotationSpeed = (float)(double)reader.Value;
                 break;
                 default: return false; break;
             }
@@ -113,12 +134,16 @@ namespace Game.GameCore {
             cachedWaypoints.WriteJson(writer);
             writer.WritePropertyName("currentWaypoint");
             writer.WriteValue(currentWaypoint);
+            writer.WritePropertyName("dirrectionalMoveDelay");
+            dirrectionalMoveDelay.WriteJson(writer);
             writer.WritePropertyName("globalDestination");
             globalDestination.WriteJson(writer);
             writer.WritePropertyName("maxDistanceToTarget");
             writer.WriteValue(maxDistanceToTarget);
             writer.WritePropertyName("moveSpeed");
             writer.WriteValue(moveSpeed);
+            writer.WritePropertyName("rotationSpeed");
+            writer.WriteValue(rotationSpeed);
         }
         public override ushort GetClassId() 
         {

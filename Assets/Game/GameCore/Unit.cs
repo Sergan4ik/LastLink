@@ -28,6 +28,7 @@ namespace Game.GameCore
         public float maxHp => stats.MaxHealth;
         public bool isDead => hp <= 0;
         public float moveSpeed => stats.MoveSpeed;
+        public float rotationSpeed => stats.RotationSpeed;
         public UnitConfig cfg;
         public FactionSlot factionSlot;
         
@@ -112,7 +113,11 @@ namespace Game.GameCore
 
         public void MoveTo(GameModel gameModel, RTSInput input)
         {
-            SetupAction(gameModel, new UnitMove {moveSpeed = moveSpeed}, input);
+            SetupAction(gameModel, new UnitMove
+            {
+                moveSpeed = moveSpeed,
+                rotationSpeed = rotationSpeed
+            }, input);
         }
 
         public void DealRawDamage(GameModel model, AttackInfo attack)

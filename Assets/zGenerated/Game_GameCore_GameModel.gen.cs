@@ -17,6 +17,7 @@ namespace Game.GameCore {
             gameState.value = other.gameState.value;
             idFactory = other.idFactory;
             random.UpdateFrom(other.random, __helper);
+            readyPlayers.UpdateFrom(other.readyPlayers, __helper);
             step = other.step;
             stopWatch.UpdateFrom(other.stopWatch, __helper);
             units.UpdateFrom(other.units, __helper);
@@ -28,6 +29,7 @@ namespace Game.GameCore {
             gameState.value = reader.ReadEnum<Game.GameCore.GameState>();
             idFactory = reader.ReadInt32();
             random.Deserialize(reader);
+            readyPlayers.Deserialize(reader);
             step = reader.ReadInt32();
             stopWatch.Deserialize(reader);
             units.Deserialize(reader);
@@ -39,6 +41,7 @@ namespace Game.GameCore {
             writer.Write((Int32)gameState.value);
             writer.Write(idFactory);
             random.Serialize(writer);
+            readyPlayers.Serialize(writer);
             writer.Write(step);
             stopWatch.Serialize(writer);
             units.Serialize(writer);
@@ -58,6 +61,8 @@ namespace Game.GameCore {
             hash += hash << 11; hash ^= hash >> 7;
             hash += random.CalculateHash(__helper);
             hash += hash << 11; hash ^= hash >> 7;
+            hash += readyPlayers.CalculateHash(__helper);
+            hash += hash << 11; hash ^= hash >> 7;
             hash += (System.UInt64)step;
             hash += hash << 11; hash ^= hash >> 7;
             hash += stopWatch.CalculateHash(__helper);
@@ -68,10 +73,11 @@ namespace Game.GameCore {
         }
         public  GameModel() 
         {
-            controlData = new System.Collections.Generic.List<Game.GameCore.ControlData>();
+            controlData = new ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.ControlData>();
             factions = new ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Faction>();
             gameState = new ZergRush.ReactiveCore.Cell<Game.GameCore.GameState>();
             random = new ZergRush.ZergRandom();
+            readyPlayers = new System.Collections.Generic.List<short>();
             stopWatch = new Game.GameCore.RTSStopWatch();
             units = new ZergRush.ReactiveCore.ReactiveCollection<Game.GameCore.Unit>();
         }
@@ -87,6 +93,9 @@ namespace Game.GameCore {
             if (idFactory != other.idFactory) CodeGenImplTools.LogCompError(__helper, "idFactory", printer, other.idFactory, idFactory);
             __helper.Push("random");
             random.CompareCheck(other.random, __helper, printer);
+            __helper.Pop();
+            __helper.Push("readyPlayers");
+            readyPlayers.CompareCheck(other.readyPlayers, __helper, printer);
             __helper.Pop();
             if (step != other.step) CodeGenImplTools.LogCompError(__helper, "step", printer, other.step, step);
             __helper.Push("stopWatch");
@@ -115,6 +124,9 @@ namespace Game.GameCore {
                 case "random":
                 random.ReadFromJson(reader);
                 break;
+                case "readyPlayers":
+                readyPlayers.ReadFromJson(reader);
+                break;
                 case "step":
                 step = (int)(Int64)reader.Value;
                 break;
@@ -140,6 +152,8 @@ namespace Game.GameCore {
             writer.WriteValue(idFactory);
             writer.WritePropertyName("random");
             random.WriteJson(writer);
+            writer.WritePropertyName("readyPlayers");
+            readyPlayers.WriteJson(writer);
             writer.WritePropertyName("step");
             writer.WriteValue(step);
             writer.WritePropertyName("stopWatch");

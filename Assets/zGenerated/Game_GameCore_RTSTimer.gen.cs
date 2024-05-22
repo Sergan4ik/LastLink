@@ -15,6 +15,7 @@ namespace Game.GameCore {
             base.UpdateFrom(other,__helper);
             var otherConcrete = (Game.GameCore.RTSTimer)other;
             elapsedTime = otherConcrete.elapsedTime;
+            state = otherConcrete.state;
         }
         public void UpdateFrom(Game.GameCore.RTSTimer other, ZRUpdateFromHelper __helper) 
         {
@@ -24,17 +25,21 @@ namespace Game.GameCore {
         {
             base.Deserialize(reader);
             elapsedTime = reader.ReadSingle();
+            state = reader.ReadEnum<Game.GameCore.TimerState>();
         }
         public override void Serialize(ZRBinaryWriter writer) 
         {
             base.Serialize(writer);
             writer.Write(elapsedTime);
+            writer.Write((Int32)state);
         }
         public override ulong CalculateHash(ZRHashHelper __helper) 
         {
             var baseVal = base.CalculateHash(__helper);
             System.UInt64 hash = baseVal;
             hash += (System.UInt64)elapsedTime;
+            hash += hash << 11; hash ^= hash >> 7;
+            hash += (System.UInt64)state;
             hash += hash << 11; hash ^= hash >> 7;
             return hash;
         }
@@ -47,6 +52,7 @@ namespace Game.GameCore {
             base.CompareCheck(other,__helper,printer);
             var otherConcrete = (Game.GameCore.RTSTimer)other;
             if (elapsedTime != otherConcrete.elapsedTime) CodeGenImplTools.LogCompError(__helper, "elapsedTime", printer, otherConcrete.elapsedTime, elapsedTime);
+            if (state != otherConcrete.state) CodeGenImplTools.LogCompError(__helper, "state", printer, otherConcrete.state, state);
         }
         public override bool ReadFromJsonField(ZRJsonTextReader reader, string __name) 
         {
@@ -55,6 +61,9 @@ namespace Game.GameCore {
             {
                 case "elapsedTime":
                 elapsedTime = (float)(double)reader.Value;
+                break;
+                case "state":
+                state = ((string)reader.Value).ParseEnum<Game.GameCore.TimerState>();
                 break;
                 default: return false; break;
             }
@@ -65,6 +74,8 @@ namespace Game.GameCore {
             base.WriteJsonFields(writer);
             writer.WritePropertyName("elapsedTime");
             writer.WriteValue(elapsedTime);
+            writer.WritePropertyName("state");
+            writer.WriteValue(state.ToString());
         }
         public override System.Object NewInst() 
         {

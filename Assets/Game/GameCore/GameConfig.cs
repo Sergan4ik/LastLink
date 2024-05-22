@@ -118,6 +118,7 @@ namespace Game.GameCore
                                 new UnitStat() { type = UnitStatType.Mana, currentValue = 100, maxValue = 100 },
                                 new UnitStat() { type = UnitStatType.Armor, currentValue = 0, maxValue = 0 },
                                 new UnitStat() { type = UnitStatType.MoveSpeed, currentValue = 5, maxValue = 5 },
+                                new UnitStat() { type = UnitStatType.RotationSpeed, currentValue = 720, maxValue = 720 }
                             }
                         }
                     }

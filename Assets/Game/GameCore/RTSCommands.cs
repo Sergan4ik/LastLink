@@ -18,8 +18,26 @@ namespace Game.GameCore
 
     public partial class ConnectCommand : RTSCommand
     {
-        public FactionSlot slot;
         public long globalPlayerId;
+    }
+
+    public partial class SetReadyCommand : RTSCommand
+    {
+        public long globalPlayerId;
+        public FactionType factionType;
+        public FactionSlot factionSlot;
+    }
+    
+    public partial class CancelReadyCommand : RTSCommand
+    {
+        public long globalPlayerId;
+    }
+    
+    public partial class UpdateLobbyPlayerCommand : RTSCommand
+    {
+        public long globalPlayerId;
+        public FactionType factionType;
+        public FactionSlot factionSlot;
     }
 
     public partial class StartGameCommand : RTSCommand

@@ -62,7 +62,7 @@ namespace Game.GameCore
             }, input);
         }
         
-        public void MoveStackTo(GameModel gameModel, List<Unit> stack, Vector3 destination)
+        public void MoveStackTo(GameModel gameModel, List<Unit> stack, Vector3 destination, bool isDirectionalMove)
         {
             if (stack.Any(u => u.factionSlot != slot))
                 return;
@@ -74,7 +74,8 @@ namespace Game.GameCore
                 {
                     worldPosition = destination,
                     sourceIds = stack.Select(u => u.id).ToList()
-                }
+                },
+                flags = (isDirectionalMove ? RTSInputFlags.IsDirectionalModifier : 0)
             };
             
             Vector3 centerOfMass = stack.Sum(s => s.transform.position) / stack.Count;

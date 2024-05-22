@@ -9,6 +9,7 @@
         "timer": {
           "__classId": 9,
           "elapsedTime": 0.0,
+          "state": "NotStarted",
           "currentInterval": 0,
           "intervals": [],
           "loop": false,
@@ -24,6 +25,7 @@
           "timer": {
             "__classId": 9,
             "elapsedTime": 0.0,
+            "state": "NotStarted",
             "currentInterval": 0,
             "intervals": [],
             "loop": false,
@@ -39,6 +41,7 @@
         "timer": {
           "__classId": 9,
           "elapsedTime": 0.0,
+          "state": "NotStarted",
           "currentInterval": 0,
           "intervals": [],
           "loop": false,
@@ -53,6 +56,7 @@
         "timer": {
           "__classId": 9,
           "elapsedTime": 0.0,
+          "state": "NotStarted",
           "currentInterval": 0,
           "intervals": [],
           "loop": false,
@@ -83,6 +87,11 @@
                 "currentValue": 5.0,
                 "maxValue": 5.0,
                 "type": "MoveSpeed"
+              },
+              {
+                "currentValue": 720.0,
+                "maxValue": 720.0,
+                "type": "RotationSpeed"
               }
             ]
           }
@@ -97,6 +106,7 @@
         "timer": {
           "__classId": 9,
           "elapsedTime": 0.0,
+          "state": "NotStarted",
           "currentInterval": 0,
           "intervals": [],
           "loop": false,
@@ -113,6 +123,7 @@
         "timer": {
           "__classId": 9,
           "elapsedTime": 0.0,
+          "state": "NotStarted",
           "currentInterval": 0,
           "intervals": [],
           "loop": false,
@@ -128,6 +139,7 @@
           "timer": {
             "__classId": 9,
             "elapsedTime": 0.0,
+            "state": "NotStarted",
             "currentInterval": 0,
             "intervals": [],
             "loop": false,
@@ -138,11 +150,12 @@
       "deathAnimation": {
         "__classId": 2,
         "animationName": "Death",
-        "duration": 0.95,
+        "duration": 0.966666639,
         "loop": false,
         "timer": {
           "__classId": 9,
           "elapsedTime": 0.0,
+          "state": "NotStarted",
           "currentInterval": 0,
           "intervals": [],
           "loop": false,
@@ -157,6 +170,7 @@
         "timer": {
           "__classId": 9,
           "elapsedTime": 0.0,
+          "state": "NotStarted",
           "currentInterval": 0,
           "intervals": [],
           "loop": false,
@@ -187,6 +201,11 @@
                 "currentValue": 5.0,
                 "maxValue": 5.0,
                 "type": "MoveSpeed"
+              },
+              {
+                "currentValue": 720.0,
+                "maxValue": 720.0,
+                "type": "RotationSpeed"
               }
             ]
           }
@@ -201,6 +220,7 @@
         "timer": {
           "__classId": 9,
           "elapsedTime": 0.0,
+          "state": "NotStarted",
           "currentInterval": 0,
           "intervals": [],
           "loop": false,

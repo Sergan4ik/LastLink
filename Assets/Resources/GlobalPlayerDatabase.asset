@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8e7cc2c2ea6409b9ec5de213b506226, type: 3}
+  m_Name: GlobalPlayerDatabase
+  m_EditorClassIdentifier: 
+  players:
+  - globalPlayerId: 0
+    playerName: Sergan4ik
+    playerAvatar: {fileID: 21300000, guid: 54956e20c069bac40a6a12de6cac8942, type: 3}
+  - globalPlayerId: 1
+    playerName: Rudione
+    playerAvatar: {fileID: 21300000, guid: 618fc3dceef5c50448112a53d5e963ec, type: 3}

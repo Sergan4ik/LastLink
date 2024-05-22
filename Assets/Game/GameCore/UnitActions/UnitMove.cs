@@ -6,6 +6,7 @@ namespace Game.GameCore
     public partial class UnitMove : UnitAction
     {
         public float moveSpeed;
+        public float rotationSpeed;
         public Vector3 globalDestination;
         public Vector3 localDestination => cachedWaypoints[currentWaypoint];
 
@@ -17,6 +18,9 @@ namespace Game.GameCore
         public Vector3[] cachedWaypoints;
         
         const float DISTANCE_THRESHOLD = 0.1f;
+        const float ROTATION_MOVEMENT_BLOCKER = 30f;
+
+        private RTSTimerCountDown dirrectionalMoveDelay;
 
         protected override void OnActivation(GameModel gameModel, Unit owner, RTSInput input)
         {
@@ -29,10 +33,16 @@ namespace Game.GameCore
             currentWaypoint = 0;
             cachedWaypoints = path.corners;
             
+            dirrectionalMoveDelay = new RTSTimerCountDown()
+            {
+                staticCycleTime = 0.1f
+            };
+            
             if (calculatePath == false)
                 Terminate(gameModel, owner,this);
             
-            owner.PlayAnimation(owner.cfg.walkAnimation);
+            if (owner.currentAnimation.animationName != owner.cfg.walkAnimation.animationName)
+                owner.PlayAnimation(owner.cfg.walkAnimation);
         }
 
         protected override void ProcessTick(GameModel model, float dt, Unit owner)
@@ -58,26 +68,59 @@ namespace Game.GameCore
             }
 
             Quaternion lookRotation = UnityEngine.Quaternion.LookRotation(new Vector3(direction.x, 0 , direction.z));
-            float dist = moveSpeed * dt;
-            if ((localDestination - owner.transform.position).sqrMagnitude > dist * dist)
+
+            if (owner.transform.rotation != lookRotation)
             {
-                owner.transform.position += direction * dist;
-                owner.transform.rotation = lookRotation;
-            }
-            else
-            {
-                owner.transform.position = localDestination;
+                owner.transform.rotation = Quaternion.RotateTowards(owner.transform.rotation, lookRotation, rotationSpeed * dt);
             }
             
+            float angle = Quaternion.Angle(owner.transform.rotation, lookRotation);
+            if (angle <= ((initialInput.flags & RTSInputFlags.IsDirectionalModifier) != 0
+                    ? ROTATION_MOVEMENT_BLOCKER
+                    : 1e-5))
+            {
+                if (currentWaypoint == 1 && (initialInput.flags & RTSInputFlags.IsDirectionalModifier) != 0)
+                {
+                    dirrectionalMoveDelay.Tick(dt);
+                    if (dirrectionalMoveDelay.isEnded)
+                    {
+                        MoveUnitToLocalDestination(dt, owner, direction);
+                    }
+                }
+                else
+                {
+                    MoveUnitToLocalDestination(dt, owner, direction);
+                }
+            }
+
             if ((owner.transform.position - localDestination).sqrMagnitude < DISTANCE_THRESHOLD * DISTANCE_THRESHOLD)
             {
                 currentWaypoint++;
             }
         }
 
+        private void MoveUnitToLocalDestination(float dt, Unit owner, Vector3 direction)
+        {
+            float dist = moveSpeed * dt;
+            if ((localDestination - owner.transform.position).sqrMagnitude > dist * dist)
+            {
+                owner.transform.position += direction * dist;
+            }
+            else
+            {
+                owner.transform.position = localDestination;
+            }
+        }
+
         public override void OnTerminate(GameModel model, Unit owner, IActionSource source)
         {
-            owner.PlayIdle();
+            if (source is not UnitMove move || move == this)
+            {
+                owner.PlayIdle();
+            }
+            else
+            {
+            }
         }
     }
 }

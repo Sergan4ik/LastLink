@@ -64,6 +64,15 @@ namespace Game
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""DirrectionalModifier"",
+                    ""type"": ""Button"",
+                    ""id"": ""de8d7d90-7355-4567-9a21-ab44f048668d"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -110,6 +119,17 @@ namespace Game
                     ""action"": ""ControlModifier"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3c1ba21d-1806-4f93-ae32-7707d671a407"",
+                    ""path"": ""<Keyboard>/v"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""DirrectionalModifier"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -128,6 +148,7 @@ namespace Game
             m_RTS_SecondaryAction = m_RTS.FindAction("SecondaryAction", throwIfNotFound: true);
             m_RTS_UnitSelection = m_RTS.FindAction("UnitSelection", throwIfNotFound: true);
             m_RTS_ControlModifier = m_RTS.FindAction("ControlModifier", throwIfNotFound: true);
+            m_RTS_DirrectionalModifier = m_RTS.FindAction("DirrectionalModifier", throwIfNotFound: true);
         }
 
         public void Dispose()
@@ -193,6 +214,7 @@ namespace Game
         private readonly InputAction m_RTS_SecondaryAction;
         private readonly InputAction m_RTS_UnitSelection;
         private readonly InputAction m_RTS_ControlModifier;
+        private readonly InputAction m_RTS_DirrectionalModifier;
         public struct RTSActions
         {
             private @PlayerInput m_Wrapper;
@@ -201,6 +223,7 @@ namespace Game
             public InputAction @SecondaryAction => m_Wrapper.m_RTS_SecondaryAction;
             public InputAction @UnitSelection => m_Wrapper.m_RTS_UnitSelection;
             public InputAction @ControlModifier => m_Wrapper.m_RTS_ControlModifier;
+            public InputAction @DirrectionalModifier => m_Wrapper.m_RTS_DirrectionalModifier;
             public InputActionMap Get() { return m_Wrapper.m_RTS; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -222,6 +245,9 @@ namespace Game
                 @ControlModifier.started += instance.OnControlModifier;
                 @ControlModifier.performed += instance.OnControlModifier;
                 @ControlModifier.canceled += instance.OnControlModifier;
+                @DirrectionalModifier.started += instance.OnDirrectionalModifier;
+                @DirrectionalModifier.performed += instance.OnDirrectionalModifier;
+                @DirrectionalModifier.canceled += instance.OnDirrectionalModifier;
             }
 
             private void UnregisterCallbacks(IRTSActions instance)
@@ -238,6 +264,9 @@ namespace Game
                 @ControlModifier.started -= instance.OnControlModifier;
                 @ControlModifier.performed -= instance.OnControlModifier;
                 @ControlModifier.canceled -= instance.OnControlModifier;
+                @DirrectionalModifier.started -= instance.OnDirrectionalModifier;
+                @DirrectionalModifier.performed -= instance.OnDirrectionalModifier;
+                @DirrectionalModifier.canceled -= instance.OnDirrectionalModifier;
             }
 
             public void RemoveCallbacks(IRTSActions instance)
@@ -270,6 +299,7 @@ namespace Game
             void OnSecondaryAction(InputAction.CallbackContext context);
             void OnUnitSelection(InputAction.CallbackContext context);
             void OnControlModifier(InputAction.CallbackContext context);
+            void OnDirrectionalModifier(InputAction.CallbackContext context);
         }
     }
 }

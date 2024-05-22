@@ -7,6 +7,7 @@ using Unity.Networking.Transport;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using ZergRush;
 using ZergRush.ReactiveCore;
 
 namespace Game.GameCore.GameControllers
@@ -50,11 +51,12 @@ namespace Game.GameCore.GameControllers
         }
         
 
-        public async Task StartGame(Func<GameModel> gmGetter)
+        public async Task StartLobby(Func<GameModel> gmGetter)
         {
             await SceneManager.LoadSceneAsync("LevelTest");
             await Task.Yield();
             
+            LobbyView.instance.Show(gmGetter);
             GameView.instance.SetupGameModel(gmGetter);
         }
         
@@ -120,12 +122,20 @@ namespace Game.GameCore.GameControllers
             var transport = transportClientGM.GetComponent<UnityNetworkClient>();
             DontDestroyOnLoad(transportClientGM);
 
-            if (NetworkEndpoint.TryParse(ip, port, out var endpoint, NetworkFamily.Ipv4) == false)
+
+            if (joinCode == "######")
             {
-                Debug.LogError($"Can't parse endpoint {ip}:{port}");
+                if (NetworkEndpoint.TryParse(ip, port, out var endpoint, NetworkFamily.Ipv4) == false)
+                {
+                    Debug.LogError($"Can't parse endpoint {ip}:{port}");
+                }
+
+                await transport.ConnectToServer(endpoint, playerID);
             }
-            
-            await transport.ConnectToServerWithRelay(playerID, joinCode);
+            else
+            {
+                await transport.ConnectToServerWithRelay(playerID, joinCode);
+            }
             
             clientController = new PredictionRollbackClientMultiplayerController<GameModel>();
 
@@ -135,7 +145,7 @@ namespace Game.GameCore.GameControllers
                 
             await InitAndWaitController(multiplayerTransportClient);
 
-            await StartGame(() => clientController.currentModel);
+            await StartLobby(() => clientController.currentModel);
         }
 
         public async Task InitAndWaitController(MultiplayerTransportClient multiplayerTransportClient)
@@ -146,14 +156,18 @@ namespace Game.GameCore.GameControllers
                 await Task.Yield();
         }
 
-        public async void StartHost(ushort port, bool localPlay)
+        public async void StartHost(ushort port, bool localPlay, bool useRelay)
         {
             GameObject gm = new GameObject("[Server]");
             gm.AddComponent<UnityNetworkServer>();
             var serverTransport = gm.GetComponent<UnityNetworkServer>();
             DontDestroyOnLoad(gm);
 
-            await serverTransport.InitTransportWithRelay(port);
+            if (useRelay)
+                await serverTransport.InitTransportWithRelay(port);
+            else
+                await serverTransport.InitTransport(port);
+            
             serverController = new PredictionRollbackServerEngine<GameModel>();
 
             var multiplayerTransport = new MultiplayerTransportServer();
@@ -177,12 +191,11 @@ namespace Game.GameCore.GameControllers
 
                 await InitAndWaitController(localClientTransport);
 
-                await StartGame(() => clientController.currentModel);
+                await StartLobby(() => clientController.currentModel);
             }
             else
             {
                 GameModel model = GetTestModel();
-
                 var gamemodelDelegate = GetModelDelegate();
 
                 serverController.Init(multiplayerTransport, gamemodelDelegate, model, null);
@@ -198,7 +211,6 @@ namespace Game.GameCore.GameControllers
                 (connectionHandler, playerId, playerServerid) => new ConnectCommand()
                 {
                     globalPlayerId = playerId,
-                    slot = playerId == 0 ? FactionSlot.Player1 : FactionSlot.Player2,
                 };
             gamemodelDelegate.playerLeaveCommandGenerator +=
                 (connectionHandler, playerId, playerServerid) => new LogCommand(){ message = $"player disconnected {playerId}" };

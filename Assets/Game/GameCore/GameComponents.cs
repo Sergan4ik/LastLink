@@ -15,7 +15,8 @@ namespace Game.GameCore
         Health,
         Mana,
         Armor,
-        MoveSpeed
+        MoveSpeed,
+        RotationSpeed
     }
     
     public partial class Stat<TStat> where TStat : Enum
@@ -51,6 +52,7 @@ namespace Game.GameCore
         public ref float Mana => ref GetStatRef(UnitStatType.Mana);
         public ref float MoveSpeed => ref GetStatRef(UnitStatType.MoveSpeed);
         public float MaxMana => GetStat(UnitStatType.Mana).maxValue;
+        public ref float RotationSpeed => ref GetStatRef(UnitStatType.RotationSpeed);
 
         public static UnitStatsContainer CreateDefault()
         {

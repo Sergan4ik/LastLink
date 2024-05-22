@@ -58,12 +58,12 @@ public class UnitView : RTSView, ISimpleUpdatableFrom<Unit>
         if (sqrMagnitude > unit.moveSpeed * Time.deltaTime * unit.moveSpeed * Time.deltaTime && sqrMagnitude < unit.moveSpeed * unit.moveSpeed * 0.25f)
         {
             transform.position = Vector3.MoveTowards(transform.position, unit.transform.position, unit.moveSpeed * (2 * Time.deltaTime));
-            transform.rotation = unit.transform.rotation;
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, unit.transform.rotation, unit.rotationSpeed * (2 * Time.deltaTime));
         }
         else
         {
             transform.position = unit.transform.position;
-            transform.rotation = unit.transform.rotation;
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, unit.transform.rotation, unit.rotationSpeed * Time.deltaTime);
         }
 
         hpBar.SetProgress(unit.hp, unit.maxHp, "0");

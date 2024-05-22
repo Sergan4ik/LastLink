@@ -21,6 +21,7 @@ namespace Game
         public TMP_InputField portToHost;
 
         public Toggle localPlayToggle;
+        public Toggle useRelayToggle;
         
         public bool autoStartHost = false;
         public bool autoStartClient = false;
@@ -37,10 +38,10 @@ namespace Game
             autoStartClient = false;
             #endif
             
-            connections += startTestBattle.Subscribe(() => GameSession.instance.StartGame(() => GameSession.instance.GetTestModel()));
+            connections += startTestBattle.Subscribe(() => GameSession.instance.StartLobby(() => GameSession.instance.GetTestModel()));
             connections += startHost.Subscribe(() =>
             {
-                GameSession.instance.StartHost(portToHostValue, localPlayToggle.isOn);
+                GameSession.instance.StartHost(portToHostValue, localPlayToggle.isOn, useRelayToggle.isOn);
             });
             connections += startClient.Subscribe(() =>
             {
@@ -49,7 +50,7 @@ namespace Game
             
             if (autoStartHost)
             {
-                GameSession.instance.StartHost(portToHostValue, localPlayToggle.isOn);
+                GameSession.instance.StartHost(portToHostValue, localPlayToggle.isOn, useRelayToggle.isOn);
             }
             else if (autoStartClient)
             {

@@ -40,5 +40,9 @@ namespace Game.GameCore
         {
             return Resources.Load<Sprite>($"UnitIcons/{unitId}");
         }
+        public static GlobalPlayerDatabase GetGlobalPlayerDatabase()
+        {
+            return Resources.Load<GlobalPlayerDatabase>("GlobalPlayerDatabase");
+        }
     }
 }

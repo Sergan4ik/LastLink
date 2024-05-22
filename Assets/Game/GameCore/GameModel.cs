@@ -51,7 +51,8 @@ namespace Game.GameCore
     [GenTask(GenTaskFlags.SimpleDataPack)]
     public partial class GameModel : IActionSource, IDeterministicRealtimeModel<GameModel>
     {
-        public List<ControlData> controlData;
+        public ReactiveCollection<ControlData> controlData;
+        public List<short> readyPlayers;
         public string sourceName => $"GameModel";
         public const int TargetFps = 60;
         public const float FrameTime = 1.0f / TargetFps;
@@ -103,7 +104,7 @@ namespace Game.GameCore
 
         public void ApplyInput(InputCommand input)
         {
-            Faction playerFaction = GetFactionByPlayerId(input.serverPlayerId);
+            Faction playerFaction = GetFactionByServerPlayerId(input.serverPlayerId);
             List<Unit> stack = input.input.targetData.sourceIds.Select(GetUnit).ToList();
 
             if (stack.Any(u => u.factionSlot != playerFaction.slot))
@@ -115,7 +116,7 @@ namespace Game.GameCore
             switch (input.input.inputType)
             {
                 case RTSInputType.Move:
-                    playerFaction.MoveStackTo(this, stack, input.input.targetData.worldPosition);
+                    playerFaction.MoveStackTo(this, stack, input.input.targetData.worldPosition, (input.input.flags & RTSInputFlags.IsDirectionalModifier) != 0);
                     break;
                 case RTSInputType.AutoAttack:
                     playerFaction.AutoAttackStack(this, stack, input.input);
@@ -130,11 +131,76 @@ namespace Game.GameCore
             }
         }
 
+        public void SetReady(SetReadyCommand cmd)
+        {
+            if (gameState.value != GameState.NotStarted) return;
+            
+            var cd = controlData.FirstOrDefault(c => c.globalPlayerId == cmd.globalPlayerId);
+            if (cd == default)
+            {
+                Debug.LogError($"Player with id {cmd.globalPlayerId} is not connected");
+                return;
+            }
+            
+            cd.factionSlot = cmd.factionSlot;
+            GetFactionBySlot(cmd.factionSlot).factionType = cmd.factionType;
+            
+            if (readyPlayers.Exists(ready => ready == cmd.serverPlayerId) == false)
+                readyPlayers.Add(cd.serverPlayerId);
+            
+            CheckPlayersReadiness();
+        }
+
+        private void CancelReady(CancelReadyCommand cancelReadyCommand)
+        {
+            if (gameState.value != GameState.NotStarted) return;
+            
+            var cd = controlData.FirstOrDefault(c => c.globalPlayerId == cancelReadyCommand.globalPlayerId);
+            if (cd == default)
+            {
+                Debug.LogError($"Player with id {cancelReadyCommand.globalPlayerId} is not connected");
+                return;
+            }
+            
+            readyPlayers.Remove(cd.serverPlayerId);
+        }
+
+        private void UpdateLobbyPlayer(UpdateLobbyPlayerCommand cmd)
+        {
+            if (gameState.value != GameState.NotStarted) return;
+            
+            var cd = controlData.FirstOrDefault(c => c.globalPlayerId == cmd.globalPlayerId);
+            if (cd == default)
+            {
+                Debug.LogError($"Player with id {cmd.globalPlayerId} is not connected");
+                return;
+            }
+            
+            cd.factionSlot = cmd.factionSlot;
+            GetFactionBySlot(cmd.factionSlot).factionType = cmd.factionType;
+        }
+
+        private void CheckPlayersReadiness()
+        {
+            if (controlData.Count(cd => cd.serverPlayerId != -1) == readyPlayers.Count)
+            {
+                GameStart();
+            }
+        }
+
         public Faction GetFactionBySlot(FactionSlot slot) => factions.FirstOrDefault(f => f.slot == slot);
 
-        public Faction GetFactionByPlayerId(short serverPlayerId)
+        public ControlData GetControlDataByServerPlayerId(short serverPlayerId)
         {
-            var cd = controlData.FirstOrDefault(cd => cd.serverPlayerId == serverPlayerId);
+            return controlData.FirstOrDefault(cd => cd.serverPlayerId == serverPlayerId);
+        }
+        public ControlData GetControlDataByGlobalPlayerId(long globalPlayerId)
+        {
+            return controlData.FirstOrDefault(cd => cd.globalPlayerId == globalPlayerId);
+        }
+        public Faction GetFactionByServerPlayerId(short serverPlayerId)
+        {
+            var cd = GetControlDataByServerPlayerId(serverPlayerId);
             if (cd == default)
             {
                 Debug.LogError($"Player with id {serverPlayerId} is not connected");
@@ -217,15 +283,19 @@ namespace Game.GameCore
                         Debug.Log(logCommand.message);
                         break;
                     case ConnectCommand connectCommand:
-                        controlData.Add(new ControlData()
-                        {
-                            factionSlot = connectCommand.slot,
-                            serverPlayerId = connectCommand.serverPlayerId,
-                            globalPlayerId = connectCommand.globalPlayerId
-                        });
+                        ConnectPlayer(connectCommand);
                         break;
                     case InputCommand inputCommand:
                         ApplyInput(inputCommand);
+                        break;
+                    case SetReadyCommand setReadyCommand:
+                        SetReady(setReadyCommand);
+                        break;
+                    case CancelReadyCommand cancelReadyCommand:
+                        CancelReady(cancelReadyCommand);
+                        break;
+                    case UpdateLobbyPlayerCommand updatePlayerCommand:
+                        UpdateLobbyPlayer(updatePlayerCommand);
                         break;
                     case StartGameCommand startGameCommand:
                         GameStart();
@@ -237,6 +307,21 @@ namespace Game.GameCore
             
             Tick(FrameTime);
             step++;
+        }
+
+        private void ConnectPlayer(ConnectCommand connectCommand)
+        {
+            if (factions.Count < controlData.Count + 1)
+            {
+                Debug.LogError($"This map supports only {factions.Count} players");
+                return;
+            }
+            controlData.Add(new ControlData()
+            {
+                serverPlayerId = connectCommand.serverPlayerId,
+                globalPlayerId = connectCommand.globalPlayerId,
+                factionSlot = (FactionSlot)controlData.Count
+            });
         }
 
         public bool IsPlayerCreated(long playerId)

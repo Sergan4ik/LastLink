@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -114,6 +115,7 @@ namespace Game.GameCore
         public RTSInputType inputType;
         public int inputTypeVariation;
         public TargetData targetData;
+        public RTSInputFlags flags;
     }
 
     public enum RTSInputType
@@ -122,4 +124,11 @@ namespace Game.GameCore
         AutoAttack,
         CastAbility
     }
+
+    [Flags]
+    public enum RTSInputFlags
+    {
+        ControlModifier = 1 << 1,
+        IsDirectionalModifier = 1 << 2,
+    } 
 }

@@ -8,15 +8,15 @@ using Newtonsoft.Json;
 #if !INCLUDE_ONLY_CODE_GENERATION
 namespace Game.GameCore {
 
-    public partial class ConnectCommand : IUpdatableFrom<Game.GameCore.ConnectCommand>, IUpdatableFrom<ZeroLag.ZeroLagCommand>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareCheckable<ZeroLag.ZeroLagCommand>, IJsonSerializable, IPolymorphable, ICloneInst
+    public partial class CancelReadyCommand : IUpdatableFrom<Game.GameCore.CancelReadyCommand>, IUpdatableFrom<ZeroLag.ZeroLagCommand>, IBinaryDeserializable, IBinarySerializable, IHashable, ICompareCheckable<ZeroLag.ZeroLagCommand>, IJsonSerializable, IPolymorphable, ICloneInst
     {
         public override void UpdateFrom(ZeroLag.ZeroLagCommand other, ZRUpdateFromHelper __helper) 
         {
             base.UpdateFrom(other,__helper);
-            var otherConcrete = (Game.GameCore.ConnectCommand)other;
+            var otherConcrete = (Game.GameCore.CancelReadyCommand)other;
             globalPlayerId = otherConcrete.globalPlayerId;
         }
-        public void UpdateFrom(Game.GameCore.ConnectCommand other, ZRUpdateFromHelper __helper) 
+        public void UpdateFrom(Game.GameCore.CancelReadyCommand other, ZRUpdateFromHelper __helper) 
         {
             this.UpdateFrom((ZeroLag.ZeroLagCommand)other, __helper);
         }
@@ -34,20 +34,20 @@ namespace Game.GameCore {
         {
             var baseVal = base.CalculateHash(__helper);
             System.UInt64 hash = baseVal;
-            hash ^= (ulong)1551560197;
+            hash ^= (ulong)279928293;
             hash += hash << 11; hash ^= hash >> 7;
             hash += (System.UInt64)globalPlayerId;
             hash += hash << 11; hash ^= hash >> 7;
             return hash;
         }
-        public  ConnectCommand() 
+        public  CancelReadyCommand() 
         {
 
         }
         public override void CompareCheck(ZeroLag.ZeroLagCommand other, ZRCompareCheckHelper __helper, Action<string> printer) 
         {
             base.CompareCheck(other,__helper,printer);
-            var otherConcrete = (Game.GameCore.ConnectCommand)other;
+            var otherConcrete = (Game.GameCore.CancelReadyCommand)other;
             if (globalPlayerId != otherConcrete.globalPlayerId) CodeGenImplTools.LogCompError(__helper, "globalPlayerId", printer, otherConcrete.globalPlayerId, globalPlayerId);
         }
         public override bool ReadFromJsonField(ZRJsonTextReader reader, string __name) 
@@ -70,11 +70,11 @@ namespace Game.GameCore {
         }
         public override ushort GetClassId() 
         {
-        return (System.UInt16)Types.ConnectCommand;
+        return (System.UInt16)Types.CancelReadyCommand;
         }
         public override System.Object NewInst() 
         {
-        return new ConnectCommand();
+        return new CancelReadyCommand();
         }
     }
 }
