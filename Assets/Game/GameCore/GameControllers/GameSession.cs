@@ -7,6 +7,7 @@ using Unity.Networking.Transport;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using ZergRush;
 using ZergRush.ReactiveCore;
 
@@ -18,6 +19,10 @@ namespace Game.GameCore.GameControllers
         public PredictionRollbackClientMultiplayerController<GameModel> clientController;
         public PredictionRollbackServerEngine<GameModel> serverController;
 
+        [HideInInspector]
+        public UnityNetworkClient clientTransport;
+        [HideInInspector]
+        public UnityNetworkServer serverTransport;
         
         private void Awake()
         {
@@ -117,11 +122,15 @@ namespace Game.GameCore.GameControllers
 
         public async void StartClient(string ip, ushort port, long playerID, string joinCode)
         {
+            if (clientTransport != null)
+            {
+                Destroy(clientTransport.gameObject);
+            }
+            
             GameObject transportClientGM = new GameObject("[Client]");
             transportClientGM.AddComponent<UnityNetworkClient>();
-            var transport = transportClientGM.GetComponent<UnityNetworkClient>();
+            clientTransport = transportClientGM.GetComponent<UnityNetworkClient>();
             DontDestroyOnLoad(transportClientGM);
-
 
             if (joinCode == "######")
             {
@@ -130,18 +139,18 @@ namespace Game.GameCore.GameControllers
                     Debug.LogError($"Can't parse endpoint {ip}:{port}");
                 }
 
-                await transport.ConnectToServer(endpoint, playerID);
+                await clientTransport.ConnectToServer(endpoint, playerID);
             }
             else
             {
-                await transport.ConnectToServerWithRelay(playerID, joinCode);
+                await clientTransport.ConnectToServerWithRelay(playerID, joinCode);
             }
             
             clientController = new PredictionRollbackClientMultiplayerController<GameModel>();
 
             var multiplayerTransportClient = new MultiplayerTransportClient();
-            multiplayerTransportClient.sendToChannel += transport.SendToChannel;
-            multiplayerTransportClient.listenToChannel += transport.ListenToChannel;
+            multiplayerTransportClient.sendToChannel += clientTransport.SendToChannel;
+            multiplayerTransportClient.listenToChannel += clientTransport.ListenToChannel;
                 
             await InitAndWaitController(multiplayerTransportClient);
 
@@ -158,9 +167,14 @@ namespace Game.GameCore.GameControllers
 
         public async void StartHost(ushort port, bool localPlay, bool useRelay)
         {
+            if (serverTransport != null)
+            {
+                Destroy(serverTransport.gameObject);
+            }
+            
             GameObject gm = new GameObject("[Server]");
             gm.AddComponent<UnityNetworkServer>();
-            var serverTransport = gm.GetComponent<UnityNetworkServer>();
+            serverTransport = gm.GetComponent<UnityNetworkServer>();
             DontDestroyOnLoad(gm);
 
             if (useRelay)

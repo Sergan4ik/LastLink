@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Game.GameCore;
 using Game.GameCore.GameControllers;
+using GameKit.Unity.UnityNetork;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,6 +17,8 @@ public class LobbyView : ConnectableMonoBehaviour
     public static LobbyView instance;
     public RectTransform panel;
     public ReactiveScrollRect playersRect;
+
+    public TextMeshProUGUI joinCode;
     
     public Button setReadyButton;
 
@@ -43,7 +46,7 @@ public class LobbyView : ConnectableMonoBehaviour
         instance = null;
     }
 
-    public void Show(Func<GameModel> modelGetter)
+    public async void Show(Func<GameModel> modelGetter)
     {
         showConnections.DisconnectAll();
         gmGetter = modelGetter;
@@ -86,6 +89,18 @@ public class LobbyView : ConnectableMonoBehaviour
                 factionSlot = (FactionSlot) Enum.Parse(typeof(FactionSlot), localPlayerView.factionSlotDropdown.options[localPlayerView.factionSlotDropdown.value].text)
             });
         });
+
+        string code = "";
+        if (GameSession.instance.clientTransport != null)
+        {
+            code = await GameSession.instance.clientTransport.GetJoinCode();
+        }
+        if (GameSession.instance.serverTransport != null)
+        {
+            code = await GameSession.instance.serverTransport.GetJoinCode();
+        }
+        
+        joinCode.text = code == "" ? "Use relay" : code;
     }
 
     private void Update()

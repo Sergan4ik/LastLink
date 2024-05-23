@@ -50,6 +50,10 @@ public partial class GameView
         if (CanAddToCurrentSelection(unit) == false) return;
 
         var view = GetViewByModel(unit);
+        
+        if (view == null)
+            return;
+        
         currentSelection.Add(view);
         view.OnSelectionToggle(true);
         UpdateSelectionView();
