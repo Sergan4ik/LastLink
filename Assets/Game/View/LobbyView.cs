@@ -18,7 +18,7 @@ public class LobbyView : ConnectableMonoBehaviour
     public RectTransform panel;
     public ReactiveScrollRect playersRect;
 
-    public TextMeshProUGUI joinCode;
+    public TMP_InputField joinCode;
     
     public Button setReadyButton;
 
@@ -38,6 +38,15 @@ public class LobbyView : ConnectableMonoBehaviour
         }
         
         instance = this;
+    }
+
+    private void OnEnable()
+    {
+    }
+
+    private void OnDisable()
+    {
+        
     }
 
     protected override void OnDestroy()
