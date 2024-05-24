@@ -6,6 +6,7 @@ using Game.GameCore.GameControllers;
 using GameKit.Unity.UnityNetork;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using ZergRush;
 using ZergRush.CodeGen;
@@ -20,7 +21,8 @@ public class LobbyView : ConnectableMonoBehaviour
 
     public TMP_InputField joinCode;
     
-    public Button setReadyButton;
+    public Button readyButton;
+    public TextMeshProUGUI readyButtonText;
 
     public Connections showConnections = new Connections();
     private Func<GameModel> gmGetter;
@@ -28,6 +30,23 @@ public class LobbyView : ConnectableMonoBehaviour
     
     private ReactiveCollectionImitator<ControlData,ControlData> playerPresenter;
     public short serverPlayerId => GameSession.instance.clientController.serverPlayerId;
+    public bool isReady
+    {
+        get
+        {
+            if (gmGetter == null) return false;
+            if (gmGetter().readyPlayers.Count == 0) return false;
+            
+            if (lastMyIndex != -1 && gmGetter().readyPlayers.AtSafe(lastMyIndex, short.MaxValue) == serverPlayerId) return true;
+            lastMyIndex = gmGetter().readyPlayers.IndexOf(serverPlayerId);
+            return lastMyIndex != -1;
+        }
+    }
+
+    private int lastMyIndex = -1;
+    
+    private Cell<int> stateButtonCell = new Cell<int>(0);
+    private StateButton stateButton;
 
     private void Awake()
     {
@@ -38,15 +57,24 @@ public class LobbyView : ConnectableMonoBehaviour
         }
         
         instance = this;
-    }
 
-    private void OnEnable()
-    {
-    }
-
-    private void OnDisable()
-    {
-        
+        stateButton = readyButton.SetupButtonStates((b, label, i) =>
+        {
+            if (i == 0)
+            {
+                var block = b.colors;
+                block.normalColor = Color.green;
+                b.colors = block;
+                label.text = "I am ready";
+            }
+            else if (i == 1)
+            {
+                var block = b.colors;
+                block.normalColor = Color.red;
+                b.colors = block;
+                label.text = "Cancel ready";
+            }
+        }, readyButtonText, stateButtonCell);
     }
 
     protected override void OnDestroy()
@@ -88,15 +116,27 @@ public class LobbyView : ConnectableMonoBehaviour
             });
 
         
-        showConnections += setReadyButton.Subscribe(() =>
+        showConnections += readyButton.Subscribe(() =>
         {
             var cd = modelGetter().GetControlDataByServerPlayerId(serverPlayerId);
-            GameSession.instance.SendRTSCommand(new SetReadyCommand()
+            if (isReady == false)
             {
-                globalPlayerId = cd.globalPlayerId,
-                factionType = (FactionType) Enum.Parse(typeof(FactionType), localPlayerView.factionTypeDropdown.options[localPlayerView.factionTypeDropdown.value].text),
-                factionSlot = (FactionSlot) Enum.Parse(typeof(FactionSlot), localPlayerView.factionSlotDropdown.options[localPlayerView.factionSlotDropdown.value].text)
-            });
+                GameSession.instance.SendRTSCommand(new SetReadyCommand()
+                {
+                    globalPlayerId = cd.globalPlayerId,
+                    factionType = (FactionType)Enum.Parse(typeof(FactionType),
+                        localPlayerView.factionTypeDropdown.options[localPlayerView.factionTypeDropdown.value].text),
+                    factionSlot = (FactionSlot)Enum.Parse(typeof(FactionSlot),
+                        localPlayerView.factionSlotDropdown.options[localPlayerView.factionSlotDropdown.value].text)
+                });
+            }
+            else
+            {
+                GameSession.instance.SendRTSCommand(new CancelReadyCommand()
+                {
+                    globalPlayerId = cd.globalPlayerId
+                });
+            }
         });
 
         string code = "";
@@ -104,7 +144,7 @@ public class LobbyView : ConnectableMonoBehaviour
         {
             code = await GameSession.instance.clientTransport.GetJoinCode();
         }
-        if (GameSession.instance.serverTransport != null)
+        else if (GameSession.instance.serverTransport != null)
         {
             code = await GameSession.instance.serverTransport.GetJoinCode();
         }
@@ -118,6 +158,8 @@ public class LobbyView : ConnectableMonoBehaviour
         
         playerPresenter.UpdateFrom(gmGetter().controlData);
         
+        stateButtonCell.value = isReady ? 1 : 0;
+
         if (panel.gameObject.activeSelf && gmGetter().gameState.value != GameState.NotStarted)
             Hide();
     }
@@ -127,5 +169,4 @@ public class LobbyView : ConnectableMonoBehaviour
         showConnections.DisconnectAll();
         panel.SetActiveSafe(false);
     }
-
 }

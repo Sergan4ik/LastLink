@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using ZergRush.ReactiveCore;
 
 namespace Game.GameCore
 {
@@ -43,6 +47,24 @@ namespace Game.GameCore
         public static GlobalPlayerDatabase GetGlobalPlayerDatabase()
         {
             return Resources.Load<GlobalPlayerDatabase>("GlobalPlayerDatabase");
+        }
+
+        [MustUseReturnValue]
+        public static StateButton SetupButtonStates(this Button button, Action<Button, TextMeshProUGUI, int> onChange,
+            TextMeshProUGUI label = null, Cell<int> stateCell = null)
+        {
+            var stateButton = new StateButton
+            {
+                button = button,
+                label = label
+            };
+            
+            if (stateCell == null)
+                stateButton.Setup(onChange);
+            else
+                stateButton.Setup(onChange, stateCell);
+
+            return stateButton;
         }
     }
 }
