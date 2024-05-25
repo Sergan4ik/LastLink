@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Game.GameCore;
 using Game.GameCore.GameControllers;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using ZergRush.ReactiveCore;
 using ZergRush.ReactiveUI;
@@ -18,16 +20,22 @@ public class PlayerLobbyView : ReusableView
     public TextMeshProUGUI readyStatus;
     
     public Func<GameModel> shownModelGetter;
-    public GlobalPlayerData shownData;
-    public short serverPlayerId => shownModelGetter().GetControlDataByGlobalPlayerId(shownData.globalPlayerId).serverPlayerId;
-    public void Show(Func<GameModel> modelGetter, GlobalPlayerData player, long localGlobalPlayerId)
+    public RTSPlayerData shownCustomData;
+    public short serverPlayerId => shownModelGetter().GetControlDataByGlobalPlayerId(shownCustomData.playerId).serverPlayerId;
+    public async Task Show(Func<GameModel> modelGetter, long playerId, long localGlobalPlayerId)
     {
         shownModelGetter = modelGetter;
-        shownData = player;
         
-        playerAvatar.sprite = player.playerAvatar;
-        playerName.text = player.playerName;
+        SetupDropdowns(playerId,localGlobalPlayerId);
+        
+        shownCustomData = await GameSession.instance.playerDatabase.GetPlayer(playerId);
+        
+        playerAvatar.sprite = shownCustomData.customData.playerAvatar.GetPlayerAvatar();
+        playerName.text = shownCustomData.username;
+    }
 
+    private void SetupDropdowns(long playerId, long localGlobalPlayerId)
+    {
         var factionTypes = Enum.GetNames(typeof(FactionType)).ToList();
         if (factionTypeDropdown.options.Count != factionTypes.Count || factionTypeDropdown.options.Any(o => factionTypes.Contains(o.text) == false))
         {
@@ -42,22 +50,22 @@ public class PlayerLobbyView : ReusableView
             factionSlotDropdown.AddOptions(factionSlots);
         }
         
-        factionSlotDropdown.interactable = player.globalPlayerId == localGlobalPlayerId;
-        factionTypeDropdown.interactable = player.globalPlayerId == localGlobalPlayerId;
+        factionSlotDropdown.interactable = playerId == localGlobalPlayerId;
+        factionTypeDropdown.interactable = playerId == localGlobalPlayerId;
         
-        factionTypeDropdown.value = factionTypeDropdown.options.FindIndex(o => o.text == shownModelGetter().GetFactionByServerPlayerId(serverPlayerId).factionType.ToString());
-        factionSlotDropdown.value = factionSlotDropdown.options.FindIndex(o => o.text == shownModelGetter().GetControlDataByGlobalPlayerId(shownData.globalPlayerId).factionSlot.ToString());
+        factionTypeDropdown.value = factionTypeDropdown.options.FindIndex(o => o.text == shownModelGetter().GetFactionByGlobalId(playerId).factionType.ToString());
+        factionSlotDropdown.value = factionSlotDropdown.options.FindIndex(o => o.text == shownModelGetter().GetControlDataByGlobalPlayerId(playerId).factionSlot.ToString());
     }
 
     private void Update()
     {
         if (shownModelGetter?.Invoke() == null) return;
-        if (shownData == null) return;
+        if (shownCustomData == null) return;
         
         //if changed slot reassign
         if (serverPlayerId != GameSession.instance.clientController?.serverPlayerId)
         {
-            var slot = shownModelGetter().GetControlDataByGlobalPlayerId(shownData.globalPlayerId).factionSlot.ToString();
+            var slot = shownModelGetter().GetControlDataByGlobalPlayerId(shownCustomData.playerId).factionSlot.ToString();
             if (factionSlotDropdown.options[factionSlotDropdown.value].text != slot)
             {
                 factionSlotDropdown.value = factionSlotDropdown.options.FindIndex(o => o.text == slot);

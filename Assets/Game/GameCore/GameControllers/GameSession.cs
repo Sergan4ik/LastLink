@@ -2,6 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Amazon;
+using Amazon.CognitoIdentity;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.Model;
+using Amazon.Runtime;
 using GameKit.Unity.UnityNetork;
 using Unity.Networking.Transport;
 using Unity.VisualScripting;
@@ -10,6 +16,8 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using ZergRush;
 using ZergRush.ReactiveCore;
+using ZeroLag.MultiplayerTools.Modules.Authentication;
+using ZeroLag.MultiplayerTools.Modules.Database;
 
 namespace Game.GameCore.GameControllers
 {
@@ -24,6 +32,10 @@ namespace Game.GameCore.GameControllers
         [HideInInspector]
         public UnityNetworkServer serverTransport;
         
+        public AWSCognitoAuthentication awsAuth;
+        public Cell<BaseAccessToken> accessToken = new Cell<BaseAccessToken>();
+        
+        public DynamoDBPlayerDatabase<RTSPlayerData, RTSPlayerCustomData> playerDatabase;
         private void Awake()
         {
             if (instance != null)
@@ -34,6 +46,8 @@ namespace Game.GameCore.GameControllers
             
             instance = this;
             DontDestroyOnLoad(gameObject);
+            
+            InitAWS();
         }
 
         private void Start()
@@ -120,6 +134,12 @@ namespace Game.GameCore.GameControllers
             return game;
         }
 
+        public async void StartClient(string ip, ushort port, BaseAccessToken token, string joinCode)
+        {
+            long playerId = await GetPlayerId(token);
+            StartClient(ip, port, playerId, joinCode);
+        }
+        
         public async void StartClient(string ip, ushort port, long playerID, string joinCode)
         {
             if (clientTransport != null)
@@ -165,7 +185,13 @@ namespace Game.GameCore.GameControllers
                 await Task.Yield();
         }
 
-        public async void StartHost(ushort port, bool localPlay, bool useRelay)
+        public async void StartHost(ushort port, bool useRelay, bool localPlay, BaseAccessToken token)
+        {
+            long playerId = await GetPlayerId(token);
+            StartHost(port, useRelay, localPlay, playerId);
+        }
+        
+        public async void StartHost(ushort port, bool useRelay, bool localPlay, long playerId)
         {
             if (serverTransport != null)
             {
@@ -200,7 +226,7 @@ namespace Game.GameCore.GameControllers
                 var gamemodelDelegate = GetModelDelegate();
 
                 serverController.Init(newTransport, gamemodelDelegate, model, null);
-                var localClientTransport = localConnectFactory.Invoke(0);
+                var localClientTransport = localConnectFactory.Invoke(playerId);
                 clientController = new PredictionRollbackClientMultiplayerController<GameModel>();
 
                 await InitAndWaitController(localClientTransport);
@@ -234,6 +260,26 @@ namespace Game.GameCore.GameControllers
         public void SendRTSCommand(RTSCommand cmd)
         {
             clientController?.WriteLocalAndSendCommand(cmd);
+        }
+
+        public async Task<long> GetPlayerId(BaseAccessToken token)
+        {
+            return (await awsAuth.GetUser<AWSUserData>(token)).playerId;
+        }
+        public void InitAWS()
+        {
+            playerDatabase = new DynamoDBPlayerDatabase<RTSPlayerData, RTSPlayerCustomData>( 
+                "AKIA3FLD46EXFWUY7LML",
+                "WfKLs8dapD+a4riQ0bL4k3KQxeHolUk/LnXwnbYi",
+                RegionEndpoint.EUNorth1,
+                "LastLink");
+            
+            awsAuth = new AWSCognitoAuthentication(
+                "AKIA3FLD46EXFWUY7LML",
+                "WfKLs8dapD+a4riQ0bL4k3KQxeHolUk/LnXwnbYi",
+                RegionEndpoint.EUNorth1,
+                "2v2a3bign3dt6khd2npuboprq5");
+
         }
     }
 }

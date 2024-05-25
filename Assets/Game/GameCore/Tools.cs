@@ -48,6 +48,14 @@ namespace Game.GameCore
         {
             return Resources.Load<GlobalPlayerDatabase>("GlobalPlayerDatabase");
         }
+        public static IEnumerable<Sprite> GetPlayerAvatars()
+        {
+            return Resources.LoadAll<Sprite>("PlayerAvatars");
+        }
+        public static Sprite GetPlayerAvatar(this string avatarId)
+        {
+            return Resources.Load<Sprite>($"PlayerAvatars/{avatarId}");
+        }
 
         [MustUseReturnValue]
         public static StateButton SetupButtonStates(this Button button, Action<Button, TextMeshProUGUI, int> onChange,

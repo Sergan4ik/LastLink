@@ -95,10 +95,9 @@ public class LobbyView : ConnectableMonoBehaviour
         PlayerLobbyView localPlayerView = null;
         
         showConnections += playerPresenter.data.PresentInScrollWithLayout(playersRect,
-            PrefabRef<PlayerLobbyView>.Auto(), (data, view) =>
+            PrefabRef<PlayerLobbyView>.Auto(), async (data, view) =>
             {
-                var playerData = Tools.GetGlobalPlayerDatabase().GetPlayer(data.globalPlayerId);
-                view.Show(modelGetter, playerData, modelGetter().GetControlDataByServerPlayerId(serverPlayerId).globalPlayerId);
+                await view.Show(modelGetter, data.globalPlayerId, modelGetter().GetControlDataByServerPlayerId(serverPlayerId).globalPlayerId);
                 if (data.serverPlayerId != serverPlayerId) return;
 
                 localPlayerView = view;

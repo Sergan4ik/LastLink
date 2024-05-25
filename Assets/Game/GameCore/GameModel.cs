@@ -152,6 +152,17 @@ namespace Game.GameCore
             
             return GetFactionBySlot(cd.factionSlot);
         }
+        public Faction GetFactionByGlobalId(long globalPlayerId)
+        {
+            var cd = GetControlDataByGlobalPlayerId(globalPlayerId);
+            if (cd == default)
+            {
+                Debug.LogError($"Player with id {globalPlayerId} is not connected");
+                return null;
+            }
+            
+            return GetFactionBySlot(cd.factionSlot);
+        }
 
 
         public List<Unit> GetUnitsInsideOpaqueQuadrangle(SelectionRectClipSpace selectionRectClipSpace, Func<Unit, bool> skipIf = null)

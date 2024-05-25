@@ -5,10 +5,10 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "GlobalPlayerDatabase", menuName = "Game/GlobalPlayerDatabase")]
 public class GlobalPlayerDatabase : ScriptableObject
 {
-    public List<GlobalPlayerData> players;
+    public List<RTSPlayerData> players;
     
-    public GlobalPlayerData GetPlayer(long globalPlayerId)
+    public RTSPlayerData GetPlayer(long globalPlayerId)
     {
-        return players.FirstOrDefault(p => p.globalPlayerId == globalPlayerId);
+        return players.FirstOrDefault(p => p.playerId == globalPlayerId);
     }
 }
