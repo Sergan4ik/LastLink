@@ -85,6 +85,8 @@ public class LobbyView : ConnectableMonoBehaviour
 
     public async void Show(Func<GameModel> modelGetter)
     {
+        panel.SetActiveSafe(true);
+        
         showConnections.DisconnectAll();
         gmGetter = modelGetter;
         gmOnInit = modelGetter();

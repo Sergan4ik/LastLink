@@ -8,11 +8,16 @@ public partial class GameView
 {
     private void ProcessSelectionInput((SelectionRectClipSpace rectClipSpace, float time) t)
     {
-        List<Unit> toSelect = new List<Unit>();
+        List<Unit> newSelection = new List<Unit>();
         if (t.rectClipSpace.area < 1e-4) return;
 
-        toSelect = game.GetUnitsInsideOpaqueQuadrangle(t.rectClipSpace, u => CanAddToCurrentSelection(u) == false);
-        ProcessSelection(toSelect, null);
+        newSelection = game.GetUnitsInsideOpaqueQuadrangle(t.rectClipSpace, u => CanAddToCurrentSelection(u) == false);
+        var toDelete = currentSelection
+            .Where(c => t.rectClipSpace.IsPointInsideRect(game.PerspectiveCoordOfUnit(t.rectClipSpace, c.currentUnit)) == false)
+            .Select(c => c.currentUnit)
+            .ToList();
+
+        ProcessSelection(newSelection, toDelete);
     }
 
     private (IEnumerable<Unit> newbies, IEnumerable<Unit> toDelete) GetUnionDifference(List<Unit> newSelection)

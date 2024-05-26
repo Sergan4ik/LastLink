@@ -23,7 +23,7 @@ public class RTSView : ReusableView
     public GameModel game => gameView.game;
     public GameConfig config => GameConfig.Instance;
     public GameSession gameSession => GameSession.instance;
-    public short serverPlayerId => gameSession.clientController.serverPlayerId;
+    public short serverPlayerId => (short)(gameSession.clientController?.serverPlayerId ?? 0);
 }
 
 public partial class GameView : RTSView

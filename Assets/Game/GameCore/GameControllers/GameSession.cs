@@ -83,8 +83,14 @@ namespace Game.GameCore.GameControllers
         {
             await SceneManager.LoadSceneAsync("LevelTest");
             await Task.Yield();
-            
+
+            model.ConnectPlayer(new ConnectCommand()
+            {
+                globalPlayerId = 0,
+                serverPlayerId = 0
+            });
             GameView.instance.SetupGameModel(() => model);
+            model.GameStart();
         }
 
         public GameModel GetTestModel()

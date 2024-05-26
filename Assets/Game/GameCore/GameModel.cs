@@ -177,11 +177,8 @@ namespace Game.GameCore
             
             foreach (var unit in allUnits)
             {
-                Vector4 clipCoord = selectionRectClipSpace.unitToViewportMatrix * new Vector4(unit.transform.position.x , unit.transform.position.y, unit.transform.position.z, 1);
-                Vector4 perspectiveCoord = clipCoord / -clipCoord.w;
-                perspectiveCoord.x = (perspectiveCoord.x + 1) / 2;
-                perspectiveCoord.y = (perspectiveCoord.y + 1) / 2;
-                
+                var perspectiveCoord = PerspectiveCoordOfUnit(selectionRectClipSpace, unit);
+
                 if (selectionRectClipSpace.IsPointInsideRect(perspectiveCoord) && skipIf(unit) == false)
                 {
                     result.Add(unit);
@@ -195,7 +192,16 @@ namespace Game.GameCore
             //     return (leftBottomLocal, rightBottomLocal, leftUpperLocal, rightUpperLocal);
             // }
         }
-        
+
+        public Vector4 PerspectiveCoordOfUnit(SelectionRectClipSpace selectionRectClipSpace, Unit unit)
+        {
+            Vector4 clipCoord = selectionRectClipSpace.unitToViewportMatrix * new Vector4(unit.transform.position.x , unit.transform.position.y, unit.transform.position.z, 1);
+            Vector4 perspectiveCoord = clipCoord / -clipCoord.w;
+            perspectiveCoord.x = (perspectiveCoord.x + 1) / 2;
+            perspectiveCoord.y = (perspectiveCoord.y + 1) / 2;
+            return perspectiveCoord;
+        }
+
         public void Tick(float dt)
         {
             if (Math.Abs(dt - FrameTime) > 1e-5 && dt > 0)
@@ -263,7 +269,7 @@ namespace Game.GameCore
             step++;
         }
 
-        private void ConnectPlayer(ConnectCommand connectCommand)
+        public void ConnectPlayer(ConnectCommand connectCommand)
         {
             if (factions.Count < controlData.Count + 1)
             {

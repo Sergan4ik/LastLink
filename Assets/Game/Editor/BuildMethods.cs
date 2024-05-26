@@ -57,12 +57,23 @@ public static class BuildMethods
     [MenuItem("📦Build/👌Build client")]
     public static void BuildClient()
     {
-        EditorUserBuildSettings.SwitchActiveBuildTarget(NamedBuildTarget.Standalone, BuildTarget.StandaloneWindows);
+        #if UNITY_EDITOR_WIN
+        var target = BuildTarget.StandaloneWindows;
+        string appName = "LastLink.exe";
+        #elif UNITY_EDITOR_OSX
+        var target = BuildTarget.StandaloneOSX;
+        string appName = "LastLink.app";
+        #else
+        var target = BuildTarget.StandaloneWindows;
+        string appName = "LastLink.exe";
+        #endif
+        
+        EditorUserBuildSettings.SwitchActiveBuildTarget(NamedBuildTarget.Standalone, target);
         BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions
         {
             scenes = pathToScenes.ToArray(),
-            locationPathName = $"Builds/Clients/V {DateTime.Now:dd_MM}-{DateTime.Now:hh_mm}/soph.exe",
-            target = BuildTarget.StandaloneWindows64,
+            locationPathName = $"Builds/Clients/V {DateTime.Now:dd_MM}-{DateTime.Now:hh_mm}/{appName}",
+            target = target,
             subtarget = (int)StandaloneBuildSubtarget.Player
         };
         var report = BuildPipeline.BuildPlayer(buildPlayerOptions);

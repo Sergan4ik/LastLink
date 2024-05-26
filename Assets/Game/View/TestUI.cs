@@ -114,7 +114,7 @@ namespace Game
         private void SetupGameConnection()
         {
             connections += startTestBattle.Subscribe(() =>
-                GameSession.instance.StartLobby(() => GameSession.instance.GetTestModel()));
+                GameSession.instance.StartGameLocal(GameSession.instance.GetTestModel()));
             connections += startHost.Subscribe(() =>
             {
                 GameSession.instance.StartHost(portToHostValue, useRelayToggle.isOn, localPlayToggle.isOn,
