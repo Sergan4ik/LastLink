@@ -1,20 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Amazon;
-using Amazon.CognitoIdentity;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.Model;
-using Amazon.Runtime;
 using GameKit.Unity.UnityNetork;
 using Unity.Networking.Transport;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
-using ZergRush;
 using ZergRush.ReactiveCore;
 using ZeroLag.MultiplayerTools.Modules.Authentication;
 using ZeroLag.MultiplayerTools.Modules.Database;
@@ -32,8 +23,11 @@ namespace Game.GameCore.GameControllers
         [HideInInspector]
         public UnityNetworkServer serverTransport;
         
-        public AWSCognitoAuthentication awsAuth;
-        public Cell<BaseAccessToken> accessToken = new Cell<BaseAccessToken>();
+        public IAuthenticator authenticator;
+        public Cell<IUserSession> userSession;
+        public ICell<bool> loggedIn => userSession.Map(s => s != null);
+        
+        public ICell<bool> canHostOrJoin => loggedIn;
         
         public DynamoDBPlayerDatabase<RTSPlayerData, RTSPlayerCustomData> playerDatabase;
         private void Awake()
@@ -140,10 +134,12 @@ namespace Game.GameCore.GameControllers
             return game;
         }
 
-        public async void StartClient(string ip, ushort port, BaseAccessToken token, string joinCode)
+        public async void StartClient(string ip, ushort port, string joinCode)
         {
-            long playerId = await GetPlayerId(token);
-            StartClient(ip, port, playerId, joinCode);
+            if (canHostOrJoin.value == false)
+                return;
+            
+            StartClient(ip, port, await userSession.value.GetPlayerId(), joinCode);
         }
         
         public async void StartClient(string ip, ushort port, long playerID, string joinCode)
@@ -191,10 +187,12 @@ namespace Game.GameCore.GameControllers
                 await Task.Yield();
         }
 
-        public async void StartHost(ushort port, bool useRelay, bool localPlay, BaseAccessToken token)
+        public async void StartHost(ushort port, bool useRelay, bool localPlay)
         {
-            long playerId = await GetPlayerId(token);
-            StartHost(port, useRelay, localPlay, playerId);
+            if (canHostOrJoin.value == false)
+                return;
+            
+            StartHost(port, useRelay, localPlay, await userSession.value.GetPlayerId());
         }
         
         public async void StartHost(ushort port, bool useRelay, bool localPlay, long playerId)
@@ -268,10 +266,6 @@ namespace Game.GameCore.GameControllers
             clientController?.WriteLocalAndSendCommand(cmd);
         }
 
-        public async Task<long> GetPlayerId(BaseAccessToken token)
-        {
-            return (await awsAuth.GetUser<AWSUserData>(token)).playerId;
-        }
         public void InitAWS()
         {
             playerDatabase = new DynamoDBPlayerDatabase<RTSPlayerData, RTSPlayerCustomData>( 
@@ -280,12 +274,18 @@ namespace Game.GameCore.GameControllers
                 RegionEndpoint.EUNorth1,
                 "LastLink");
             
-            awsAuth = new AWSCognitoAuthentication(
+            authenticator = new AWSCognitoAuthentication(
                 "AKIA3FLD46EXFWUY7LML",
                 "WfKLs8dapD+a4riQ0bL4k3KQxeHolUk/LnXwnbYi",
                 RegionEndpoint.EUNorth1,
                 "2v2a3bign3dt6khd2npuboprq5");
 
+        }
+
+        public async Task<IUserSession> Login(string username, string password)
+        {
+            userSession.value = await authenticator.Login(username, password);
+            return userSession.value;
         }
     }
 }

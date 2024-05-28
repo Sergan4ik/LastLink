@@ -36,9 +36,6 @@ namespace Game
         public Toggle localPlayToggle;
         public Toggle useRelayToggle;
         
-        public bool autoStartHost = false;
-        public bool autoStartClient = false;
-        
         public ushort portToHostValue => ushort.TryParse(portToHost.text, out var result) ? result : (ushort)7777;
         public ushort portToConnectValue => ushort.TryParse(portToConnect.text, out var result) ? result : (ushort)7777;
         public string ipToConnectValue => ipToConnect.text.IsNullOrEmpty() ? "127.0.0.1" : ipToConnect.text;
@@ -46,11 +43,6 @@ namespace Game
 
         public void Start()
         {
-#if !UNITY_EDITOR
-            autoStartHost = false;
-            autoStartClient = false;
-#endif
-
             avatarDropdown.ClearOptions();
             avatarDropdown.AddOptions(Tools.GetPlayerAvatars()
                 .Select(s => new TMP_Dropdown.OptionData(s.name, s, Color.white)).ToList());
@@ -58,50 +50,27 @@ namespace Game
 
             SetupGameConnection();
             SetupAuthentication();
-            
-            if (autoStartHost)
-            {
-                GameSession.instance.StartHost(portToHostValue, localPlayToggle.isOn, useRelayToggle.isOn, GameSession.instance.accessToken.value);
-            }
-            else if (autoStartClient)
-            {
-                GameSession.instance.StartClient(ipToConnectValue, portToConnectValue, int.Parse(username.text),
-                    joinCode.text);
-            }
         }
 
         private void SetupAuthentication()
         {
             connections += loginButton.Subscribe(async () =>
             {
-                GameSession.instance.accessToken.value = await GameSession.instance.awsAuth.Authenticate(
-                    new BaseCredentials()
-                    {
-                        userId = username.text,
-                        password = password.text
-                    });
-
-                Debug.Log($"Logged in: {GameSession.instance.accessToken.value.token}");
+                await GameSession.instance.Login(username.text, password.text);
+                Debug.Log($"Logged in: {GameSession.instance.userSession.value.userId}");
             });
 
             connections += registerButton.Subscribe(async () =>
             {
-                await GameSession.instance.awsAuth.Register(new BaseSignUpCredentials()
+                var result = await GameSession.instance.authenticator.RegisterAndLogin(username.text, password.text);
+                long playerId = await GameSession.instance.playerDatabase.client.GetNextPlayerId(AWS_CONFIG.PLAYER_DATA_TABLE_NAME);
+                await result.SetKeyValue("playerId", playerId.ToString());
+                
+                Debug.Log($"Registered player: {result.userId}, id {playerId}");
+                await GameSession.instance.playerDatabase.AddPlayer(playerId, new RTSPlayerData()
                 {
-                    userId = username.text,
-                    password = password.text,
-                    playerId = await GameSession.instance.awsAuth.GetNextPlayerId(
-                        GameSession.instance.playerDatabase.client, AWS_CONFIG.PLAYER_DATA_TABLE_NAME)
-                });
-            });
-
-            connections += GameSession.instance.awsAuth.onRegisteredPlayer.Subscribe(async p =>
-            {
-                Debug.Log($"Registered player: {p.userId}, id {p.playerId}");
-                await GameSession.instance.playerDatabase.AddPlayer(p.playerId, new RTSPlayerData()
-                {
-                    playerId = p.playerId,
-                    username = p.userId,
+                    playerId = playerId,
+                    username = result.userId,
                     customData = new RTSPlayerCustomData()
                     {
                         level = 1,
@@ -117,20 +86,18 @@ namespace Game
                 GameSession.instance.StartGameLocal(GameSession.instance.GetTestModel()));
             connections += startHost.Subscribe(() =>
             {
-                GameSession.instance.StartHost(portToHostValue, useRelayToggle.isOn, localPlayToggle.isOn,
-                    GameSession.instance.accessToken.value);
+                GameSession.instance.StartHost(portToHostValue, useRelayToggle.isOn, localPlayToggle.isOn);
             });
             connections += startClient.Subscribe(async () =>
             {
-                GameSession.instance.StartClient(ipToConnectValue, portToConnectValue,
-                    GameSession.instance.accessToken.value, joinCode.text);
-            });
-            connections += GameSession.instance.accessToken.Bind(t =>
-            {
-                startHost.interactable = t != null;
-                startClient.interactable = t != null;
+                GameSession.instance.StartClient(ipToConnectValue, portToConnectValue, joinCode.text);
             });
 
+            connections += GameSession.instance.canHostOrJoin.Bind(t =>
+            {
+                startHost.interactable = t;
+                startClient.interactable = t;
+            });
         }
     }
 }

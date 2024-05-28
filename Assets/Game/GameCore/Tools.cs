@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using ZergRush.ReactiveCore;
+using ZeroLag.MultiplayerTools.Modules.Authentication;
 
 namespace Game.GameCore
 {
@@ -73,6 +75,11 @@ namespace Game.GameCore
                 stateButton.Setup(onChange, stateCell);
 
             return stateButton;
+        }
+        
+        public static async Task<long> GetPlayerId(this IUserSession session)
+        {
+            return (await session.GetKeyValue("playerId")).ParseInt();
         }
     }
 }
