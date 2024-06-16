@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using Amazon;
-using Amazon.DynamoDBv2.DocumentModel;
+using System.Text;
+using System.Threading.Tasks;
 using Game.GameCore;
 using Game.GameCore.GameControllers;
+using Newtonsoft.Json;
+using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -41,6 +44,9 @@ namespace Game
         public string ipToConnectValue => ipToConnect.text.IsNullOrEmpty() ? "127.0.0.1" : ipToConnect.text;
 
 
+        // 0 - login, 1 - logging in, 2 - logout
+        private StateButton loginState;
+        
         public void Start()
         {
             avatarDropdown.ClearOptions();
@@ -50,14 +56,49 @@ namespace Game
 
             SetupGameConnection();
             SetupAuthentication();
+            
+            username.text = PlayerPrefs.GetString("username");
+            password.text = PlayerPrefs.GetString("password");
         }
 
         private void SetupAuthentication()
         {
+            loginState = loginButton.SetupButtonStates((b, label, i) =>
+            {
+                b.interactable = true;
+                if (i == 0)
+                {
+                    label.text = "Login";
+                }
+                else if (i == 1)
+                {
+                    b.interactable = false;
+                    label.text = "Logging in...";
+                }
+                else if (i == 2)
+                {
+                    label.text = "Logout";
+                }
+            }, loginButton.GetComponentInChildren<TextMeshProUGUI>());
+            
             connections += loginButton.Subscribe(async () =>
             {
-                await GameSession.instance.Login(username.text, password.text);
-                Debug.Log($"Logged in: {GameSession.instance.userSession.value.userId}");
+                if (loginState.state == 2)
+                {
+                    await loginState.HoldStateUntilTaskDone(GameSession.instance.Logout(), 1, 0);
+                    return;
+                }
+                if (loginState.state == 0)
+                {
+                    var res = await loginState.HoldStateUntilTaskDone(GameSession.instance.Login(username.text, password.text), 1,
+                        session => session == null ? 0 : 2);
+                    if (res != null)
+                    {
+                        PlayerPrefs.SetString("username", username.text);
+                        PlayerPrefs.SetString("password", password.text);
+                    }
+                }
+
             });
 
             connections += registerButton.Subscribe(async () =>

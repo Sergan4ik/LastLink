@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using ZergRush;
+using ZergRush.Alive;
 using ZergRush.CodeGen;
 
 namespace Game.GameCore

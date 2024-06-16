@@ -45,6 +45,10 @@ namespace Game.GameCore
         
     }
 
+    public partial class SpawnRandomUnitCommand : RTSCommand
+    {
+    }
+    
     [GenTask(GenTaskFlags.PolymorphicDataPack), GenInLocalFolder]
     public partial class RTSCommand : ZeroLagCommand
     {

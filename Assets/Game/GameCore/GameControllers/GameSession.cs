@@ -284,8 +284,31 @@ namespace Game.GameCore.GameControllers
 
         public async Task<IUserSession> Login(string username, string password)
         {
-            userSession.value = await authenticator.Login(username, password);
+            try
+            {
+                userSession.value = await authenticator.Login(username, password);
+            }
+            catch (Exception e)
+            {
+                userSession.value = null;
+                Debug.LogError($"Error: {e.Message}");
+            }
             return userSession.value;
+        }
+        
+        public async Task Logout()
+        {
+            if (userSession.value == null)
+                return;
+            try
+            {
+                await userSession.value.Logout();
+                userSession.value = null;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error: {e.Message}");
+            }
         }
     }
 }

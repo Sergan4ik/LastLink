@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Game.NodeArchitecture;
 using UnityEngine;
@@ -260,6 +261,9 @@ namespace Game.GameCore
                     case StartGameCommand startGameCommand:
                         GameStart();
                         break;
+                    case SpawnRandomUnitCommand spawnRandomUnitCommand:
+                        SpawnRandomUnit(spawnRandomUnitCommand);
+                        break;
                     default:
                         throw new NotImplementedException();
                 }
@@ -267,6 +271,14 @@ namespace Game.GameCore
             
             Tick(FrameTime);
             step++;
+        }
+
+        private void SpawnRandomUnit(SpawnRandomUnitCommand spawnRandomUnitCommand)
+        {
+            var faction = factions[random.Range(0, factions.Count)];
+            var unitConfig = GameConfig.Instance.units[random.Range(0, GameConfig.Instance.units.Count)];
+            var unit = CreateUnit(faction.slot, unitConfig, 0);
+            unit.transform.position = new Vector3(random.Range(-10, 10), 0, random.Range(-10, 10));
         }
 
         public void ConnectPlayer(ConnectCommand connectCommand)
@@ -287,6 +299,18 @@ namespace Game.GameCore
         public bool IsPlayerCreated(long playerId)
         {
             return controlData.Any(c => c.globalPlayerId == playerId);
+        }
+        
+        [GenIgnore] private ZRBinaryWriter writer;
+        [GenIgnore] private MemoryStream stream;
+        public long GetModelSize()
+        {
+            stream ??= new MemoryStream();
+            stream.Seek(0, SeekOrigin.Begin);
+            writer = new ZRBinaryWriter(stream);
+            
+            this.Serialize(writer);
+            return writer.BaseStream.Length;
         }
     }
 
