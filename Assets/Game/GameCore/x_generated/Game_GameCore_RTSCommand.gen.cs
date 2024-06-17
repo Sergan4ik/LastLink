@@ -17,6 +17,7 @@ namespace Game.GameCore {
             ConnectCommand = 5,
             InputCommand = 2,
             LogCommand = 3,
+            MoveRandomUnitCommand = 10,
             SetReadyCommand = 7,
             SpawnRandomUnitCommand = 9,
             StartGameCommand = 4,
@@ -33,6 +34,7 @@ namespace Game.GameCore {
             () => new Game.GameCore.SetReadyCommand(), // 7
             () => new Game.GameCore.UpdateLobbyPlayerCommand(), // 8
             () => new Game.GameCore.SpawnRandomUnitCommand(), // 9
+            () => new Game.GameCore.MoveRandomUnitCommand(), // 10
         };
         public static RTSCommand CreatePolymorphic(System.UInt16 typeId) {
             return polymorphConstructors[typeId]();

@@ -1,11 +1,14 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Amazon;
 using GameKit.Unity.UnityNetork;
 using Unity.Networking.Transport;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using ZergRush;
 using ZergRush.ReactiveCore;
 using ZeroLag.MultiplayerTools.Modules.Authentication;
 using ZeroLag.MultiplayerTools.Modules.Database;
@@ -30,6 +33,10 @@ namespace Game.GameCore.GameControllers
         public ICell<bool> canHostOrJoin => loggedIn;
         
         public DynamoDBPlayerDatabase<RTSPlayerData, RTSPlayerCustomData> playerDatabase;
+        
+        public List<PredictionRollbackClientMultiplayerController<GameModel>> debugClients = new List<PredictionRollbackClientMultiplayerController<GameModel>>();
+        public List<UnityNetworkClient> debugClientTransports = new List<UnityNetworkClient>();
+        
         private void Awake()
         {
             if (instance != null)
@@ -53,12 +60,18 @@ namespace Game.GameCore.GameControllers
         {
             serverController?.UpdateBattleSimulation();
             clientController?.UnityUpdate(Time.deltaTime);
+            
+            foreach (var client in debugClients)
+                client.UnityUpdate(Time.deltaTime);
         }
 
         private void OnApplicationQuit()
         {
             clientController?.Dispose();
             serverController?.Dispose();
+            
+            foreach (var client in debugClients)
+                client.Dispose();
             
             GameConfig.Instance.Save();
         }
@@ -125,11 +138,11 @@ namespace Game.GameCore.GameControllers
             game.units[3].transform.position = new Vector3(3, 0, 3);
             game.units[4].transform.position = new Vector3(6, 0, 0);
             
-            game.units[5].transform.position = new Vector3(10, 0, 10);
-            game.units[6].transform.position = new Vector3(13, 0, 10);
-            game.units[7].transform.position = new Vector3(10, 0, 13);
-            game.units[8].transform.position = new Vector3(13, 0, 13);
-            game.units[9].transform.position = new Vector3(16, 0, 10);
+            game.units[5].transform.position = new Vector3(20, 0, 20);
+            game.units[6].transform.position = new Vector3(23, 0, 20);
+            game.units[7].transform.position = new Vector3(20, 0, 23);
+            game.units[8].transform.position = new Vector3(23, 0, 23);
+            game.units[9].transform.position = new Vector3(26, 0, 20);
 
             return game;
         }
@@ -141,6 +154,55 @@ namespace Game.GameCore.GameControllers
             
             StartClient(ip, port, await userSession.value.GetPlayerId(), joinCode);
         }
+
+        public async Task<PredictionRollbackClientMultiplayerController<GameModel>> AddDebugClient(string ip, ushort port, long playerID, string joinCode = "######")
+        {
+            GameObject transportClientGM = new GameObject($"[Client_Debug({debugClientTransports.Count})]");
+            transportClientGM.AddComponent<UnityNetworkClient>();
+            var transport = transportClientGM.GetComponent<UnityNetworkClient>();
+            DontDestroyOnLoad(transportClientGM);
+
+            if (joinCode is "######" or "")
+            {
+                if (NetworkEndpoint.TryParse(ip, port, out var endpoint, NetworkFamily.Ipv4) == false)
+                {
+                    Debug.LogError($"Can't parse endpoint {ip}:{port}");
+                }
+
+                await transport.ConnectToServer(endpoint, playerID);
+            }
+            else
+            {
+                await transport.ConnectToServerWithRelay(playerID, joinCode);
+            }
+            debugClientTransports.Add(transport);
+            
+            var controller = new PredictionRollbackClientMultiplayerController<GameModel>();
+
+            var multiplayerTransportClient = new MultiplayerTransportClient();
+            multiplayerTransportClient.sendToChannel += transport.SendToChannel;
+            multiplayerTransportClient.listenToChannel += transport.ListenToChannel;
+                
+            await InitAndWaitController(controller, multiplayerTransportClient);
+            
+            debugClients.Add(controller);
+            
+            StartCoroutine(DebugClientRoutine(controller, 0.25f));
+            return controller;
+        }
+        
+        public IEnumerator DebugClientRoutine(PredictionRollbackClientMultiplayerController<GameModel> controller, float delay)
+        {
+            var debugClientRoutine = new WaitForSeconds(delay);
+            while (controller != null)
+            {
+                controller.WriteLocalAndSendCommand(new MoveRandomUnitCommand()
+                {
+                    seed = ZergRandom.global.Next()
+                });
+                yield return debugClientRoutine;
+            }
+        } 
         
         public async void StartClient(string ip, ushort port, long playerID, string joinCode)
         {
@@ -174,16 +236,16 @@ namespace Game.GameCore.GameControllers
             multiplayerTransportClient.sendToChannel += clientTransport.SendToChannel;
             multiplayerTransportClient.listenToChannel += clientTransport.ListenToChannel;
                 
-            await InitAndWaitController(multiplayerTransportClient);
+            await InitAndWaitController(clientController, multiplayerTransportClient);
 
             await StartLobby(() => clientController.currentModel);
         }
 
-        public async Task InitAndWaitController(MultiplayerTransportClient multiplayerTransportClient)
+        public async Task InitAndWaitController(PredictionRollbackClientMultiplayerController<GameModel> controller, MultiplayerTransportClient multiplayerTransportClient)
         {
-            clientController.Init(multiplayerTransportClient, GetModelDelegate(), GameModel.FrameTimeMS);
+            controller.Init(multiplayerTransportClient, GetModelDelegate(), GameModel.FrameTimeMS);
 
-            while (clientController.state != ControllerStatus.Normal)
+            while (controller.state != ControllerStatus.Normal)
                 await Task.Yield();
         }
 
@@ -233,7 +295,7 @@ namespace Game.GameCore.GameControllers
                 var localClientTransport = localConnectFactory.Invoke(playerId);
                 clientController = new PredictionRollbackClientMultiplayerController<GameModel>();
 
-                await InitAndWaitController(localClientTransport);
+                await InitAndWaitController(clientController, localClientTransport);
 
                 await StartLobby(() => clientController.currentModel);
             }

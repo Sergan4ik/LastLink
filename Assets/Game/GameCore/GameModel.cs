@@ -264,6 +264,12 @@ namespace Game.GameCore
                     case SpawnRandomUnitCommand spawnRandomUnitCommand:
                         SpawnRandomUnit(spawnRandomUnitCommand);
                         break;
+                    case MoveRandomUnitCommand moveRandomUnitCommand:
+                        MoveRandomUnit(moveRandomUnitCommand);
+                        break;
+                    case DeleteLastUnitCommand deleteLastUnitCommand:
+                        DeleteLast(deleteLastUnitCommand);
+                        break;
                     default:
                         throw new NotImplementedException();
                 }
@@ -273,26 +279,57 @@ namespace Game.GameCore
             step++;
         }
 
+        private void DeleteLast(DeleteLastUnitCommand deleteLastUnitCommand)
+        {
+            units.RemoveLast();
+        }
+
+        private void MoveRandomUnit(MoveRandomUnitCommand moveRandomUnitCommand)
+        {
+            var faction = GetFactionByServerPlayerId(moveRandomUnitCommand.serverPlayerId);
+            var unit = units.RandomElement(random);
+            unit.MoveTo(this, new RTSInput
+            {
+                inputType = RTSInputType.Move,
+                targetData = new TargetData
+                {
+                    targetId = -1,
+                    sourceIds = new List<int> {unit.id},
+                    worldPosition = new Vector3(random.Range(5, 65), 0, random.Range(5, 65))
+                }
+            });
+        }
+
         private void SpawnRandomUnit(SpawnRandomUnitCommand spawnRandomUnitCommand)
         {
-            var faction = factions[random.Range(0, factions.Count)];
+            var faction = GetFactionByServerPlayerId(spawnRandomUnitCommand.serverPlayerId);
             var unitConfig = GameConfig.Instance.units[random.Range(0, GameConfig.Instance.units.Count)];
             var unit = CreateUnit(faction.slot, unitConfig, 0);
-            unit.transform.position = new Vector3(random.Range(-10, 10), 0, random.Range(-10, 10));
+
+            float maxRadius = 5;
+            Vector3 circleCenter = new Vector3(faction.slot == FactionSlot.Player1 ? 0 : 20, 0, faction.slot == FactionSlot.Player1 ? 20 : 0);
+            float angle = random.Range(0, Mathf.PI * 2);
+            float radius = random.Range(0, maxRadius);
+            Vector3 spawnPosition = circleCenter + new Vector3(Mathf.Cos(angle) * radius, 0, Mathf.Sin(angle) * radius);
+            unit.transform.position = spawnPosition;
         }
 
         public void ConnectPlayer(ConnectCommand connectCommand)
         {
+            /*
             if (factions.Count < controlData.Count + 1)
             {
                 Debug.LogError($"This map supports only {factions.Count} players");
                 return;
             }
+            */
+
+            var factionSlot = (FactionSlot)(controlData.Count % (factions.Count + 1));
             controlData.Add(new ControlData()
             {
                 serverPlayerId = connectCommand.serverPlayerId,
                 globalPlayerId = connectCommand.globalPlayerId,
-                factionSlot = (FactionSlot)controlData.Count
+                factionSlot = factionSlot
             });
         }
 

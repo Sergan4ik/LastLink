@@ -49,6 +49,15 @@ namespace Game.GameCore
     {
     }
     
+    public partial class DeleteLastUnitCommand : RTSCommand
+    {
+    }
+    
+    public partial class MoveRandomUnitCommand : RTSCommand
+    {
+        public int seed;
+    }
+    
     [GenTask(GenTaskFlags.PolymorphicDataPack), GenInLocalFolder]
     public partial class RTSCommand : ZeroLagCommand
     {

@@ -62,12 +62,13 @@ namespace Game.GameCore
 
 
             Vector3 direction = (cachedWaypoints[currentWaypoint] - owner.transform.position).normalized;
-            while (currentWaypoint < cachedWaypoints.Length && direction.sqrMagnitude < 0.9f)
+            while (currentWaypoint < cachedWaypoints.Length - 1 && direction.sqrMagnitude < 0.9f)
             {
                 direction = (cachedWaypoints[++currentWaypoint] - owner.transform.position).normalized;
             }
 
-            Quaternion lookRotation = UnityEngine.Quaternion.LookRotation(new Vector3(direction.x, 0 , direction.z));
+            
+            Quaternion lookRotation = direction.WithY(0).sqrMagnitude > 0.01f ? Quaternion.LookRotation(new Vector3(direction.x, 0 , direction.z)) : owner.transform.rotation;
 
             if (owner.transform.rotation != lookRotation)
             {
