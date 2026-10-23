@@ -13,6 +13,7 @@ namespace Game
         
         public TextMeshProUGUI currentModelSize;
         public TextMeshProUGUI connectedClients;
+        public TextMeshProUGUI lastSimulationTime;
         
         private RTSTimerStatic timer;
 
@@ -37,14 +38,17 @@ namespace Game
                 currentModelSize.text = $"Model: {game.GetModelSize()} bytes";
             }
 
+            bool ctrl = Keyboard.current.leftCtrlKey.isPressed || Keyboard.current.rightCtrlKey.isPressed;
             if (Keyboard.current.f10Key.wasPressedThisFrame)
             {
-                gameSession.SendRTSCommand(new SpawnRandomUnitCommand());
+                for(int i = 0; i < (ctrl ? 10 : 1); ++i)
+                    gameSession.SendRTSCommand(new SpawnRandomUnitCommand());
             }
             
             if (Keyboard.current.f11Key.wasPressedThisFrame)
             {
-                gameSession.SendRTSCommand(new DeleteLastUnitCommand());
+                for(int i = 0; i < (ctrl ? 10 : 1); ++i)
+                    gameSession.SendRTSCommand(new DeleteLastUnitCommand());
             }
             
             if (Keyboard.current.f2Key.wasPressedThisFrame)
@@ -57,8 +61,9 @@ namespace Game
                 MakeDebugClient();
             }
             
-            
             connectedClients.text = $"Connected clients: {game.controlData.Count}";
+            if (gameSession.clientController != null)
+                lastSimulationTime.text = $"Last simulation time: {gameSession.clientController.simulation.lastStepTime} ms";
         }
 
         private async void MakeDebugClient()

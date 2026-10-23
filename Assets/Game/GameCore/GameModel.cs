@@ -347,7 +347,7 @@ namespace Game.GameCore
             writer = new ZRBinaryWriter(stream);
             
             this.Serialize(writer);
-            return writer.BaseStream.Length;
+            return writer.BaseStream.Position;
         }
     }
 
